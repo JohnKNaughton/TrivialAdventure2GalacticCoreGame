@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A Trivial Adventure to the Galactic Core</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+    <section id="intro-terminal" class="view">
+        <div id="scroll-wrapper">
+            <p class="crawl-text">
+                In 2030, Scientists figure out how to refine quantum energy 
+                from interstellar asteroids using pure trivia knowledge. <br><br>
+                You board the final ship escaping the solar system, welcome to...
+            </p>
+        </div>
+    </section>
+
+    <section id="menu-screen" class="view hidden">
+    <h1 class="glow-text">A TRIVIAL ADVENTURE</h1>
+    <h2 class="glow-text">TO THE GALACTIC CORE</h2>
+    
+    <div class="menu-options">
+        <button onclick="gameState.showCharacterSelect()">Begin Fresh Adventure!</button>
+        <button onclick="gameState.viewLeaderboard()">GALACTIC Hall of Fame- Now Live!</button>
+    </div>
+
+    <div id="info-panel">
+        <div class="info-box">
+            <h3>MISSION LOG</h3>
+            <p>
+                In 2030, Scientists figure out how to refine quantum energy 
+                from interstellar asteroids using pure trivia knowledge. You board the final ship escaping the solar system. 
+                Welcome to a trivia adventure roguelite. Special thanks to Brady Lassegard and Rob Fers for passionate playtesting!
+            </p>
+        </div>
+        <div class="info-box">
+            <h3>OPERATIONAL RULES</h3>
+            <p>
+                Each jump forward consumes 5 trivium and 5 food, running out of either results in systems faliure and ends the run. Choose categories to harvest their corresponding resources. Defeat the 3rd boss, in the Galactic Core, to win the game and record your final Trivium count in the Hall of Fame. Cheating is okay... if you learn!!! Photos from NASA Webb telescope 
+                
+            </p>
+        </div>
+        <div id="debug-controls" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 100;">
+    <button onclick="gameState.debugJumpToBoss()" style="background: #ff4444; color: white; padding: 10px; border: none; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
+        Version .5 <br> DEBUG: JUMP TO BOSS 3
+    </button>
+</div>
+    </div>
+</section>
+
+    <section id="char-screen" class="view hidden">
+    <h2 class="glow-text">SELECT YOUR PILOT</h2>
+    <div class="character-container">
+        <div class="char-card" onclick="gameState.selectCharacter('latke')">
+            <div class="sprite-placeholder latke-sprite"></div>
+            <h3>LATKE (The Dog)</h3>
+            <p>Resourceful and Loyal.</p>
+            <ul>
+                <li>Food: 20</li>
+                <li>Trivium: 12</li>
+                <li>Credits: 0</li>
+            </ul>
+        </div>
+
+        <div class="char-card" onclick="gameState.selectCharacter('glenn')">
+            <div class="sprite-placeholder glenn-sprite"></div>
+            <h3>GLENN (The Human)</h3>
+            <p>A Trivial Scholar.</p>
+            <ul>
+                <li>Food: 12</li>
+                <li>Trivium: 10</li>
+                <li>Credits: 10</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<section id="shop-screen" class="view hidden">
+    <h2 class="glow-text">INTERSTELLAR OUTPOST</h2>
+    <div id="shopkeeper-area">
+        <div id="shopkeeper-gif"></div> 
+        <p class="shop-dialogue">"Credits are good, but survival is better. What'll it be?"</p>
+    </div>
+    
+    <div id="shop-offers">
+    </div>
+    <button class="menu-btn" onclick="gameState.closeShop()">RESUME MISSION</button>
+</section>
+    
+</section>
+<section id="tavern-screen" class="view hidden">
+    <h2 class="glow-text">THE COMET TAVERN</h2>
+    <div id="shopkeeper-area">
+        <div id="tavern-keeper-gif"></div> <p>"The sector's getting dangerous, dangerous to go alone. These talented drifters could make excellent crew members."</p>
+    </div>
+    <div id="buddy-offers"></div>
+    <button class="menu-btn" onclick="gameState.closeTavern()">CONTINUE MISSION</button>
+</section>
+<section id="game-screen" class="view hidden">
+    <div id="hud">
+        <div id="resource-hud">
+    <div class="stat-row">
+        <span>Stockpiled FOOD:<span id="food-stat">0</span></span>|
+        <span>TRIVIUM:<span id="trivium-stat">0</span></span>|
+        <span>CREDITS:<span id="credits-stat">0</span></span>
+    </div>
+
+    <div id="jump-cost-row">
+    JUMP COST: 
+    <span id="food-cost" class="cost-val">-5 FOOD</span> | 
+    <span id="trivium-cost" class="cost-val">-5 TRIVIUM</span> |
+    <span id="credit-gain" style="color: #00f2ff;">+0 CREDITS</span>
+</div>
+</div>
+        <div id="stage-counter">
+    SECTOR: <span id="current-sector">SOL</span><br> 
+    STAGE: <span id="current-stage">1</span>/10
+</div>
+        <button id="quit-btn" onclick="gameState.returnToMenu()">ABANDON</button>
+    </div>
+    
+
+    <div id="choice-container">
+        <h2>Charging Trivium Jump-Drive ...</h2>
+        <div id="planet-options">
+            </div>
+    </div>
+
+    <div id="trivia-box" class="hidden">
+        <div id="boss-sprite-transfer"></div> 
+        <h3 id="category-label">CATEGORY</h3>
+        <p id="question-text">Scanning for data...</p>
+        <div id="answer-grid"></div>
+    </div>
+
+    <div id="spaceship-floor">
+        <div id="ship-engines">
+            <div class="engine-nozzle"></div>
+            <div class="engine-nozzle"></div>
+        </div>
+        <div id="crew-quarters">
+            <div class="floor-label">CREW QUARTERS</div>
+            <div class="slot-grid">
+                <div class="slot" id="crew-slot-1" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-2" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-3" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-4" data-tooltip="Empty"></div>
+            </div>
+        </div>
+        <div id="pilot-sprite"></div>
+        <div id="module-bays">
+            <div class="floor-label">MODULE BAYS</div>
+            <div class="slot-grid">
+                <div class="slot" id="mod-slot-1" data-tooltip="Empty"></div>
+                <div class="slot" id="mod-slot-2" data-tooltip="Empty"></div>
+                <div class="slot" id="mod-slot-3" data-tooltip="Empty"></div>
+                <div class="slot" id="mod-slot-4" data-tooltip="Empty"></div>
+            </div>
+        </div>
+        <div id="ship-nose"></div>
+    </div>
+</section>
+<section id="boss-ui" class="view hidden">
+    <h2 class="failure-text">GREAT FILTER DETECTED- Pluto the Pufferfish </h2>
+    
+    <div id="boss-sprite-container">
+        <div id="boss-icon"></div>
+    </div>
+
+    <div class="domain-header">
+        <h3>SELECT YOUR DOMAIN</h3>
+        <div id="reroll-container"></div> 
+    </div>
+
+    <div id="boss-category-grid"></div>
+</section>
+   
+</div>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="questionbanks/questionBank.js"></script>
+    <script src="questionbanks/questionBankHard.js"></script>
+    <script src="game.js"></script>
+    <div id="feedback-overlay" class="hidden">
+    <div id="feedback-content">
+        <h2 id="feedback-title"></h2>
+        <div id="feedback-msg"></div> <button id="feedback-close-btn" onclick="gameState.closeFeedback()">CONTINUE</button>
+    </div>
+</div>
+</body>
+</html>
