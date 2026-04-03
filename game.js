@@ -27,7 +27,7 @@ const gameState = {
         2: {
             background: "url('assets/background2.png')",
             bossSprite: "url('assets/boss2-idle.gif')",
-            message: "Sector 2 Clear! Entering the Sector 3: The Galactic Core. The Core is treacherous requires 30 Trivium per Jump, but Trivial Nirvana awaits the brave! You got this! Onward to the core!"
+            message: "Sector 2 Clear! Entering the Sector 3: The Galactic Core. The Core is treacherous requires 25 Trivium per Jump, but Trivial Nirvana awaits the brave! You got this! Onward to the core!"
         },
         3: {
             background: "url('assets/background3.jpg')",
@@ -1007,7 +1007,7 @@ viewLeaderboard: async function() {
 
     getJumpCosts: function() {
         let foodNet = -5;
-        let triviumNet = -(5 * (this.currentSector * (this.currentSector + 1)) / 2);
+        let triviumNet = -({ 1: 5, 2: 15, 3: 25 }[this.currentSector] || 5);
         let creditNet = 0;
         [...this.player.modules, ...this.player.crew].forEach(m => {
             if (!m) return;
