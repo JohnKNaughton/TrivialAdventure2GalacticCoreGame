@@ -51,7 +51,7 @@ var gameEvents = [
                 desc: 'The Library Custodian is a Tardigrade of immense wisdom. He offers to clone one of your buddies, so their effect is doubled for the rest of the run.',
                 reward: {},
                 cost: { food: 5 },
-                costLabel: '-10 Food',
+                costLabel: '-5 Food',
                 specialAction: 'clone_buddy'
             }
         ]
