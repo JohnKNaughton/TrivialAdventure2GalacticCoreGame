@@ -410,6 +410,15 @@ body {
     transform: scale(1.05);
 }
 
+.elite-node {
+    border-color: #ff8c00;
+    background: rgba(255, 140, 0, 0.08);
+}
+
+.elite-node:hover {
+    background: rgba(255, 140, 0, 0.25);
+}
+
 .reward-tag {
     color: #ffde00;
     font-weight: bold;

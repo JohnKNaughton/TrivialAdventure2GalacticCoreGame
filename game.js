@@ -510,7 +510,6 @@ viewLeaderboard: async function() {
     const overlay = document.getElementById('feedback-overlay');
     const msgEl = document.getElementById('feedback-msg');
     const titleEl = document.getElementById('feedback-title');
-    const closeBtn = document.getElementById('feedback-close-btn');
 
     titleEl.innerText = "Galactic Hall of Fame";
     msgEl.innerHTML = "<p style='text-align:center;'>Accessing Galactic Archives...</p>";
@@ -552,6 +551,7 @@ viewLeaderboard: async function() {
 },
 
     generatePlanets: function() {
+        this.updateHUD();
         document.getElementById('current-stage').innerText = this.currentStage;
         document.getElementById('choice-container').classList.remove('hidden');
         document.getElementById('trivia-box').classList.add('hidden');
@@ -564,13 +564,16 @@ viewLeaderboard: async function() {
         }
         const shuffledCats = Object.keys(questionBank).sort(() => 0.5 - Math.random());
 
-        for (let i = 0; i < 3; i++) {
+        const makeNormal = (i) => {
             const cat = shuffledCats[i];
-            const resType = resources[i]; 
+            const resType = resources[i];
             const amount = Math.floor(Math.random() * (14 - 9 + 1) + 9);
-            let nodeName = amount === 14 ? "Planet" : amount === 13 ? "Dwarf Planet" : amount === 12 ? "Moon" : amount === 11 ? "Asteroid" : amount === 10 ? "Trading Beacon" : "Research Habitat";
+            const nodeName = amount === 14 ? "Planet" : amount === 13 ? "Dwarf Planet" : amount === 12 ? "Moon" : amount === 11 ? "Asteroid" : amount === 10 ? "Trading Beacon" : "Research Habitat";
             this.createNodeCard(container, cat, resType, amount, nodeName, false);
-        }
+        };
+
+        makeNormal(0); // Food
+        makeNormal(1); // Trivium
 
         if (this.currentSector >= 2) {
             const hardCats = Object.keys(questionBankHard);
@@ -578,6 +581,8 @@ viewLeaderboard: async function() {
             const eliteAmount = Math.floor(Math.random() * (28 - 18 + 1) + 18);
             this.createNodeCard(container, eliteCat, "Trivium", eliteAmount, "-HARD NODE-", true);
         }
+
+        makeNormal(2); // Credits
     },
 
     createNodeCard: function(container, cat, resType, amount, nodeName, isHard) {
@@ -731,7 +736,10 @@ viewLeaderboard: async function() {
             if (wrong.length > 0) wrong[Math.floor(Math.random() * wrong.length)].style.visibility = "hidden";
         };
         if (this.player.modules.some(m => m?.id === 'gatling_laser')) removeOneWrong();
-        if (this.player.crew.some(m => m?.id === 'terry') && this.terryQuestionCount % 3 === 0) removeOneWrong();
+        if (this.terryQuestionCount % 3 === 0) {
+            const terryCount = this.player.crew.filter(m => m?.id === 'terry').length;
+            for (let i = 0; i < terryCount; i++) removeOneWrong();
+        }
     },
 
     startTrivia: function(category, reward, isHard = false) {
@@ -824,7 +832,10 @@ viewLeaderboard: async function() {
             if (wrong.length > 0) wrong[Math.floor(Math.random() * wrong.length)].style.visibility = "hidden";
         };
         if (this.player.modules.some(m => m?.id === 'gatling_laser')) removeOneWrong();
-        if (this.player.crew.some(m => m?.id === 'terry') && this.terryQuestionCount % 3 === 0) removeOneWrong();
+        if (this.terryQuestionCount % 3 === 0) {
+            const terryCount = this.player.crew.filter(m => m?.id === 'terry').length;
+            for (let i = 0; i < terryCount; i++) removeOneWrong();
+        }
     },
 
     openTavern: function() {
@@ -905,6 +916,13 @@ viewLeaderboard: async function() {
         if (opt.cost) {
             Object.entries(opt.cost).forEach(([res, amt]) => { this.player[res] -= amt; });
         }
+        this.updateHUD();
+
+        if (opt.specialAction === 'clone_buddy') {
+            this.showBuddyClonePicker();
+            return;
+        }
+
         Object.entries(opt.reward).forEach(([res, amt]) => { this.player[res] += amt; });
         this.updateHUD();
 
@@ -914,6 +932,59 @@ viewLeaderboard: async function() {
         this.gameScreen.classList.remove('hidden');
         this.eventJustCompleted = true;
         this.showFeedback(true, `${rewardText}${costText}`, opt.label.toUpperCase());
+    },
+
+    showBuddyClonePicker: function() {
+        const crew = this.player.crew.filter(m => m !== null);
+        const emptySlot = this.player.crew.indexOf(null);
+        const optContainer = document.getElementById('event-options');
+        const titleEl = document.getElementById('event-title');
+        const storyEl = document.getElementById('event-story');
+
+        titleEl.innerText = 'CLONE A CREW MEMBER';
+
+        if (crew.length === 0) {
+            storyEl.innerText = 'The Janitor looks at your empty quarters. "Come back when you have someone worth duplicating," he says.';
+            optContainer.innerHTML = `<button onclick="gameState.finishCloneEvent(null)">LEAVE</button>`;
+            return;
+        }
+        if (emptySlot === -1) {
+            storyEl.innerText = 'Your crew quarters are full — there is no room to house a clone. The Janitor shrugs apologetically.';
+            optContainer.innerHTML = `<button onclick="gameState.finishCloneEvent(null)">LEAVE</button>`;
+            return;
+        }
+
+        storyEl.innerText = 'The Janitor gestures toward a humming cloning pod. "Choose who you wish to duplicate."';
+        optContainer.innerHTML = '';
+        crew.forEach(buddy => {
+            const div = document.createElement('div');
+            div.className = 'event-option';
+            div.innerHTML = `
+                <div style="background-image:url('${buddy.gif}'); width:50px; height:50px; margin:0 auto; background-size:contain; background-repeat:no-repeat;"></div>
+                <h4>${buddy.name}</h4>
+                <p>${buddy.desc}</p>
+                <button onclick="gameState.finishCloneEvent('${buddy.id}')">CLONE</button>
+            `;
+            optContainer.appendChild(div);
+        });
+    },
+
+    finishCloneEvent: function(buddyId) {
+        if (buddyId) {
+            const original = this.buddies.find(b => b.id === buddyId);
+            const emptySlot = this.player.crew.indexOf(null);
+            if (original && emptySlot !== -1) {
+                this.player.crew[emptySlot] = { ...original };
+                this.renderModules();
+            }
+        }
+        document.getElementById('event-screen').classList.add('hidden');
+        this.gameScreen.classList.remove('hidden');
+        this.eventJustCompleted = true;
+        const msg = buddyId
+            ? `A perfect copy steps out of the pod, ready to serve. Your crew quarters now hold two ${this.buddies.find(b => b.id === buddyId)?.name || 'crew members'}.`
+            : 'You leave without a clone.';
+        this.showFeedback(true, msg, 'CLONING COMPLETE');
     },
 
     debugJumpToBoss: function() {

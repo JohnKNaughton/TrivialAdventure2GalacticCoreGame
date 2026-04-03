@@ -48,10 +48,11 @@ var gameEvents = [
             },
             {
                 label: 'Talk to the Janitor',
-                desc: 'The Library Custodian is a Tardigrade of immense power. He offers to join your crew, but one of your own crew must take his place as eternal protector of the Library. (WIP GAME LOGIC FIX)',
-                reward: { credits: 50 },
-                cost: { food: 12 },
-                costLabel: '-12 Food'
+                desc: 'The Library Custodian is a Tardigrade of immense wisdom. He offers to clone one of your buddies, so their effect is doubled for the rest of the run.',
+                reward: {},
+                cost: { food: 5 },
+                costLabel: '-10 Food',
+                specialAction: 'clone_buddy'
             }
         ]
     },
