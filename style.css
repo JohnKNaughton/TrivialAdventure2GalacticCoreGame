@@ -111,7 +111,7 @@ body {
     }
 
     #boss-category-grid {
-        grid-template-columns: repeat(2, 1fr);
+        flex-wrap: wrap;
         width: 95%;
     }
 
@@ -297,16 +297,19 @@ body {
 .slot:hover::after {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: 50px;
+    bottom: 54px;
     left: 50%;
     transform: translateX(-50%);
     background: #000;
     color: #00f2ff;
-    padding: 5px;
+    padding: 6px 8px;
     font-size: 10px;
-    white-space: nowrap;
+    white-space: normal;
+    width: 180px;
+    text-align: center;
     border: 1px solid #00f2ff;
-    z-index: 10;
+    z-index: 200;
+    line-height: 1.4;
 }
 
 .slot.equipped {
@@ -441,6 +444,87 @@ body {
     font-weight: bold;
 }
 
+#rules-btn {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    background: #000;
+    border: 1px solid #00f2ff;
+    color: #00f2ff;
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    padding: 5px 9px;
+    cursor: pointer;
+    z-index: 150;
+    transition: 0.2s;
+}
+
+#rules-btn:hover {
+    background: #00f2ff;
+    color: #000;
+}
+
+#rules-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+}
+
+#rules-content {
+    border: 2px solid #00f2ff;
+    background: rgba(5, 10, 20, 0.98);
+    padding: 30px 40px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
+#rules-content h2 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+}
+
+#rules-body p {
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #a0f9ff;
+}
+
+.rules-heading {
+    color: #00f2ff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#rules-content button {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 30px;
+    background: transparent;
+    border: 1px solid #00f2ff;
+    color: #00f2ff;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#rules-content button:hover {
+    background: #00f2ff;
+    color: #000;
+}
+
 #feedback-overlay {
     position: fixed;
     top: 0;
@@ -464,10 +548,11 @@ body {
     max-width: 90%;
     max-height: 90%;
     overflow-y: auto;
+    font-size: 1.125rem;
 }
 
 #feedback-title {
-    font-size: 2rem;
+    font-size: 2.125rem;
     margin-bottom: 10px;
 }
 
@@ -570,11 +655,11 @@ body {
 }
 
 #boss-category-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, auto);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     gap: 15px;
-    width: 80%;
+    width: 90%;
     margin: 0 auto;
 }
 
@@ -639,6 +724,108 @@ body {
 }
 
 #tavern-screen { text-align: center; }
+
+#shop-resources, #event-resources {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 0.75rem;
+    color: rgba(0, 242, 255, 0.7);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+#shop-resources b, #event-resources b {
+    color: #00f2ff;
+}
+
+#event-screen {
+    text-align: center;
+    padding: 10px 20px;
+    overflow-y: auto;
+    max-height: 560px;
+}
+
+#event-image {
+    width: 100%;
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid rgba(255, 80, 80, 0.4);
+    margin: 10px 0;
+    background-color: rgba(255, 50, 50, 0.05);
+}
+
+#event-story {
+    font-size: 0.9rem;
+    color: #a0f9ff;
+    line-height: 1.6;
+    margin: 10px 20px 15px;
+    text-align: left;
+}
+
+#event-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.event-option {
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #00f2ff;
+    background: rgba(0, 242, 255, 0.05);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.event-option.unaffordable {
+    border-color: #444;
+    opacity: 0.5;
+}
+
+.event-option h4 {
+    margin: 0;
+    color: #00f2ff;
+    font-size: 0.85rem;
+}
+
+.event-option p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #a0f9ff;
+    flex-grow: 1;
+}
+
+.event-option .event-cost {
+    font-size: 0.75rem;
+    color: #ff4444;
+}
+
+.event-option .event-reward {
+    font-size: 0.75rem;
+    color: #00ff88;
+}
+
+.event-option button {
+    background: transparent;
+    border: 1px solid #00f2ff;
+    color: #00f2ff;
+    padding: 8px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+}
+
+.event-option.unaffordable button {
+    border-color: #444;
+    color: #444;
+    cursor: not-allowed;
+}
 
 #buddy-offers {
     display: flex;

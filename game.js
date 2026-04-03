@@ -22,12 +22,12 @@ const gameState = {
         1: {
             background: "url('assets/bg-sector1.jpg')",
             bossSprite: "url('assets/boss1-idle.gif')",
-            message: "Sector 1 Clear! Entering Sector 2: The Milky Way. Denser HARD Trivium asteroids are now availible for harvest. Warning: Interstellar Navigation requires 15 Trivium per Jump."
+            message: "Sector 1 Clear! Entering Sector 2: The Milky Way. Denser HARD Trivium asteroids are now availible for harvest. Warning: Interstellar Navigation requires 15 Trivium per Jump. Also, you're doing great!"
         },
         2: {
             background: "url('assets/background2.png')",
             bossSprite: "url('assets/boss2-idle.gif')",
-            message: "Sector 2 Clear! Entering the Sector 3: The Galactic Core. The Core is treacherous requires 30 Trivium per Jump, but Trivial Nirvana awaits the brave!"
+            message: "Sector 2 Clear! Entering the Sector 3: The Galactic Core. The Core is treacherous requires 30 Trivium per Jump, but Trivial Nirvana awaits the brave! You got this! Onward to the core!"
         },
         3: {
             background: "url('assets/background3.jpg')",
@@ -45,7 +45,8 @@ const gameState = {
         credits: 0,
         type: "",
         modules: [null, null, null, null],
-        crew: [null, null, null, null]
+        crew: [null, null, null, null],
+        usedQuestions: {}
     },
     bgMusic: new Audio('assets/space_music.mp3'),
     musicStarted: false,
@@ -70,18 +71,22 @@ const gameState = {
     ],
 
     shopModules: [
-        { id: 'accumulator', name: "Trivium Amplifier", cost: 15, desc: "Always doubles Trivium rewards.", icon: "✨" },
+        { id: 'accumulator', name: "Trivium Amplifier", cost: 20, desc: "Doubles all Trivium rewards from questions automatically.", icon: "✨" },
         { id: 'laser', name: "Defense Laser", cost: 5, desc: "1-Use: Remove a wrong answer during regular question.", icon: "🔫" },
         { id: 'biosphere', name: "Biosphere", cost: 10, desc: "Produces 4 Food per Jump.", icon: "🌿" },
-        { id: 'content_farm', name: "Content Farm", cost: 12, desc: "+2 Food, +4 Credits, -1 Trivium per Jump.", icon: "🚜" }
+        { id: 'content_farm', name: "Content Farm", cost: 12, desc: "+2 Food, +6 Credits, -1 Trivium per Jump.", icon: "🚜" },
+        { id: 'gatling_laser', name: "Gatling Laser", cost: 60, desc: "Automatically eliminates one wrong answer on every question.", icon: "⚡" }
     ],
 
     buddies: [
         { id: 'octopus', name: "Hydroponic Octopus", desc: "Grows 2 Food per Jump, +1 Food per filled Module Bay.", icon: "🐙", gif: "assets/octopus_idle.gif" },
-        { id: 'aardvark', name: "Arbitrage Aardvark", desc: "Generates 3 Credits for you per Jump.", icon: "🐜", gif: "assets/aardvark_idle.gif" },
+        { id: 'aardvark', name: "Arbitrage Aardvark", desc: "Generates 4 Credits for you per Jump.", icon: "🐜", gif: "assets/aardvark_idle.gif" },
         { id: 'trivia_toad', name: "Trivia Toad", desc: "Consumes 1 Food to produce 4 Trivium per Jump.", icon: "🐸", gif: "assets/toad_idle.gif" },
-        { id: 'bear_bot', name: "Bear Bot", desc: "Produces 1 Food, 1 Trivium, 1 Credit per Jump.", icon: "🧸", gif: "assets/bear_idle.gif" }
+        { id: 'bear_bot', name: "Bear Bot", desc: "Produces 1 Food, 1 Trivium, 1 Credit per Jump.", icon: "🧸", gif: "assets/bear_idle.gif" },
+        { id: 'terry', name: "Terry the Tardigrade", desc: "Eliminates one wrong answer automatically every 3rd question.", icon: "🐾", gif: "assets/terry_idle.gif" }
     ],
+
+    events: gameEvents,
 
     // 2. ELEMENT GETTERS
     get introScreen() { return document.getElementById('intro-terminal'); },
@@ -134,9 +139,9 @@ const gameState = {
             bossIcon.style.backgroundImage = "url('assets/boss1-idle.gif')";
         }
         if (choice === 'latke') {
-            this.player = { name: "Latke", food: 20, trivium: 12, credits: 0, type: "latke", modules: [null, null, null, null], crew: [null, null, null, null] };
+            this.player = { name: "Latke", food: 20, trivium: 16, credits: 0, type: "latke", modules: [null, null, null, null], crew: [null, null, null, null], usedQuestions: {} };
         } else {
-            this.player = { name: "Glenn", food: 12, trivium: 10, credits: 10, type: "glenn", modules: [null, null, null, null], crew: [null, null, null, null] };
+            this.player = { name: "Glenn", food: 12, trivium: 10, credits: 15, type: "glenn", modules: [null, null, null, null], crew: [null, null, null, null], usedQuestions: {} };
         }
         this.enterGame();
     },
@@ -144,7 +149,12 @@ const gameState = {
     enterGame: function() {
         this.charScreen.classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
-        this.currentStage = 1; 
+        this.currentStage = 1;
+        this.usedEventIds = new Set();
+        this.terryQuestionCount = 0;
+        this.correctAnswers = 0;
+        this.wrongAnswers = 0;
+        this.highestStageReached = 1;
         const sprite = document.getElementById('pilot-sprite');
         if (sprite) {
             sprite.className = "";
@@ -158,6 +168,8 @@ const gameState = {
     openShop: function() {
         this.gameScreen.classList.add('hidden');
         this.shopScreen.classList.remove('hidden');
+        document.getElementById('shop-resources').innerHTML =
+            `FOOD: <b>${this.player.food}</b> &nbsp;|&nbsp; TRIVIUM: <b>${this.player.trivium}</b> &nbsp;|&nbsp; CREDITS: <b>${this.player.credits}</b>`;
         
         const availableModules = this.shopModules.filter(mod => 
             !this.player.modules.some(equipped => equipped?.id === mod.id)
@@ -211,12 +223,12 @@ const gameState = {
             this.updateHUD();
             const itemDiv = document.getElementById(`shop-item-${shopIndex}`);
             if (itemDiv) {
-                itemDiv.innerHTML = `<div class="sold-out">SOLD OUT</div>`;
+                itemDiv.innerHTML = `<div class="sold-out">Purchased!</div>`;
                 itemDiv.style.opacity = "0.5";
                 itemDiv.style.borderStyle = "dashed";
             }
         } else if (emptySlot === -1) {
-            alert("No module bay slots available!");
+            this.showFeedback(false, "All module bays are occupied.", "NO SPACE AVAILABLE");
         }
     },
 
@@ -248,7 +260,7 @@ const gameState = {
                 };
                 slot.appendChild(sellBtn);
                 slot.onclick = () => sellBtn.classList.toggle('hidden');
-                slot.setAttribute('data-tooltip', item.name);
+                slot.setAttribute('data-tooltip', `${item.name}: ${item.desc}`);
             } else {
                 slot.classList.remove('equipped');
                 slot.style.backgroundImage = "none";
@@ -287,6 +299,9 @@ const gameState = {
             msgEl.appendChild(expEl);
         }
         titleEl.className = isCorrect ? "success-text" : "failure-text";
+        const isDefeat = this.player.food <= 0 || this.player.trivium <= 0;
+        document.getElementById('feedback-close-btn').classList.toggle('hidden', isDefeat);
+        document.getElementById('feedback-menu-btn').classList.toggle('hidden', !isDefeat);
         overlay.classList.remove('hidden');
     },
 
@@ -295,6 +310,12 @@ const gameState = {
     const bossIcon = document.getElementById('boss-icon');
     if (bossIcon) bossIcon.classList.add('hidden');
 
+    if (this.eventJustCompleted) {
+        this.eventJustCompleted = false;
+        this.generatePlanets();
+        return;
+    }
+
     if (this.player.food <= 0 || this.player.trivium <= 0) {
         this.returnToMenu();
         return;
@@ -302,6 +323,9 @@ const gameState = {
 
     if (this.currentStage === 4) {
         this.openTavern();
+        return;
+    } else if (this.currentStage === 6) {
+        this.openEvent();
         return;
     } else if (this.currentStage === 8) {
         this.openShop();
@@ -382,6 +406,9 @@ const gameState = {
                 <span>Food: ${this.player.food}</span>
                 <span>Trivium: ${this.player.trivium}</span>
                 <span>Credits: ${this.player.credits}</span>
+            </div>
+            <div style="margin-top: 10px; padding: 8px; border: 1px solid rgba(0,242,255,0.3); font-size: 0.85em; color: #a0f9ff;">
+                ${this.getRunStats()}
             </div>
 
             <div style="margin: 15px 0;">
@@ -529,9 +556,13 @@ viewLeaderboard: async function() {
         document.getElementById('choice-container').classList.remove('hidden');
         document.getElementById('trivia-box').classList.add('hidden');
         const container = document.getElementById('planet-options');
-        container.innerHTML = ""; 
+        container.innerHTML = "";
         const resources = ["Food", "Trivium", "Credits"];
-        const shuffledCats = [...this.categories].sort(() => 0.5 - Math.random());
+        if (typeof questionBank === 'undefined' || Object.keys(questionBank).length === 0) {
+            container.innerHTML = '<p style="color:red">ERROR: questionBank not loaded! Keys=' + (typeof questionBank) + '</p>';
+            return;
+        }
+        const shuffledCats = Object.keys(questionBank).sort(() => 0.5 - Math.random());
 
         for (let i = 0; i < 3; i++) {
             const cat = shuffledCats[i];
@@ -582,7 +613,7 @@ viewLeaderboard: async function() {
         const grid = document.getElementById('boss-category-grid');
         grid.innerHTML = "";
         const hardCats = Object.keys(questionBankHard);
-        const shuffled = hardCats.sort(() => 0.5 - Math.random()).slice(0, 6);
+        const shuffled = hardCats.sort(() => 0.5 - Math.random()).slice(0, 4);
         shuffled.forEach(cat => {
             const btn = document.createElement('button');
             btn.className = "category-btn";
@@ -609,6 +640,25 @@ viewLeaderboard: async function() {
         }
     },
 
+    pickQuestion: function(bank, category) {
+        const questions = bank[category];
+        if (!questions || questions.length === 0) {
+            console.warn(`pickQuestion: no questions found for category "${category}"`);
+            return { q: "???", a: ["A", "B", "C", "D"], correct: "A" };
+        }
+        const key = category;
+        if (!this.player.usedQuestions[key]) this.player.usedQuestions[key] = new Set();
+        const used = this.player.usedQuestions[key];
+        // Reset if all questions in this category have been seen
+        if (used.size >= questions.length) used.clear();
+        const available = questions.map((_, i) => i).filter(i => !used.has(i));
+        const idx = available[Math.floor(Math.random() * available.length)];
+        used.add(idx);
+        const q = { ...questions[idx] };
+        q.a = [...q.a].sort(() => Math.random() - 0.5);
+        return q;
+    },
+
     startSuddenDeath: function(category) {
         const bossIcon = document.getElementById('boss-icon');
         const transferContainer = document.getElementById('boss-sprite-transfer');
@@ -620,19 +670,35 @@ viewLeaderboard: async function() {
         bossUI.classList.add('hidden');
         triviaBox.classList.remove('hidden');
 
-        const questions = questionBankHard[category];
-        const qData = questions[Math.floor(Math.random() * questions.length)];
+        const qData = this.pickQuestion(questionBankHard, category);
 
         document.getElementById('category-label').innerText = `CRITICAL: ${category.replace(/_/g, ' ')}`;
         document.getElementById('question-text').innerText = qData.q;
         const grid = document.getElementById('answer-grid');
         grid.innerHTML = "";
-        
+
+        const laserIdx = this.player.modules.findIndex(m => m?.id === 'laser');
+        if (laserIdx !== -1) {
+            const lBtn = document.createElement('button');
+            lBtn.id = "laser-action-btn";
+            lBtn.innerText = "ACTIVATE DEFENSE LASER (1-USE)";
+            lBtn.onclick = () => {
+                const wrong = Array.from(grid.querySelectorAll('button')).filter(b => b.innerText !== qData.correct && b.style.visibility !== "hidden");
+                if (wrong.length > 0) wrong[Math.floor(Math.random()*wrong.length)].style.visibility = "hidden";
+                this.player.modules[laserIdx] = null;
+                this.renderModules();
+                lBtn.remove();
+            };
+            triviaBox.prepend(lBtn);
+        }
+
         qData.a.forEach((opt) => {
             const btn = document.createElement('button');
             btn.innerText = opt;
             btn.onclick = () => {
+                if (document.getElementById('laser-action-btn')) document.getElementById('laser-action-btn').remove();
                 if (opt === qData.correct) {
+                    this.correctAnswers++;
                     if (this.currentSector === 3) {
                         // CLEANUP before victory to prevent blank screen overlap
                         triviaBox.classList.add('hidden');
@@ -640,6 +706,7 @@ viewLeaderboard: async function() {
                     } else {
                         // Normal transition for Sectors 1 and 2
                         this.currentStage++;
+                        this.highestStageReached = Math.max(this.highestStageReached, (this.currentSector - 1) * 10 + this.currentStage);
                         const rewardAmount = Math.floor(Math.random() * (30 - 20 + 1) + 20);
                         this.player.trivium += rewardAmount;
                         this.updateHUD();
@@ -648,25 +715,43 @@ viewLeaderboard: async function() {
                         this.showFeedback(true, `Threat Neutralized! +${rewardAmount} Trivium recovered. Preparing for warp to next sector...`, "CORRECT!", qData.explanation);
                     }
                 } else {
+                    this.wrongAnswers++;
                     this.player.food = 0;
                     this.player.trivium = 0;
                     this.updateHUD();
-                    this.showFeedback(false, "Critical failure. Simulation Reset!", "Mission Failed", qData.explanation);
+                    this.showFeedback(false, `You answered the boss question incorrectly — all resources were lost as a consequence.\n\nThe correct answer was: ${qData.correct}\n\n${this.getRunStats()}`, "BOSS DEFEATED YOU", qData.explanation);
                 }
             };
             grid.appendChild(btn);
         });
-    },
 
-    
+        this.terryQuestionCount++;
+        const removeOneWrong = () => {
+            const wrong = Array.from(grid.querySelectorAll('button')).filter(b => b.innerText !== qData.correct && b.style.visibility !== "hidden");
+            if (wrong.length > 0) wrong[Math.floor(Math.random() * wrong.length)].style.visibility = "hidden";
+        };
+        if (this.player.modules.some(m => m?.id === 'gatling_laser')) removeOneWrong();
+        if (this.player.crew.some(m => m?.id === 'terry') && this.terryQuestionCount % 3 === 0) removeOneWrong();
+    },
 
     startTrivia: function(category, reward, isHard = false) {
         document.getElementById('choice-container').classList.add('hidden');
         const tBox = document.getElementById('trivia-box');
         tBox.classList.remove('hidden');
         const sourceBank = isHard ? questionBankHard : questionBank;
-        const questions = sourceBank[category];
-        const qData = questions[Math.floor(Math.random() * questions.length)];
+        let qData;
+        try {
+            qData = this.pickQuestion(sourceBank, category);
+        } catch(e) {
+            console.error('pickQuestion error:', e);
+            this.showFeedback(false, 'JS Error in pickQuestion: ' + e.message + ' | cat=' + category, 'DEBUG ERROR');
+            return;
+        }
+        if (!qData || !qData.a) {
+            console.error('pickQuestion returned bad data:', qData, 'for category:', category);
+            this.showFeedback(false, 'Bad question data for: ' + category + ' | bank keys: ' + Object.keys(sourceBank).slice(0,3).join(','), 'DEBUG ERROR');
+            return;
+        }
         document.getElementById('category-label').innerText = category.replace(/_/g, ' ');
         document.getElementById('question-text').innerText = qData.q;
         const grid = document.getElementById('answer-grid');
@@ -678,9 +763,9 @@ viewLeaderboard: async function() {
             lBtn.id = "laser-action-btn";
             lBtn.innerText = "ACTIVATE DEFENSE LASER (1-USE)";
             lBtn.onclick = () => {
-                const wrong = Array.from(grid.querySelectorAll('button')).filter(b => b.innerText !== qData.correct);
+                const wrong = Array.from(grid.querySelectorAll('button')).filter(b => b.innerText !== qData.correct && b.style.visibility !== "hidden");
                 if (wrong.length > 0) wrong[Math.floor(Math.random()*wrong.length)].style.visibility = "hidden";
-                this.player.modules[laserIdx] = null; 
+                this.player.modules[laserIdx] = null;
                 this.renderModules();
                 lBtn.remove();
             };
@@ -701,7 +786,12 @@ viewLeaderboard: async function() {
                     bonusText = " (Doubled by Accumulator!)";
                 }
 
-                if (isCorrect) this.player[reward.type.toLowerCase()] += finalVal;
+                if (isCorrect) {
+                    this.correctAnswers++;
+                    this.player[reward.type.toLowerCase()] += finalVal;
+                } else {
+                    this.wrongAnswers++;
+                }
 
                 const { foodNet, triviumNet, creditNet } = this.getJumpCosts();
 
@@ -711,16 +801,30 @@ viewLeaderboard: async function() {
                 this.updateHUD();
 
                 if (this.player.food <= 0 || this.player.trivium <= 0) {
-                    this.showFeedback(false, `You ran out of Resources, and your ship drifts helplessly waiting for rescue. The correct answer was ${qData.correct}. `, "Mission Failed", qData.explanation);
+                    const outOf = this.player.food <= 0 && this.player.trivium <= 0 ? "FOOD and TRIVIUM" : this.player.food <= 0 ? "FOOD" : "TRIVIUM";
+                    const jumpNote = isCorrect
+                        ? `You answered correctly, but the jump cost of ${outOf} drained your last reserves. The ship has no power to continue.`
+                        : `You answered incorrectly. The jump cost then consumed your remaining ${outOf}, leaving nothing to continue.`;
+                    const deathMsg = `${jumpNote}\n\nThe correct answer was: ${qData.correct}\n\n${this.getRunStats()}`;
+                    this.showFeedback(false, deathMsg, `SYSTEMS FAILURE: OUT OF ${outOf}`, qData.explanation);
                 } else {
                     this.currentStage++;
+                    this.highestStageReached = Math.max(this.highestStageReached, (this.currentSector - 1) * 10 + this.currentStage);
                     let msg = isCorrect ? "" : `Incorrect. The correct answer was ${qData.correct}.`;
-                    const title = isCorrect ? `CORRECT! +${finalVal} ${reward.type}${bonusText}` : "DISSIPATED";
+                    const title = isCorrect ? `CORRECT! +${finalVal} ${reward.type}${bonusText}` : "Incorrect";
                     this.showFeedback(isCorrect, msg, title, qData.explanation);
                 }
             };
             grid.appendChild(btn);
         });
+
+        this.terryQuestionCount++;
+        const removeOneWrong = () => {
+            const wrong = Array.from(grid.querySelectorAll('button')).filter(b => b.innerText !== qData.correct && b.style.visibility !== "hidden");
+            if (wrong.length > 0) wrong[Math.floor(Math.random() * wrong.length)].style.visibility = "hidden";
+        };
+        if (this.player.modules.some(m => m?.id === 'gatling_laser')) removeOneWrong();
+        if (this.player.crew.some(m => m?.id === 'terry') && this.terryQuestionCount % 3 === 0) removeOneWrong();
     },
 
     openTavern: function() {
@@ -747,7 +851,7 @@ viewLeaderboard: async function() {
             this.updateHUD();
             this.closeTavern();
         } else {
-            alert("Crew quarters full!");
+            this.showFeedback(false, "All crew quarters are occupied.", "NO SPACE AVAILABLE");
         }
     },
 
@@ -755,6 +859,61 @@ viewLeaderboard: async function() {
         document.getElementById('tavern-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
         this.generatePlanets();
+    },
+
+    openEvent: function() {
+        const available = this.events.filter(e => !this.usedEventIds.has(e.id));
+        if (available.length === 0) { this.generatePlanets(); return; }
+        const event = available[Math.floor(Math.random() * available.length)];
+        this.usedEventIds.add(event.id);
+
+        this.gameScreen.classList.add('hidden');
+        const screen = document.getElementById('event-screen');
+        screen.classList.remove('hidden');
+
+        document.getElementById('event-resources').innerHTML =
+            `FOOD: <b>${this.player.food}</b> &nbsp;|&nbsp; TRIVIUM: <b>${this.player.trivium}</b> &nbsp;|&nbsp; CREDITS: <b>${this.player.credits}</b>`;
+        document.getElementById('event-title').innerText = `EVENT: ${event.title}`;
+        document.getElementById('event-story').innerText = event.story;
+        const img = document.getElementById('event-image');
+        img.style.backgroundImage = event.image ? `url('${event.image}')` : 'none';
+
+        const optContainer = document.getElementById('event-options');
+        optContainer.innerHTML = '';
+        event.options.forEach((opt, i) => {
+            const canAfford = !opt.cost || Object.entries(opt.cost).every(([res, amt]) => this.player[res] >= amt);
+            const rewardText = Object.entries(opt.reward).map(([r, v]) => `+${v} ${r.charAt(0).toUpperCase() + r.slice(1)}`).join(', ');
+
+            const div = document.createElement('div');
+            div.className = 'event-option' + (canAfford ? '' : ' unaffordable');
+            div.innerHTML = `
+                <h4>${opt.label}</h4>
+                <p>${opt.desc}</p>
+                ${opt.cost ? `<span class="event-cost">${opt.costLabel}</span>` : ''}
+                <span class="event-reward">${rewardText}</span>
+                <button ${canAfford ? `onclick="gameState.applyEventOption(${i}, '${event.id}')"` : 'disabled'}>
+                    ${canAfford ? 'CHOOSE' : 'CANNOT AFFORD'}
+                </button>
+            `;
+            optContainer.appendChild(div);
+        });
+    },
+
+    applyEventOption: function(optionIndex, eventId) {
+        const event = this.events.find(e => e.id === eventId);
+        const opt = event.options[optionIndex];
+        if (opt.cost) {
+            Object.entries(opt.cost).forEach(([res, amt]) => { this.player[res] -= amt; });
+        }
+        Object.entries(opt.reward).forEach(([res, amt]) => { this.player[res] += amt; });
+        this.updateHUD();
+
+        const rewardText = Object.entries(opt.reward).map(([r, v]) => `+${v} ${r.charAt(0).toUpperCase() + r.slice(1)}`).join(', ');
+        const costText = opt.cost ? ` (${opt.costLabel})` : '';
+        document.getElementById('event-screen').classList.add('hidden');
+        this.gameScreen.classList.remove('hidden');
+        this.eventJustCompleted = true;
+        this.showFeedback(true, `${rewardText}${costText}`, opt.label.toUpperCase());
     },
 
     debugJumpToBoss: function() {
@@ -782,9 +941,9 @@ viewLeaderboard: async function() {
         [...this.player.modules, ...this.player.crew].forEach(m => {
             if (!m) return;
             if (m.id === 'biosphere') foodNet += 4;
-            if (m.id === 'content_farm') { foodNet += 2; creditNet += 4; triviumNet -= 1; }
+            if (m.id === 'content_farm') { foodNet += 2; creditNet += 6; triviumNet -= 1; }
             if (m.id === 'octopus') foodNet += 2 + this.player.modules.filter(m => m !== null).length;
-            if (m.id === 'aardvark') creditNet += 3;
+            if (m.id === 'aardvark') creditNet += 4;
             if (m.id === 'trivia_toad') { foodNet -= 1; triviumNet += 4; }
             if (m.id === 'bear_bot') { foodNet += 1; triviumNet += 1; creditNet += 1; }
         });
@@ -805,8 +964,16 @@ viewLeaderboard: async function() {
             sectorSpan.innerText = this.currentSector === 1 ? "SOL SYSTEM" : this.currentSector === 2 ? "MILKY WAY" : "GALACTIC CORE";
         }
         document.getElementById('current-stage').innerText = this.currentStage;
-        
+
         const { foodNet, triviumNet, creditNet } = this.getJumpCosts();
+        const foodDanger = this.player.food + foodNet * 2 <= 0;
+        const triviumDanger = this.player.trivium + triviumNet * 2 <= 0;
+        const eitherDanger = foodDanger || triviumDanger;
+        document.getElementById('stockpiled-label').classList.toggle('low-resource', eitherDanger);
+        document.getElementById('food-stat').classList.toggle('low-resource', foodDanger);
+        document.getElementById('food-label').classList.toggle('low-resource', foodDanger);
+        document.getElementById('trivium-stat').classList.toggle('low-resource', triviumDanger);
+        document.getElementById('trivium-label').classList.toggle('low-resource', triviumDanger);
 
         const fCostEl = document.getElementById('food-cost');
         const tCostEl = document.getElementById('trivium-cost');
@@ -816,6 +983,19 @@ viewLeaderboard: async function() {
         if (fCostEl) { fCostEl.innerText = `${formatNet(foodNet)} FOOD`; fCostEl.style.color = foodNet >= 0 ? "#00ff88" : "#ff4444"; }
         if (tCostEl) { tCostEl.innerText = `${formatNet(triviumNet)} TRIVIUM`; tCostEl.style.color = triviumNet >= 0 ? "#00ff88" : "#ff4444"; }
         if (cGainEl) { cGainEl.innerText = `${formatNet(creditNet)} CREDITS`; cGainEl.style.color = creditNet > 0 ? "#00f2ff" : "#888"; }
+    },
+
+    getRunStats: function() {
+        const totalStages = (this.currentSector - 1) * 10 + this.currentStage;
+        return `Reached Stage ${totalStages}/30 (Sector ${this.currentSector}) — ${this.correctAnswers} correct, ${this.wrongAnswers} incorrect.`;
+    },
+
+    showRules: function() {
+        document.getElementById('rules-overlay').classList.remove('hidden');
+    },
+
+    closeRules: function() {
+        document.getElementById('rules-overlay').classList.add('hidden');
     },
 
     returnToMenu: function() {

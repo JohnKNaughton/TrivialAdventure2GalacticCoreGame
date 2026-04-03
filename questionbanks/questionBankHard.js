@@ -157,7 +157,7 @@ const questionBankHard = {
         { q: "Who composed the original score for 'Succession'?", a: ["Ramin Djawadi", "Nicholas Britell", "Hans Zimmer", "Bear McCreary"], correct: "Nicholas Britell", explanation: "Britell's Emmy-winning score is famous for its fusion of 18th-century classical strings with modern hip-hop beats." },
         { q: "Which fictional company is central to the plot of 'Severance'?", a: ["Lumon Industries", "Waystar Royco", "Massive Dynamic", "E Corp"], correct: "Lumon Industries", explanation: "Lumon Industries uses the 'Severance' procedure to medically divide employees' work and personal memories." },
         { q: "In Season 2 of 'The Wire', what is the name of the shadowy figure leading the international smuggling ring?", a: ["The Greek", "Spiros Vondas", "Prop Joe", "The Shepherd"], correct: "The Greek", explanation: "Despite the name, he famously tells his associate Spiros, 'And of course, I’m not even Greek'." },
-        { q: "In 'Breaking Bad,' what is the scientific name for the blue methamphetamine produced by Walter White?", a: ["Methylamine", "Pseudoephedrine", "Blue Sky", "P2P"], correct: "Blue Sky", explanation: "While 'Blue Sky' is the street name, the product's 99.1% purity stems from Walt's switch to a P2P (phenylacetone) cook method." },
+        
         { q: "Which 'Mad Men' character says the famous line, 'That's what the money is for!'?", a: ["Don Draper", "Peggy Olson", "Roger Sterling", "Pete Campbell"], correct: "Don Draper", explanation: "Don shouts this during the Season 4 episode 'The Suitcase' when Peggy complains that her hard work isn't being acknowledged." }
     ],
 
@@ -287,15 +287,7 @@ const questionBankHard = {
         { q: "Which tiebreak system is commonly used in Swiss tournaments?", a: ["Elo", "Buchholz", "Sonneborn-Berger", "K-factor"], correct: "Buchholz", explanation: "The Buchholz system calculates a score by summing the points of a player's opponents to determine strength of schedule." },
         { q: "What is the 'En Passant' rule?", a: ["Special pawn capture", "King's movement in check", "A type of stalemate", "A promotion tactic"], correct: "Special pawn capture", explanation: "En passant allows a pawn to capture an enemy pawn that has just moved two squares forward from its starting position as if it had only moved one." },
         { q: "Who held the World Chess Championship title for the longest consecutive period (27 years)?", a: ["Emanuel Lasker", "Garry Kasparov", "Magnus Carlsen", "Anatoly Karpov"], correct: "Emanuel Lasker", explanation: "Lasker was the World Champion from 1894 to 1921, a record for the longest reign in the history of the game." }
-    ],
-
-    Formula_One_Technics: [
-        { q: "What does DRS stand for?", a: ["Dynamic Racing System", "Drag Reduction System", "Downforce Recovery Setup", "Dual Rear Spoiler"], correct: "Drag Reduction System", explanation: "DRS allows the driver to open a flap on the rear wing to reduce aerodynamic drag and increase top speed on straights." },
-        { q: "Which tire compound is typically marked with red sidewalls?", a: ["Hard", "Medium", "Soft", "Intermediate"], correct: "Soft", explanation: "In current Pirelli regulations, the 'Soft' tire (the softest available at a race weekend) is marked in red." },
-        { q: "What unit measures engine power output in F1?", a: ["Newton", "Horsepower", "Bar", "Joule"], correct: "Horsepower", explanation: "Modern F1 hybrid power units produce around 1,000 brake horsepower (bhp) through a combination of an ICE and MGU systems." },
-        { q: "What is the 'Halo' in an F1 car?", a: ["A driver protection system", "The engine cover", "The front wing flap", "The telemetry antenna"], correct: "A driver protection system", explanation: "Introduced in 2018, the Halo is a titanium curved bar placed above the driver's head to protect them from flying debris and crashes." },
-        { q: "What does the MGU-K system do?", a: ["Recovers energy from braking", "Recovers energy from exhaust heat", "Controls the gearbox", "Manages tire pressure"], correct: "Recovers energy from braking", explanation: "The Motor Generator Unit-Kinetic (MGU-K) converts kinetic energy generated under braking into electricity stored in the battery." }
-    ],
+    ],   
 
     Brewing_Science: [
         { q: "What sugar is primarily fermented in beer production?", a: ["Lactose", "Sucrose", "Maltose", "Fructose"], correct: "Maltose", explanation: "Maltose is a disaccharide produced from the enzymatic breakdown of starch in barley during the mashing process." },
@@ -520,13 +512,6 @@ const questionBankHard = {
         { q: "The 'Blue Brain Project' aims to simulate what using a supercomputer?", a: ["A digital reconstruction of a rodent brain column", "Human consciousness", "The visual system of a fly", "Alzheimer's disease progression"], correct: "A digital reconstruction of a rodent brain column", explanation: "Founded by Henry Markram, the project focuses on biologically detailed simulations of the mammalian brain to understand its functions." }
     ],
 
-    Classical_Islamic_Philosophy: [
-        { q: "Who wrote 'The Incoherence of the Philosophers' (Tahafut al-Falasifa)?", a: ["Al-Ghazali", "Averroes", "Avicenna", "Al-Farabi"], correct: "Al-Ghazali", explanation: "Al-Ghazali argued against the Hellenistic influence on Islamic thought, particularly criticizing Avicenna's views on the eternity of the world." },
-        { q: "Which philosopher's 'Canon of Medicine' was a standard medical text in Europe for centuries?", a: ["Avicenna (Ibn Sina)", "Maimonides", "Al-Razi", "Ibn al-Haytham"], correct: "Avicenna (Ibn Sina)", explanation: "Avicenna was a polymath whose works on metaphysics and medicine dominated both Islamic and Western scholasticism." },
-        { q: "What was the 'House of Wisdom' (Bayt al-Hikmah)?", a: ["A library and translation center in Baghdad", "The palace of the Caliph", "A sufi monastery", "A legal court"], correct: "A library and translation center in Baghdad", explanation: "Established during the Abbasid Era, it was a hub for the Translation Movement, bringing Greek, Persian, and Indian texts into Arabic." },
-        { q: "Which school of thought emphasized human reason and 'divine justice' in early Islam?", a: ["Mu'tazila", "Ash'arite", "Sufism", "Athari"], correct: "Mu'tazila", explanation: "The Mu'tazilites used rationalist methods (kalam) and argued that the Quran was created, rather than eternal." },
-        { q: "Ibn Khaldun is often considered the 'father' of which social science?", a: ["Sociology/Historiography", "Economics", "Psychology", "Political Science"], correct: "Sociology/Historiography", explanation: "In his work 'The Muqaddimah,' he introduced concepts like 'Asabiyyah' (social cohesion) to explain the rise and fall of civilizations." }
-    ], 
     Bears: [
         { q: "Which extinct bear species, found in the Americas, was significantly larger than a Grizzly and is believed to have been a specialized 'bone-crusher'?", a: ["Short-faced Bear (Arctodus simus)", "Cave Bear", "Atlas Bear", "Florida Spectacled Bear"], correct: "Short-faced Bear (Arctodus simus)", explanation: "Arctodus simus was one of the largest terrestrial mammalian carnivores, standing up to 12 feet tall on its hind legs." },
         { q: "What unique metabolic process allows bears to maintain bone density and muscle mass during months of hibernation?", a: ["Urea recycling", "Ketosis-induced stasis", "Hyperphagia", "Calcium sequestration"], correct: "Urea recycling", explanation: "Bears do not urinate during hibernation; they recycle urea into amino acids to maintain protein synthesis and prevent muscle atrophy." },

@@ -30,17 +30,15 @@
 
     <div id="info-panel">
         <div class="info-box">
-            <h3>MISSION LOG</h3>
-            <p>
-                In 2030, Scientists figure out how to refine quantum energy 
+            
+            <p> MISSION LOG: <br> In 2030, Scientists figure out how to refine quantum energy 
                 from interstellar asteroids using pure trivia knowledge. You board the final ship escaping the solar system. 
                 Welcome to a trivia adventure roguelite. Special thanks to Brady Lassegard and Rob Fers for passionate playtesting!
             </p>
         </div>
         <div class="info-box">
-            <h3>OPERATIONAL RULES</h3>
-            <p>
-                Each jump forward consumes 5 trivium and 5 food, running out of either results in systems faliure and ends the run. Choose categories to harvest their corresponding resources. Defeat the 3rd boss, in the Galactic Core, to win the game and record your final Trivium count in the Hall of Fame. Cheating is okay... if you learn!!! Photos from NASA Webb telescope 
+            
+            <p>OPERATIONAL RULES: <br> Each jump forward consumes 5 trivium and 5 food, running out of either results in systems faliure and ends the run. Choose categories to harvest their corresponding resources. Defeat the 3rd boss, in the Galactic Core, to win the game and record your final Trivium count in the Hall of Fame. Cheating is okay... if you learn!!! Photos from NASA Webb telescope 
                 
             </p>
         </div>
@@ -61,7 +59,7 @@
             <p>Resourceful and Loyal.</p>
             <ul>
                 <li>Food: 20</li>
-                <li>Trivium: 12</li>
+                <li>Trivium: 16</li>
                 <li>Credits: 0</li>
             </ul>
         </div>
@@ -73,12 +71,13 @@
             <ul>
                 <li>Food: 12</li>
                 <li>Trivium: 10</li>
-                <li>Credits: 10</li>
+                <li>Credits: 15</li>
             </ul>
         </div>
     </div>
 </section>
 <section id="shop-screen" class="view hidden">
+    <div id="shop-resources"></div>
     <h2 class="glow-text">INTERSTELLAR OUTPOST</h2>
     <div id="shopkeeper-area">
         <div id="shopkeeper-gif"></div> 
@@ -99,12 +98,19 @@
     <div id="buddy-offers"></div>
     <button class="menu-btn" onclick="gameState.closeTavern()">CONTINUE MISSION</button>
 </section>
+<section id="event-screen" class="view hidden">
+    <div id="event-resources"></div>
+    <h2 id="event-title" class="glow-text failure-text"></h2>
+    <div id="event-image"></div>
+    <p id="event-story"></p>
+    <div id="event-options"></div>
+</section>
 <section id="game-screen" class="view hidden">
     <div id="hud">
         <div id="resource-hud">
     <div class="stat-row">
-        <span>Stockpiled FOOD:<span id="food-stat">0</span></span>|
-        <span>TRIVIUM:<span id="trivium-stat">0</span></span>|
+        <span id="stockpiled-label">Stockpiled </span><span id="food-label">FOOD:<span id="food-stat">0</span></span>|
+        <span id="trivium-label">TRIVIUM:<span id="trivium-stat">0</span></span>|
         <span>CREDITS:<span id="credits-stat">0</span></span>
     </div>
 
@@ -124,7 +130,7 @@
     
 
     <div id="choice-container">
-        <h2>Charging Trivium Jump-Drive ...</h2>
+        <h2>Charging Trivium Jump-Drive ... Where to? </h2>
         <div id="planet-options">
             </div>
     </div>
@@ -162,6 +168,7 @@
         </div>
         <div id="ship-nose"></div>
     </div>
+    <button id="rules-btn" onclick="gameState.showRules()">RULES &amp; INFO</button>
 </section>
 <section id="boss-ui" class="view hidden">
     <h2 class="failure-text">GREAT FILTER DETECTED- Pluto the Pufferfish </h2>
@@ -182,11 +189,48 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="questionbanks/questionBank.js"></script>
     <script src="questionbanks/questionBankHard.js"></script>
+    <script src="events.js"></script>
     <script src="game.js"></script>
+    <div id="rules-overlay" class="hidden">
+    <div id="rules-content">
+        <h2 class="glow-text">MISSION BRIEFING</h2>
+        <div id="rules-body">
+            <p><span class="rules-heading">OBJECTIVE</span><br>
+            Navigate from the Sol System to the Galactic Core across 3 Sectors, each with 10 Stages. Defeat the boss at Stage 10 of each Sector to advance. Beat all 3 bosses to win.</p>
+
+            <p><span class="rules-heading">RESOURCES</span><br>
+            <b>Food</b> — Keeps your crew alive. Run out and the mission ends.<br>
+            <b>Trivium</b> — Powers the jump drive. Run out and you drift forever.<br>
+            <b>Credits</b> — Spent at the Interstellar Outpost (Stage 8) on modules.</p>
+
+            <p><span class="rules-heading">EACH JUMP COSTS</span><br>
+            Sector 1: -5 Food, -5 Trivium per jump.<br>
+            Sector 2: -5 Food, -15 Trivium per jump.<br>
+            Sector 3: -5 Food, -30 Trivium per jump.<br>
+            Costs are shown in the HUD before you choose. Modules and crew can offset these.</p>
+
+            <p><span class="rules-heading">ANSWERING QUESTIONS</span><br>
+            Choose a destination node to trigger a trivia question. Answer correctly to earn the node's resource reward. Answer wrong and you get nothing — but still pay the jump cost.</p>
+
+            <p><span class="rules-heading">SPECIAL STAGES</span><br>
+            Stage 4 — <b>Comet Tavern:</b> Recruit a crew buddy for free.<br>
+            Stage 6 — <b>Random Event:</b> A unique encounter with choices and consequences.<br>
+            Stage 8 — <b>Interstellar Outpost:</b> Spend credits on ship modules.<br>
+            Stage 10 — <b>Boss Encounter:</b> Choose a Hard category and answer correctly to advance. Wrong answer = total resource loss.</p>
+
+            <p><span class="rules-heading">WINNING</span><br>
+            Defeat the boss in Sector 3, Stage 10. Your final Trivium count is your score — submit it to the Galactic Hall of Fame.</p>
+
+            <p><span class="rules-heading">CHEATING IS OKAY... IF YOU LEARN!</span></p>
+        </div>
+        <button onclick="gameState.closeRules()">CLOSE</button>
+    </div>
+</div>
     <div id="feedback-overlay" class="hidden">
     <div id="feedback-content">
         <h2 id="feedback-title"></h2>
         <div id="feedback-msg"></div> <button id="feedback-close-btn" onclick="gameState.closeFeedback()">CONTINUE</button>
+        <button id="feedback-menu-btn" onclick="gameState.returnToMenu()" class="hidden">BACK TO MENU</button>
     </div>
 </div>
 </body>
