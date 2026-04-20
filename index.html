@@ -42,9 +42,15 @@
                 
             </p>
         </div>
-        <div id="debug-controls" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 100;">
+        <div id="debug-controls" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 100; display: flex; flex-direction: column; gap: 6px;">
     <button onclick="gameState.debugJumpToBoss()" style="background: #ff4444; color: white; padding: 10px; border: none; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
-        Version .62 <br> DEBUG: JUMP TO BOSS 3
+        DEBUG: JUMP TO BOSS 3
+    </button>
+    <button onclick="gameState.replayCinematic()" style="background: rgba(0,30,60,0.9); color: #00f2ff; padding: 10px; border: 1px solid #00f2ff; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
+        OPENING CINEMATIC
+    </button>
+    <button onclick="gameState.showChangelog()" style="background: rgba(0,0,0,0.7); color: #888; padding: 10px; border: 1px solid #555; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
+        v0.67 CHANGELOG
     </button>
 </div>
     </div>
@@ -73,6 +79,25 @@
                 <li>Trivium: 10</li>
                 <li>Credits: 15</li>
             </ul>
+        </div>
+    </div>
+</section>
+<section id="mode-screen" class="view hidden">
+    <h2 class="glow-text">SELECT YOUR ADVENTURE</h2>
+    <div class="character-container" style="flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;">
+        <div class="char-card" style="width: 380px; display: flex; align-items: center; gap: 20px; text-align: left;" onclick="gameState.selectMode('hardcore')">
+            <div id="mode-hardcore-img" style="width: 64px; height: 64px; flex-shrink: 0; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated;"></div>
+            <div>
+                <h3 style="margin: 0 0 8px;">HARDCORE ADVENTURE</h3>
+                <p style="margin: 0; font-size: 0.85em; color: #a0f9ff;">A classic challenging roguelite experience. Running out of Food or Trivium will end the game. Compete against other pilots to register the highest Trivium score in the Galactic Hall of Fame.</p>
+            </div>
+        </div>
+        <div class="char-card" style="width: 380px; display: flex; align-items: center; gap: 20px; text-align: left;" onclick="gameState.selectMode('fun')">
+            <div id="mode-fun-img" style="width: 64px; height: 64px; flex-shrink: 0; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated;"></div>
+            <div>
+                <h3 style="margin: 0 0 8px;">FUN ADVENTURE</h3>
+                <p style="margin: 0; font-size: 0.85em; color: #a0f9ff;">A carefree trivia adventure where you assemble a colorful crew and amass as much Trivium as possible. Resources cannot drop below zero — no defeat condition and no stakes.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -149,11 +174,13 @@
         </div>
         <div id="crew-quarters">
             <div class="floor-label">CREW QUARTERS</div>
-            <div class="slot-grid">
+            <div class="slot-grid" id="crew-slot-grid">
                 <div class="slot" id="crew-slot-1" data-tooltip="Empty"></div>
                 <div class="slot" id="crew-slot-2" data-tooltip="Empty"></div>
                 <div class="slot" id="crew-slot-3" data-tooltip="Empty"></div>
                 <div class="slot" id="crew-slot-4" data-tooltip="Empty"></div>
+                <div class="slot hidden" id="crew-slot-5" data-tooltip="Empty"></div>
+                <div class="slot hidden" id="crew-slot-6" data-tooltip="Empty"></div>
             </div>
         </div>
         <div id="pilot-sprite"></div>
@@ -171,7 +198,7 @@
     <button id="rules-btn" onclick="gameState.showRules()">RULES &amp; INFO</button>
 </section>
 <section id="boss-ui" class="view hidden">
-    <h2 class="failure-text">GREAT FILTER DETECTED- Pluto the Pufferfish </h2>
+    <h2 id="boss-title" class="failure-text">GREAT FILTER DETECTED</h2>
     
     <div id="boss-sprite-container">
         <div id="boss-icon"></div>
@@ -205,8 +232,8 @@
 
             <p><span class="rules-heading">EACH JUMP COSTS</span><br>
             Sector 1: -5 Food, -5 Trivium per jump.<br>
-            Sector 2: -5 Food, -15 Trivium per jump.<br>
-            Sector 3: -5 Food, -25 Trivium per jump.<br>
+            Sector 2: -5 Food, -10 Trivium per jump.<br>
+            Sector 3: -5 Food, -20 Trivium per jump.<br>
             Costs are shown in the HUD before you choose. Modules and crew can offset these.</p>
 
             <p><span class="rules-heading">ANSWERING QUESTIONS</span><br>
@@ -224,6 +251,13 @@
             <p><span class="rules-heading">CHEATING IS OKAY... IF YOU LEARN!</span></p>
         </div>
         <button onclick="gameState.closeRules()">CLOSE</button>
+    </div>
+</div>
+    <div id="changelog-overlay" class="hidden">
+    <div id="changelog-content">
+        <h2 class="glow-text">VERSION HISTORY</h2>
+        <div id="changelog-body"></div>
+        <button onclick="gameState.closeChangelog()">CLOSE</button>
     </div>
 </div>
     <div id="feedback-overlay" class="hidden">

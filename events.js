@@ -1,5 +1,33 @@
 var gameEvents = [
     {
+        id: 'Whale',
+        title: 'Space Whale',
+        story: 'Your ship enters the orbit of a stunning gas giant to top off your Helium 3 reserves. You spot a space whale amidst the icy rings, in some kind of resonance with a cracked crystalline moon. It would be hubris indeed to think you could understand what exactly was happening here.',
+        image: 'assets/SpaceWhale.png',
+        options: [
+            {
+                label: 'Loot the moon for resources',
+                desc: 'The crystalline formations crack easily under your mining drill. Rich deposits inside.',
+                reward: { credits: 10, trivium: 10 },
+                cost: null
+            },
+            {
+                label: 'Listen patiently to the whale song',
+                desc: 'You kill the engines and drift in silence. Hours pass. Something about the resonance fills your mind with clarity.',
+                reward: { trivium: 42 },
+                cost: { food: 10 },
+                costLabel: '-10 Food'
+            },
+            {
+                label: 'Enter the whale\'s mouth, following the faint screams',
+                desc: 'Against every instinct, you pilot the ship inside. Two figures are waiting in the dark, remarkably calm.',
+                reward: {},
+                cost: null,
+                specialAction: 'add_two_buddies'
+            }
+        ]
+    },
+    {
         id: 'Lilguy',
         title: 'Just a Lil Guy',
         story: 'You step out of the ship into a rough and tumble, backwater saloon town, filled with all sorts of characters. A small orange creature of unknown species approaches you with a proposition.',

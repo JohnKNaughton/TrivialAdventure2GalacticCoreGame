@@ -22,16 +22,19 @@ const gameState = {
         1: {
             background: "url('assets/bg-sector1.jpg')",
             bossSprite: "url('assets/boss1-idle.gif')",
-            message: "Sector 1 Clear! Entering Sector 2: The Milky Way. Denser HARD Trivium asteroids are now availible for harvest. Warning: Interstellar Navigation requires 15 Trivium per Jump. Also, you're doing great!"
+            bossName: "Pluto the Pufferfish",
+            message: "Sector 1 Clear! Entering Sector 2: The Milky Way. Denser HARD Trivium asteroids are now available for harvest. Warning: Interstellar Navigation requires 10 Trivium per Jump. Also, you're doing great!"
         },
         2: {
             background: "url('assets/background2.png')",
             bossSprite: "url('assets/boss2-idle.gif')",
-            message: "Sector 2 Clear! Entering the Sector 3: The Galactic Core. The Core is treacherous requires 25 Trivium per Jump, but Trivial Nirvana awaits the brave! You got this! Onward to the core!"
+            bossName: "Gooby the Gooberfish",
+            message: "Sector 2 Clear! Entering Sector 3: The Galactic Core. The Core requires 20 Trivium per Jump, but Trivial Nirvana awaits the brave! You got this! Onward to the core!"
         },
         3: {
             background: "url('assets/background3.jpg')",
             bossSprite: "url('assets/boss3-idle.gif')",
+            bossName: "Grandmaster Glare",
             message: "You did it!"
         }
     },
@@ -45,7 +48,7 @@ const gameState = {
         credits: 0,
         type: "",
         modules: [null, null, null, null],
-        crew: [null, null, null, null],
+        crew: [null, null, null, null, null, null],
         usedQuestions: {}
     },
     bgMusic: new Audio('assets/space_music.mp3'),
@@ -71,7 +74,7 @@ const gameState = {
     ],
 
     shopModules: [
-        { id: 'accumulator', name: "Trivium Amplifier", cost: 20, desc: "Doubles all Trivium rewards from questions automatically.", icon: "✨" },
+        { id: 'accumulator', name: "Trivium Amplifier", cost: 20, desc: "Automatically increases all Trivium gained by 50% (rounded up!).", icon: "✨" },
         { id: 'laser', name: "Defense Laser", cost: 5, desc: "1-Use: Remove a wrong answer during regular question.", icon: "🔫" },
         { id: 'biosphere', name: "Biosphere", cost: 10, desc: "Produces 4 Food per Jump.", icon: "🌿" },
         { id: 'content_farm', name: "Content Farm", cost: 12, desc: "+2 Food, +6 Credits, -1 Trivium per Jump.", icon: "🚜" },
@@ -87,11 +90,13 @@ const gameState = {
     ],
 
     events: gameEvents,
+    easyMode: false,
 
     // 2. ELEMENT GETTERS
     get introScreen() { return document.getElementById('intro-terminal'); },
     get menuScreen() { return document.getElementById('menu-screen'); },
     get charScreen() { return document.getElementById('char-screen'); },
+    get modeScreen() { return document.getElementById('mode-screen'); },
     get gameScreen() { return document.getElementById('game-screen'); },
     get shopScreen() { return document.getElementById('shop-screen'); },
 
@@ -108,6 +113,11 @@ const gameState = {
             }
         }, { once: true });
 
+        if (sessionStorage.getItem('introSeen')) {
+            this.showMenu();
+            return;
+        }
+
         this.introScreen.onclick = () => this.skipIntro();
         this.introTimer = setTimeout(() => {
             this.showMenu();
@@ -120,15 +130,61 @@ const gameState = {
     },
 
     showMenu: function() {
-        this.introScreen.onclick = null; 
+        sessionStorage.setItem('introSeen', '1');
+        this.introScreen.onclick = null;
         this.introScreen.classList.add('hidden');
         this.menuScreen.classList.remove('hidden');
         this.menuScreen.classList.add('fade-in');
     },
 
+    replayCinematic: function() {
+        this.menuScreen.classList.add('hidden');
+        const intro = this.introScreen;
+        const p = intro.querySelector('p');
+        intro.classList.remove('hidden');
+        // Force CSS animation restart
+        p.style.animation = 'none';
+        p.offsetHeight; // trigger reflow
+        p.style.animation = '';
+        intro.onclick = () => this.skipCinematic();
+        this.cinematicTimer = setTimeout(() => this.skipCinematic(), 25000);
+    },
+
+    skipCinematic: function() {
+        if (this.cinematicTimer) clearTimeout(this.cinematicTimer);
+        this.introScreen.onclick = null;
+        this.introScreen.classList.add('hidden');
+        this.menuScreen.classList.remove('hidden');
+    },
+
+    showChangelog: function() {
+        const overlay = document.getElementById('changelog-overlay');
+        const body = document.getElementById('changelog-body');
+        body.innerHTML = '<p style="text-align:center;">Loading...</p>';
+        overlay.classList.remove('hidden');
+        fetch('README.md')
+            .then(r => r.text())
+            .then(text => {
+                body.innerHTML = `<pre style="white-space:pre-wrap; font-size:0.8em; color:#a0f9ff; font-family:'Courier New',monospace; line-height:1.6;">${text}</pre>`;
+            })
+            .catch(() => {
+                body.innerHTML = '<p style="color:#ff4444;">Could not load README.</p>';
+            });
+    },
+
+    closeChangelog: function() {
+        document.getElementById('changelog-overlay').classList.add('hidden');
+    },
+
     showCharacterSelect: function() {
         this.menuScreen.classList.add('hidden');
         this.charScreen.classList.remove('hidden');
+    },
+
+    selectMode: function(mode) {
+        this.easyMode = (mode === 'fun');
+        this.modeScreen.classList.add('hidden');
+        this.enterGame();
     },
 
     selectCharacter: function(choice) {
@@ -139,11 +195,16 @@ const gameState = {
             bossIcon.style.backgroundImage = "url('assets/boss1-idle.gif')";
         }
         if (choice === 'latke') {
-            this.player = { name: "Latke", food: 20, trivium: 16, credits: 0, type: "latke", modules: [null, null, null, null], crew: [null, null, null, null], usedQuestions: {} };
+            this.player = { name: "Latke", food: 20, trivium: 16, credits: 0, type: "latke", modules: [null, null, null, null], crew: [null, null, null, null, null, null], usedQuestions: {} };
         } else {
-            this.player = { name: "Glenn", food: 12, trivium: 10, credits: 15, type: "glenn", modules: [null, null, null, null], crew: [null, null, null, null], usedQuestions: {} };
+            this.player = { name: "Glenn", food: 12, trivium: 10, credits: 15, type: "glenn", modules: [null, null, null, null], crew: [null, null, null, null, null, null], usedQuestions: {} };
         }
-        this.enterGame();
+        const bossGifs = ['assets/boss1-idle.gif', 'assets/boss2-idle.gif', 'assets/boss3-idle.gif'];
+        const buddyGifs = ['assets/octopus_idle.gif', 'assets/aardvark_idle.gif', 'assets/toad_idle.gif', 'assets/bear_idle.gif', 'assets/terry_idle.gif'];
+        document.getElementById('mode-hardcore-img').style.backgroundImage = `url('${bossGifs[Math.floor(Math.random() * bossGifs.length)]}')`;
+        document.getElementById('mode-fun-img').style.backgroundImage = `url('${buddyGifs[Math.floor(Math.random() * buddyGifs.length)]}')`;
+        this.charScreen.classList.add('hidden');
+        this.modeScreen.classList.remove('hidden');
     },
 
     enterGame: function() {
@@ -271,6 +332,15 @@ const gameState = {
         };
 
         this.player.crew.forEach((item, i) => renderSlot(item, `crew-slot-${i + 1}`, i, 'crew'));
+
+        const hasFifthBuddy = this.player.crew[4] !== null;
+        const crewGrid = document.getElementById('crew-slot-grid');
+        if (crewGrid) {
+            crewGrid.classList.toggle('three-col', hasFifthBuddy);
+            document.getElementById('crew-slot-5').classList.toggle('hidden', !hasFifthBuddy);
+            document.getElementById('crew-slot-6').classList.toggle('hidden', !hasFifthBuddy);
+        }
+
         this.player.modules.forEach((item, i) => renderSlot(item, `mod-slot-${i + 1}`, i, 'module'));
     },
 
@@ -278,12 +348,10 @@ const gameState = {
         const arr = arrayType === 'crew' ? this.player.crew : this.player.modules;
         const item = arr[index];
         const sellPrice = 1;
-        if (confirm(`Dismiss ${item.name} for ${sellPrice} Credit?`)) {
-            this.player.credits += sellPrice;
-            arr[index] = null;
-            this.updateHUD();
-            this.renderModules();
-        }
+        this.player.credits += sellPrice;
+        arr[index] = null;
+        this.updateHUD();
+        this.renderModules();
     },
 
     showFeedback: function(isCorrect, message, title = "TRANSMISSION RECEIVED", explanation = null) {
@@ -299,7 +367,7 @@ const gameState = {
             msgEl.appendChild(expEl);
         }
         titleEl.className = isCorrect ? "success-text" : "failure-text";
-        const isDefeat = this.player.food <= 0 || this.player.trivium <= 0;
+        const isDefeat = !this.easyMode && (this.player.food <= 0 || this.player.trivium <= 0);
         document.getElementById('feedback-close-btn').classList.toggle('hidden', isDefeat);
         document.getElementById('feedback-menu-btn').classList.toggle('hidden', !isDefeat);
         overlay.classList.remove('hidden');
@@ -316,7 +384,7 @@ const gameState = {
         return;
     }
 
-    if (this.player.food <= 0 || this.player.trivium <= 0) {
+    if (!this.easyMode && (this.player.food <= 0 || this.player.trivium <= 0)) {
         this.returnToMenu();
         return;
     }
@@ -420,10 +488,13 @@ const gameState = {
 
             <div style="border-top: 1px solid #444; padding-top: 15px; margin-bottom: 20px;">
                 <p>Final Trivium Score: <span style="color: #00f2ff; font-size: 1.5em;">${this.player.trivium}</span></p>
-                <p>A Prize to the Highest Trivium Score at end of Demo</p>
-                <input type="text" id="player-initials" placeholder="AAA" maxlength="3" 
-                       style="text-transform: uppercase; width: 60px; text-align: center; background: #000; color: #00f2ff; border: 1px solid #00f2ff; padding: 5px;">
-                <button onclick="gameState.submitScore()" style="background: #00f2ff; color: #000; border: none; padding: 6px 12px; font-weight: bold; cursor: pointer; font-family: 'Courier New', monospace;">SUBMIT</button>
+                ${this.easyMode
+                    ? `<p style="color:#a0f9ff; font-size:0.85em; font-style:italic;">Fun Adventure runs are not submitted to the Hall of Fame. Start a Hardcore Adventure to compete!</p>`
+                    : `<p>A Prize to the Highest Trivium Score at end of Demo</p>
+                       <input type="text" id="player-initials" placeholder="AAA" maxlength="3"
+                              style="text-transform: uppercase; width: 60px; text-align: center; background: #000; color: #00f2ff; border: 1px solid #00f2ff; padding: 5px;">
+                       <button onclick="gameState.submitScore()" style="background: #00f2ff; color: #000; border: none; padding: 6px 12px; font-weight: bold; cursor: pointer; font-family: 'Courier New', monospace;">SUBMIT</button>`
+                }
             </div>
 
             <button onclick="location.reload()" style="display: block; width: 100%; margin-top: 20px; background: rgba(194, 86, 86, 0.2); border: 1px solid rgb(194, 86, 86); color: rgb(194, 86, 86); cursor: pointer; font-size: 0.9em; padding: 10px;">RETURN TO TITLE SCREEN</button>
@@ -452,21 +523,29 @@ const gameState = {
 
         if (insertError) throw insertError;
 
-        // 2. Fetch the top 10 scores
+        // 2. Fetch all scores above 50
         const { data: scores, error: fetchError } = await supabase
             .from('leaderboard')
             .select('name, score')
-            .order('score', { ascending: false })
-            .limit(10);
+            .gt('score', 50)
+            .order('score', { ascending: false });
 
         if (fetchError) throw fetchError;
 
         // 3. Show the high score table
-        this.showHighScores(scores);
+        this.showHighScores(this.filterScores(scores));
     } catch (err) {
         console.error("Supabase Error:", err.message);
-        alert("Transmission failed. Using local emergency backup.");
+        this.showFeedback(false, "Score transmission failed. Check your connection and try again.", "TRANSMISSION FAILED");
     }
+},
+
+filterScores: function(scores) {
+    const counts = {};
+    return scores.filter(s => {
+        counts[s.name] = (counts[s.name] || 0) + 1;
+        return counts[s.name] <= 3;
+    });
 },
 
 showHighScores: function(scores) {
@@ -490,19 +569,15 @@ showHighScores: function(scores) {
             </tr>
         `;
     });
-    // ADD THE BUTTONS HERE
-    tableHtml += `
+    tableHtml += `</table>
         <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-            <button onclick="location.reload()" 
+            <button onclick="location.reload()"
                 style="background:#00f2ff; color:#000; border:none; padding:12px; cursor:pointer; font-weight:bold; font-family: inherit;">
                 START NEW MISSION
             </button>
-            
-            
+        </div>
     `;
 
-    
-    
     msgEl.innerHTML = tableHtml;
 },
 viewLeaderboard: async function() {
@@ -522,17 +597,17 @@ viewLeaderboard: async function() {
     }
 
     try {
-        // 2. Fetch top 10 from Supabase
+        // 2. Fetch all scores above 50
         const { data: scores, error } = await supabase
             .from('leaderboard')
             .select('name, score')
-            .order('score', { ascending: false })
-            .limit(10);
+            .gt('score', 50)
+            .order('score', { ascending: false });
 
         if (error) throw error;
 
         // 3. Reuse your existing table display logic
-        this.showHighScores(scores);
+        this.showHighScores(this.filterScores(scores));
         
         // 4. Update the button to say "BACK TO MENU" instead of "NEW MISSION"
         // This ensures they don't accidentally reload the page if they just wanted to peek
@@ -610,6 +685,10 @@ viewLeaderboard: async function() {
         document.getElementById('trivia-box').classList.add('hidden');
         const bossUI = document.getElementById('boss-ui');
         bossUI.classList.remove('hidden');
+        const bossTitle = document.getElementById('boss-title');
+        if (bossTitle && this.sectorData[this.currentSector]) {
+            bossTitle.innerText = `GREAT FILTER DETECTED — ${this.sectorData[this.currentSector].bossName}`;
+        }
         this.bossRerollCost = 2;
         this.renderBossCategories();
     },
@@ -721,10 +800,23 @@ viewLeaderboard: async function() {
                     }
                 } else {
                     this.wrongAnswers++;
-                    this.player.food = 0;
-                    this.player.trivium = 0;
-                    this.updateHUD();
-                    this.showFeedback(false, `You answered the boss question incorrectly — all resources were lost as a consequence.\n\nThe correct answer was: ${qData.correct}\n\n${this.getRunStats()}`, "BOSS DEFEATED YOU", qData.explanation);
+                    if (this.currentSector === 3) {
+                        this.player.trivium = Math.max(0, this.player.trivium - 30);
+                        this.updateHUD();
+                        triviaBox.classList.add('hidden');
+                        document.getElementById('boss-sprite-container').appendChild(bossIcon);
+                        if (!this.easyMode && this.player.trivium <= 0) {
+                            this.showFeedback(false, `${this.sectorData[3].bossName} has drained your last Trivium reserves.\n\nThe correct answer was: ${qData.correct}\n\n${this.getRunStats()}`, "SYSTEMS FAILURE", qData.explanation);
+                        } else {
+                            this.showFeedback(false, `-30 Trivium. ${this.sectorData[3].bossName} is not finished. Regroup and face them again...\n\nThe correct answer was: ${qData.correct}`, "REPELLED — RETRY", qData.explanation);
+                        }
+                    } else {
+                        this.currentStage++;
+                        this.highestStageReached = Math.max(this.highestStageReached, (this.currentSector - 1) * 10 + this.currentStage);
+                        this.updateHUD();
+                        document.getElementById('boss-sprite-container').appendChild(bossIcon);
+                        this.showFeedback(false, `The boss repelled your assault — no Trivium recovered. Limping into the next sector...\n\nThe correct answer was: ${qData.correct}`, "BOSS REPELLED YOU", qData.explanation);
+                    }
                 }
             };
             grid.appendChild(btn);
@@ -790,8 +882,8 @@ viewLeaderboard: async function() {
                 let finalVal = reward.val;
 
                 if (isCorrect && reward.type === 'Trivium' && this.player.modules.some(m => m?.id === 'accumulator')) {
-                    finalVal *= 2;
-                    bonusText = " (Doubled by Accumulator!)";
+                    finalVal = Math.ceil(finalVal * 1.5);
+                    bonusText = " (+50% Amplifier!)";
                 }
 
                 if (isCorrect) {
@@ -808,7 +900,7 @@ viewLeaderboard: async function() {
                 this.player.credits += creditNet;
                 this.updateHUD();
 
-                if (this.player.food <= 0 || this.player.trivium <= 0) {
+                if (!this.easyMode && (this.player.food <= 0 || this.player.trivium <= 0)) {
                     const outOf = this.player.food <= 0 && this.player.trivium <= 0 ? "FOOD and TRIVIUM" : this.player.food <= 0 ? "FOOD" : "TRIVIUM";
                     const jumpNote = isCorrect
                         ? `You answered correctly, but the jump cost of ${outOf} drained your last reserves. The ship has no power to continue.`
@@ -923,6 +1015,26 @@ viewLeaderboard: async function() {
             return;
         }
 
+        if (opt.specialAction === 'add_two_buddies') {
+            const added = [];
+            for (let i = 0; i < 2; i++) {
+                const emptySlot = this.player.crew.indexOf(null);
+                if (emptySlot === -1) break;
+                const buddy = this.buddies[Math.floor(Math.random() * this.buddies.length)];
+                this.player.crew[emptySlot] = { ...buddy };
+                added.push(buddy.name);
+            }
+            this.renderModules();
+            document.getElementById('event-screen').classList.add('hidden');
+            this.gameScreen.classList.remove('hidden');
+            this.eventJustCompleted = true;
+            const msg = added.length === 0
+                ? 'Figures emerged from the darkness, but your crew quarters were already full. They slipped back into the void.'
+                : `Two visitors emerged from the darkness: ${added.join(' and ')}.`;
+            this.showFeedback(true, msg, 'FROM THE WHALE');
+            return;
+        }
+
         Object.entries(opt.reward).forEach(([res, amt]) => { this.player[res] += amt; });
         this.updateHUD();
 
@@ -1007,7 +1119,7 @@ viewLeaderboard: async function() {
 
     getJumpCosts: function() {
         let foodNet = -5;
-        let triviumNet = -({ 1: 5, 2: 15, 3: 25 }[this.currentSector] || 5);
+        let triviumNet = -({ 1: 5, 2: 10, 3: 20 }[this.currentSector] || 5);
         let creditNet = 0;
         [...this.player.modules, ...this.player.crew].forEach(m => {
             if (!m) return;

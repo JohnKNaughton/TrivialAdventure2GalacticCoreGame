@@ -126,8 +126,7 @@ Technology: [
 { q: "Which company developed the Android operating system?", a: ["Apple","Google","Microsoft","Samsung"], correct: "Google", explanation: "Android was developed by Google and is now the most widely used mobile operating system." },
 { q: "What is the main language used for styling web pages?", a: ["HTML","CSS","JavaScript","Python"], correct: "CSS", explanation: "CSS is used to control the layout, colors, and visual design of web pages." },
 { q: "Which computer part is considered the 'brains' of the system?", a: ["CPU","RAM","GPU","Hard Drive"], correct: "CPU", explanation: "The CPU executes instructions and processes data, making it the central component of a computer." },
-{ q: "Who co-founded Microsoft alongside Bill Gates?", a: ["Steve Wozniak","Paul Allen","Larry Page","Jeff Bezos"], correct: "Paul Allen", explanation: "Paul Allen co-founded Microsoft with Bill Gates and played a key role in its early development." },
-{ q: "What is the most popular programming language as of recent industry surveys(2025)?", a: ["C++","JavaScript","COBOL","Ruby"], correct: "JavaScript", explanation: "JavaScript consistently ranks as the most widely used programming language due to its role in web development." }
+{ q: "Who co-founded Microsoft alongside Bill Gates?", a: ["Steve Wozniak","Paul Allen","Larry Page","Jeff Bezos"], correct: "Paul Allen", explanation: "Paul Allen co-founded Microsoft with Bill Gates and played a key role in its early development." }
 ],
    Sports: [
 { q: "How many players are on a standard soccer team on the field?", a: ["9","10","11","12"], correct: "11", explanation: "Each soccer team fields 11 players at a time, including one goalkeeper and ten outfield players." },
@@ -208,7 +207,6 @@ Business: [
 { q: "In economics, what is the term for a market dominated by a single seller?", a: ["Oligopoly","Monopoly","Cartel","Free Market"], correct: "Monopoly", explanation: "A monopoly exists when a single seller controls the entire market supply of a product or service." },
 { q: "Which city is home to the New York Stock Exchange?", a: ["Chicago","New York City","London","Hong Kong"], correct: "New York City", explanation: "The New York Stock Exchange is located on Wall Street in New York City." },
 { q: "What is the official currency of the Eurozone?", a: ["Pound","Franc","Euro","Mark"], correct: "Euro", explanation: "The Euro is the shared currency used by many European Union countries in the Eurozone." },
-{ q: "Who is the CEO of Berkshire Hathaway (2025)?", a: ["Warren Buffett","Charlie Munger","Tim Cook","Ray Dalio"], correct: "Warren Buffett", explanation: "Warren Buffett has long served as CEO of Berkshire Hathaway, overseeing its investment strategy." },
 { q: "A 'Bear Market' indicates that stock prices are doing what?", a: ["Falling","Rising","Staying Flat","Volatile"], correct: "Falling", explanation: "A bear market refers to a period when stock prices are declining or expected to decline." },
 { q: "Which company owns the brands Oreo, Ritz, and Toblerone?", a: ["Nestlé","PepsiCo","Mondelez","Mars"], correct: "Mondelez", explanation: "Mondelez International owns snack brands like Oreo, Ritz, and Toblerone." },
 { q: "What is the term for the first time a company offers its stock to the public?", a: ["IPO","SEO","LLC","GDP"], correct: "IPO", explanation: "An IPO, or Initial Public Offering, is when a company first sells shares to the public." }
