@@ -78,7 +78,8 @@ const gameState = {
         { id: 'laser', name: "Defense Laser", cost: 5, desc: "1-Use: Remove a wrong answer during regular question.", icon: "🔫" },
         { id: 'biosphere', name: "Biosphere", cost: 10, desc: "Produces 4 Food per Jump.", icon: "🌿" },
         { id: 'content_farm', name: "Content Farm", cost: 12, desc: "+2 Food, +6 Credits, -1 Trivium per Jump.", icon: "🚜" },
-        { id: 'gatling_laser', name: "Gatling Laser", cost: 60, desc: "Automatically eliminates one wrong answer on every question.", icon: "⚡" }
+        { id: 'gatling_laser', name: "Gatling Laser", cost: 60, desc: "Automatically eliminates one wrong answer on every question.", icon: "⚡" },
+        { id: 'gaming_lounge', name: "Gaming Lounge", cost: 25, desc: "Per Jump: each Buddy in Crew Quarters consumes 1 Food and produces 3 Trivium.", icon: "🎮" }
     ],
 
     buddies: [
@@ -210,6 +211,7 @@ const gameState = {
     enterGame: function() {
         this.charScreen.classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
+        document.getElementById('spaceship-floor').classList.remove('hidden');
         this.currentStage = 1;
         this.usedEventIds = new Set();
         this.terryQuestionCount = 0;
@@ -218,8 +220,10 @@ const gameState = {
         this.highestStageReached = 1;
         const sprite = document.getElementById('pilot-sprite');
         if (sprite) {
-            sprite.className = "";
-            sprite.classList.add(this.player.type + "-active"); 
+            sprite.className = "tip";
+            sprite.classList.add(this.player.type + "-active");
+            const pilotQuip = this.player.type === 'latke' ? 'Latke doing her best' : 'Glenn doing his best';
+            sprite.setAttribute('data-tooltip', pilotQuip); 
         }
         this.updateHUD();
         this.renderModules();
@@ -229,6 +233,7 @@ const gameState = {
     openShop: function() {
         this.gameScreen.classList.add('hidden');
         this.shopScreen.classList.remove('hidden');
+        document.getElementById('spaceship-floor').classList.remove('hidden');
         document.getElementById('shop-resources').innerHTML =
             `FOOD: <b>${this.player.food}</b> &nbsp;|&nbsp; TRIVIUM: <b>${this.player.trivium}</b> &nbsp;|&nbsp; CREDITS: <b>${this.player.credits}</b>`;
         
@@ -249,23 +254,24 @@ const gameState = {
         container.innerHTML = "";
         
         const shuffled = [...availableModules].sort(() => 0.5 - Math.random());
-        const selections = shuffled.slice(0, 3);
+        const selections = shuffled.slice(0, 4).sort((a, b) => a.cost - b.cost);
 
         selections.forEach((mod, index) => {
             const canAfford = this.player.credits >= mod.cost;
             const item = document.createElement('div');
-            item.id = `shop-item-${index}`; 
+            item.id = `shop-item-${index}`;
             item.className = 'shop-item';
             item.innerHTML = `
                 <h4>${mod.name}</h4>
                 <p>${mod.desc}</p>
                 <div class="buy-area">
-                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} 
+                    <button class="buy-btn" ${canAfford ? '' : 'disabled'}
                         onclick="gameState.buyModule('${mod.id}', ${index})">BUY: ${mod.cost}C</button>
                 </div>
             `;
             container.appendChild(item);
         });
+
     },
 
     buyModule: function(modId, shopIndex) {
@@ -932,6 +938,7 @@ viewLeaderboard: async function() {
 
     openTavern: function() {
         this.gameScreen.classList.add('hidden');
+        document.getElementById('spaceship-floor').classList.add('hidden');
         document.getElementById('tavern-screen').classList.remove('hidden');
         const container = document.getElementById('buddy-offers');
         container.innerHTML = "";
@@ -961,6 +968,7 @@ viewLeaderboard: async function() {
     closeTavern: function() {
         document.getElementById('tavern-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
+        document.getElementById('spaceship-floor').classList.remove('hidden');
         this.generatePlanets();
     },
 
@@ -971,6 +979,7 @@ viewLeaderboard: async function() {
         this.usedEventIds.add(event.id);
 
         this.gameScreen.classList.add('hidden');
+        document.getElementById('spaceship-floor').classList.add('hidden');
         const screen = document.getElementById('event-screen');
         screen.classList.remove('hidden');
 
@@ -1027,6 +1036,7 @@ viewLeaderboard: async function() {
             this.renderModules();
             document.getElementById('event-screen').classList.add('hidden');
             this.gameScreen.classList.remove('hidden');
+            document.getElementById('spaceship-floor').classList.remove('hidden');
             this.eventJustCompleted = true;
             const msg = added.length === 0
                 ? 'Figures emerged from the darkness, but your crew quarters were already full. They slipped back into the void.'
@@ -1042,6 +1052,7 @@ viewLeaderboard: async function() {
         const costText = opt.cost ? ` (${opt.costLabel})` : '';
         document.getElementById('event-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
+        document.getElementById('spaceship-floor').classList.remove('hidden');
         this.eventJustCompleted = true;
         this.showFeedback(true, `${rewardText}${costText}`, opt.label.toUpperCase());
     },
@@ -1130,7 +1141,37 @@ viewLeaderboard: async function() {
             if (m.id === 'trivia_toad') { foodNet -= 1; triviumNet += 4; }
             if (m.id === 'bear_bot') { foodNet += 1; triviumNet += 1; creditNet += 1; }
         });
+        if (this.player.modules.some(m => m?.id === 'gaming_lounge')) {
+            const crewCount = this.player.crew.filter(m => m !== null).length;
+            foodNet -= crewCount;
+            triviumNet += crewCount * 3;
+        }
         return { foodNet, triviumNet, creditNet };
+    },
+
+    getJumpCostBreakdown: function() {
+        const baseTrivium = -({ 1: 5, 2: 10, 3: 20 }[this.currentSector] || 5);
+        const food = [`Base Jump Cost: -5`];
+        const trivium = [`Sector ${this.currentSector} Jump Cost: ${baseTrivium}`];
+        const credits = [`Base: 0`];
+        [...this.player.modules, ...this.player.crew].forEach(m => {
+            if (!m) return;
+            if (m.id === 'biosphere')    food.push('Biosphere: +4');
+            if (m.id === 'content_farm') { food.push('Content Farm: +2'); credits.push('Content Farm: +6'); trivium.push('Content Farm: -1'); }
+            if (m.id === 'octopus') {
+                const modCount = this.player.modules.filter(x => x !== null).length;
+                food.push(`Hydroponic Octopus: +${2 + modCount}`);
+            }
+            if (m.id === 'aardvark')    credits.push('Arbitrage Aardvark: +4');
+            if (m.id === 'trivia_toad') { food.push('Trivia Toad: -1'); trivium.push('Trivia Toad: +4'); }
+            if (m.id === 'bear_bot')    { food.push('Bear Bot: +1'); trivium.push('Bear Bot: +1'); credits.push('Bear Bot: +1'); }
+        });
+        if (this.player.modules.some(m => m?.id === 'gaming_lounge')) {
+            const crewCount = this.player.crew.filter(m => m !== null).length;
+            food.push(`Gaming Lounge: -${crewCount} (${crewCount} crew)`);
+            trivium.push(`Gaming Lounge: +${crewCount * 3} (${crewCount} crew)`);
+        }
+        return { food, trivium, credits };
     },
 
     updateHUD: function() {
@@ -1166,6 +1207,14 @@ viewLeaderboard: async function() {
         if (fCostEl) { fCostEl.innerText = `${formatNet(foodNet)} FOOD`; fCostEl.style.color = foodNet >= 0 ? "#00ff88" : "#ff4444"; }
         if (tCostEl) { tCostEl.innerText = `${formatNet(triviumNet)} TRIVIUM`; tCostEl.style.color = triviumNet >= 0 ? "#00ff88" : "#ff4444"; }
         if (cGainEl) { cGainEl.innerText = `${formatNet(creditNet)} CREDITS`; cGainEl.style.color = creditNet > 0 ? "#00f2ff" : "#888"; }
+
+        const bd = this.getJumpCostBreakdown();
+        const foodTip = bd.food.join('\n');
+        const triviumTip = bd.trivium.join('\n');
+        const creditTip = bd.credits.join('\n');
+        ['food-label', 'food-cost'].forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('data-tooltip', foodTip); });
+        ['trivium-label', 'trivium-cost'].forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('data-tooltip', triviumTip); });
+        ['credits-label', 'credit-gain'].forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('data-tooltip', creditTip); });
     },
 
     getRunStats: function() {
@@ -1179,6 +1228,14 @@ viewLeaderboard: async function() {
 
     closeRules: function() {
         document.getElementById('rules-overlay').classList.add('hidden');
+    },
+
+    confirmAbandon: function() {
+        document.getElementById('abandon-overlay').classList.remove('hidden');
+    },
+
+    closeAbandon: function() {
+        document.getElementById('abandon-overlay').classList.add('hidden');
     },
 
     returnToMenu: function() {

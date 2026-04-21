@@ -49,8 +49,8 @@
     <button onclick="gameState.replayCinematic()" style="background: rgba(0,30,60,0.9); color: #00f2ff; padding: 10px; border: 1px solid #00f2ff; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
         OPENING CINEMATIC
     </button>
-    <button onclick="gameState.showChangelog()" style="background: rgba(0,0,0,0.7); color: #888; padding: 10px; border: 1px solid #555; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
-        v0.67 CHANGELOG
+    <button onclick="gameState.showChangelog()" style="background: rgba(60,20,80,0.6); color: #a070c0; padding: 10px; border: 1px solid #6a3a8a; cursor: pointer; font-family: 'Courier New', Courier, monospace;">
+        v0.68 CHANGELOG
     </button>
 </div>
     </div>
@@ -134,23 +134,26 @@
     <div id="hud">
         <div id="resource-hud">
     <div class="stat-row">
-        <span id="stockpiled-label">Stockpiled </span><span id="food-label">FOOD:<span id="food-stat">0</span></span>|
-        <span id="trivium-label">TRIVIUM:<span id="trivium-stat">0</span></span>|
-        <span>CREDITS:<span id="credits-stat">0</span></span>
+        <span id="stockpiled-label">Stockpiled </span><span id="food-label" class="tip">FOOD:<span id="food-stat">0</span></span>|
+        <span id="trivium-label" class="tip">TRIVIUM:<span id="trivium-stat">0</span></span>|
+        <span id="credits-label" class="tip">CREDITS:<span id="credits-stat">0</span></span>
     </div>
 
     <div id="jump-cost-row">
-    JUMP COST: 
-    <span id="food-cost" class="cost-val">-5 FOOD</span> | 
-    <span id="trivium-cost" class="cost-val">-5 TRIVIUM</span> |
-    <span id="credit-gain" style="color: #00f2ff;">+0 CREDITS</span>
+    JUMP COST:
+    <span id="food-cost" class="cost-val tip">-5 FOOD</span> |
+    <span id="trivium-cost" class="cost-val tip">-5 TRIVIUM</span> |
+    <span id="credit-gain" class="tip" style="color: #00f2ff;">+0 CREDITS</span>
 </div>
 </div>
         <div id="stage-counter">
     SECTOR: <span id="current-sector">SOL</span><br> 
     STAGE: <span id="current-stage">1</span>/10
 </div>
-        <button id="quit-btn" onclick="gameState.returnToMenu()">ABANDON</button>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <button id="rules-btn" onclick="gameState.showRules()">RULES &amp; INFO</button>
+            <button id="quit-btn" onclick="gameState.confirmAbandon()">ABANDON</button>
+        </div>
     </div>
     
 
@@ -167,35 +170,6 @@
         <div id="answer-grid"></div>
     </div>
 
-    <div id="spaceship-floor">
-        <div id="ship-engines">
-            <div class="engine-nozzle"></div>
-            <div class="engine-nozzle"></div>
-        </div>
-        <div id="crew-quarters">
-            <div class="floor-label">CREW QUARTERS</div>
-            <div class="slot-grid" id="crew-slot-grid">
-                <div class="slot" id="crew-slot-1" data-tooltip="Empty"></div>
-                <div class="slot" id="crew-slot-2" data-tooltip="Empty"></div>
-                <div class="slot" id="crew-slot-3" data-tooltip="Empty"></div>
-                <div class="slot" id="crew-slot-4" data-tooltip="Empty"></div>
-                <div class="slot hidden" id="crew-slot-5" data-tooltip="Empty"></div>
-                <div class="slot hidden" id="crew-slot-6" data-tooltip="Empty"></div>
-            </div>
-        </div>
-        <div id="pilot-sprite"></div>
-        <div id="module-bays">
-            <div class="floor-label">MODULE BAYS</div>
-            <div class="slot-grid">
-                <div class="slot" id="mod-slot-1" data-tooltip="Empty"></div>
-                <div class="slot" id="mod-slot-2" data-tooltip="Empty"></div>
-                <div class="slot" id="mod-slot-3" data-tooltip="Empty"></div>
-                <div class="slot" id="mod-slot-4" data-tooltip="Empty"></div>
-            </div>
-        </div>
-        <div id="ship-nose"></div>
-    </div>
-    <button id="rules-btn" onclick="gameState.showRules()">RULES &amp; INFO</button>
 </section>
 <section id="boss-ui" class="view hidden">
     <h2 id="boss-title" class="failure-text">GREAT FILTER DETECTED</h2>
@@ -211,8 +185,36 @@
 
     <div id="boss-category-grid"></div>
 </section>
-   
+
 </div>
+    <div id="spaceship-floor" class="hidden">
+        <div id="ship-engines">
+            <div class="engine-nozzle"></div>
+            <div class="engine-nozzle"></div>
+        </div>
+        <div id="crew-quarters">
+            <div class="floor-label">CREW QUARTERS</div>
+            <div class="slot-grid" id="crew-slot-grid">
+                <div class="slot" id="crew-slot-1" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-2" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-3" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-4" data-tooltip="Empty"></div>
+                <div class="slot hidden" id="crew-slot-5" data-tooltip="Empty"></div>
+                <div class="slot hidden" id="crew-slot-6" data-tooltip="Empty"></div>
+            </div>
+        </div>
+        <div id="pilot-sprite" class="tip"></div>
+        <div id="module-bays">
+            <div class="floor-label">MODULE BAYS</div>
+            <div class="slot-grid">
+                <div class="slot" id="mod-slot-1" data-tooltip="Empty"></div>
+                <div class="slot" id="mod-slot-2" data-tooltip="Empty"></div>
+                <div class="slot" id="mod-slot-3" data-tooltip="Empty"></div>
+                <div class="slot" id="mod-slot-4" data-tooltip="Empty"></div>
+            </div>
+        </div>
+        <div id="ship-nose"></div>
+    </div>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="questionbanks/questionBank.js"></script>
     <script src="questionbanks/questionBankHard.js"></script>
@@ -223,12 +225,12 @@
         <h2 class="glow-text">MISSION BRIEFING</h2>
         <div id="rules-body">
             <p><span class="rules-heading">OBJECTIVE</span><br>
-            Navigate from the Sol System to the Galactic Core across 3 Sectors, each with 10 Stages. Defeat the boss at Stage 10 of each Sector to advance. Beat all 3 bosses to win.</p>
+            Navigate from the Sol System to the Galactic Core across 3 Sectors, each with 10 Stages. Defeat the boss at Stage 10 of each Sector to advance. Beat all 3 bosses to win. Gather up to 6 Buddies and 4 Modules to increase your ability to survive</p>
 
             <p><span class="rules-heading">RESOURCES</span><br>
             <b>Food</b> — Keeps your crew alive. Run out and the mission ends.<br>
             <b>Trivium</b> — Powers the jump drive. Run out and you drift forever.<br>
-            <b>Credits</b> — Spent at the Interstellar Outpost (Stage 8) on modules.</p>
+            <b>Credits</b> — Spent at the Interstellar Outpost (Stage 8) on modules, sometimes at events, and on rerolling boss questions.</p>
 
             <p><span class="rules-heading">EACH JUMP COSTS</span><br>
             Sector 1: -5 Food, -5 Trivium per jump.<br>
@@ -258,6 +260,15 @@
         <h2 class="glow-text">VERSION HISTORY</h2>
         <div id="changelog-body"></div>
         <button onclick="gameState.closeChangelog()">CLOSE</button>
+    </div>
+</div>
+    <div id="abandon-overlay" class="hidden">
+    <div id="abandon-content">
+        <p>Are you sure you want to abandon your mission and return to the main menu?</p>
+        <div style="display:flex; justify-content:center; gap:15px; margin-top:15px;">
+            <button onclick="gameState.returnToMenu()" style="background:rgba(180,40,40,0.3); border:1px solid #bb2222; color:#ff6666;">ABANDON MISSION</button>
+            <button onclick="gameState.closeAbandon()">CONTINUE MISSION</button>
+        </div>
     </div>
 </div>
     <div id="feedback-overlay" class="hidden">

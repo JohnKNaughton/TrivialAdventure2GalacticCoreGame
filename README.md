@@ -5,6 +5,9 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 
 Changelog:
+.68 Hovering over Food/Trivium/Pilot gives you more information, reformatted game screen, added module gaming lounge, shop increased to 4 options, can sell modules during shop, ship appears during shop
+
+
 .67 4/20/26 adding easy mode, changing intro to only show at beginning, adding 2 buttons for into cinematic and changelog list, expanded hall of fame to all scores above 50 but only allowed unique names thrice, adding in fixed showHighScores has malformed HTML, fixed confirm() and alert() break immersion. Changed boss logic to not lead to permadeath, 3rd boss saps resources until correct answer or trivium runs out. 
 Added a "Fun Adventure" mode where dying is impossible, and the normal mode is called "Hardcore Adventure". Reduced jump costs and nerfed the trivium amplifier. Added a 4th event. 6 possible buddy slots if needed. Removed a few problem questions. 
 
