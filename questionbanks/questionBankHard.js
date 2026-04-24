@@ -208,7 +208,7 @@ const questionBankHard = {
     ],
 
     Fashion_History: [
-        { q: "Who founded the fashion house Chanel?", a: ["Elsa Schiaparelli", "Coco Chanel", "Donatella Versace", "Yves Saint Laurent"], correct: "Coco Chanel", explanation: "Coco Chanel is credited with popularizing the 'little black dress' and the Chanel No. 5 perfume." },
+        { q: "Which designer introduced the 'New Look' silhouette that reshaped women's fashion in 1947?", a: ["Coco Chanel", "Cristóbal Balenciaga", "Christian Dior", "Hubert de Givenchy"], correct: "Christian Dior", explanation: "Dior's 1947 New Look featured nipped waists and full skirts, a dramatic departure from wartime utility clothing." },
         { q: "What 1960s fashion movement popularized miniskirts?", a: ["Mod", "Goth", "Punk", "Bohemian"], correct: "Mod", explanation: "The Mod (Modernist) movement, centered in London, broke traditional fashion rules with bold colors and shorter hemlines." },
         { q: "Which city is considered one of the 'Big Four' fashion capitals?", a: ["Milan", "Zurich", "Dubai", "Seoul"], correct: "Milan", explanation: "The 'Big Four' are Paris, London, Milan, and New York." },
         { q: "Which designer is known for the 'New Look,' introduced in 1947?", a: ["Christian Dior", "Cristobal Balenciaga", "Hubert de Givenchy", "Gianni Versace"], correct: "Christian Dior", explanation: "The New Look featured cinched waists and full skirts, re-establishing Paris as the world's fashion center after WWII." },
