@@ -206,13 +206,15 @@ body {
 
 #intro-terminal p {
     position: absolute;
-    top: 100%;       
-    left: 0;
-    width: 100%;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65%;
+    max-width: 620px;
     margin: 0;
     text-align: center;
-    line-height: 4;
-    font-size: 24px;         
+    line-height: 3;
+    font-size: 22px;
     animation: crawl 25s linear forwards;
 }
 
@@ -339,9 +341,22 @@ body {
     border: 1px solid #00f2ff;
     z-index: 200;
     line-height: 1.4;
+    pointer-events: none;
+}
+
+.slot.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+}
+
+.slot.drag-over {
+    border-color: #ffde00;
+    background: rgba(255, 222, 0, 0.15);
+    box-shadow: 0 0 10px rgba(255, 222, 0, 0.4);
 }
 
 .slot.equipped {
+    cursor: grab;
     border: 1px solid #00f2ff;
     box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
     background-size: cover;

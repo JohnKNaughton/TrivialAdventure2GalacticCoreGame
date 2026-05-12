@@ -48,7 +48,7 @@ var gameEvents = [
             },
             {
                 label: 'Trust him',
-                desc: 'He leads you to the cave of unknowable horrors. After what seems like an eternity to you, you emerge 20 minutes later to his outstreched hand',
+                desc: 'He leads you to the cave of unspeakable horrors. After what seems like an eternity to you, you emerge 20 minutes later to his outstreched hand',
                 reward: { trivium: 50 },
                 cost: { credits: 20 },
                 costLabel: '-20 Credits'

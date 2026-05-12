@@ -14,6 +14,7 @@
             <p class="crawl-text">
                 In 2030, Scientists figure out how to refine quantum energy 
                 from interstellar asteroids using pure trivia knowledge. <br><br>
+                Earth is stagnant and running out of resources.<br> You recieve an intriguing ping from the center of the Milky Way, <br><br>
                 You board the final ship escaping the solar system, welcome to...
             </p>
         </div>
@@ -62,22 +63,24 @@
         <div class="char-card" onclick="gameState.selectCharacter('latke')">
             <div class="sprite-placeholder latke-sprite"></div>
             <h3>LATKE (The Dog)</h3>
-            <p>Resourceful and Loyal.</p>
+            <p>Resourceful and Loyal</p>
             <ul>
                 <li>Food: 20</li>
                 <li>Trivium: 16</li>
-                <li>Credits: 0</li>
+                
+                <li>Starts with a random Buddy</li>
             </ul>
         </div>
 
         <div class="char-card" onclick="gameState.selectCharacter('glenn')">
             <div class="sprite-placeholder glenn-sprite"></div>
             <h3>GLENN (The Human)</h3>
-            <p>A Trivial Scholar.</p>
+            <p>A Trivial Scholar</p>
             <ul>
                 <li>Food: 12</li>
                 <li>Trivium: 10</li>
                 <li>Credits: 15</li>
+                <li>Starts with Bear Bot 🧸</li>
             </ul>
         </div>
     </div>
@@ -199,8 +202,8 @@
                 <div class="slot" id="crew-slot-2" data-tooltip="Empty"></div>
                 <div class="slot" id="crew-slot-3" data-tooltip="Empty"></div>
                 <div class="slot" id="crew-slot-4" data-tooltip="Empty"></div>
-                <div class="slot hidden" id="crew-slot-5" data-tooltip="Empty"></div>
-                <div class="slot hidden" id="crew-slot-6" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-5" data-tooltip="Empty"></div>
+                <div class="slot" id="crew-slot-6" data-tooltip="Empty"></div>
             </div>
         </div>
         <div id="pilot-sprite" class="tip"></div>

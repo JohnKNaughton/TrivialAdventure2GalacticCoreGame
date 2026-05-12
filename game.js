@@ -83,7 +83,7 @@ const gameState = {
     ],
 
     buddies: [
-        { id: 'octopus', name: "Hydroponic Octopus", desc: "Grows 2 Food per Jump, +1 Food per filled Module Bay.", icon: "🐙", gif: "assets/octopus_idle.gif" },
+        { id: 'octopus', name: "Hydroponic Octopus", desc: "+2 Food per Jump. Generates +2 Food for each adjacent Buddy.", icon: "🐙", gif: "assets/octopus_idle.gif" },
         { id: 'aardvark', name: "Arbitrage Aardvark", desc: "Generates 4 Credits for you per Jump.", icon: "🐜", gif: "assets/aardvark_idle.gif" },
         { id: 'trivia_toad', name: "Trivia Toad", desc: "Consumes 1 Food to produce 4 Trivium per Jump.", icon: "🐸", gif: "assets/toad_idle.gif" },
         { id: 'bear_bot', name: "Bear Bot", desc: "Produces 1 Food, 1 Trivium, 1 Credit per Jump.", icon: "🧸", gif: "assets/bear_idle.gif" },
@@ -179,13 +179,17 @@ const gameState = {
 
     showCharacterSelect: function() {
         this.menuScreen.classList.add('hidden');
-        this.charScreen.classList.remove('hidden');
+        const bossGifs = ['assets/boss1-idle.gif', 'assets/boss2-idle.gif', 'assets/boss3-idle.gif'];
+        const buddyGifs = ['assets/octopus_idle.gif', 'assets/aardvark_idle.gif', 'assets/toad_idle.gif', 'assets/bear_idle.gif', 'assets/terry_idle.gif'];
+        document.getElementById('mode-hardcore-img').style.backgroundImage = `url('${bossGifs[Math.floor(Math.random() * bossGifs.length)]}')`;
+        document.getElementById('mode-fun-img').style.backgroundImage = `url('${buddyGifs[Math.floor(Math.random() * buddyGifs.length)]}')`;
+        this.modeScreen.classList.remove('hidden');
     },
 
     selectMode: function(mode) {
         this.easyMode = (mode === 'fun');
         this.modeScreen.classList.add('hidden');
-        this.enterGame();
+        this.charScreen.classList.remove('hidden');
     },
 
     selectCharacter: function(choice) {
@@ -196,16 +200,14 @@ const gameState = {
             bossIcon.style.backgroundImage = "url('assets/boss1-idle.gif')";
         }
         if (choice === 'latke') {
-            this.player = { name: "Latke", food: 20, trivium: 16, credits: 0, type: "latke", modules: [null, null, null, null], crew: [null, null, null, null, null, null], usedQuestions: {} };
+            const randomBuddy = { ...this.buddies[Math.floor(Math.random() * this.buddies.length)] };
+            this.player = { name: "Latke", food: 20, trivium: 16, credits: 0, type: "latke", modules: [null, null, null, null], crew: [randomBuddy, null, null, null, null, null], usedQuestions: {} };
         } else {
-            this.player = { name: "Glenn", food: 12, trivium: 10, credits: 15, type: "glenn", modules: [null, null, null, null], crew: [null, null, null, null, null, null], usedQuestions: {} };
+            const bearBot = { ...this.buddies.find(b => b.id === 'bear_bot') };
+            this.player = { name: "Glenn", food: 12, trivium: 10, credits: 15, type: "glenn", modules: [null, null, null, null], crew: [bearBot, null, null, null, null, null], usedQuestions: {} };
         }
-        const bossGifs = ['assets/boss1-idle.gif', 'assets/boss2-idle.gif', 'assets/boss3-idle.gif'];
-        const buddyGifs = ['assets/octopus_idle.gif', 'assets/aardvark_idle.gif', 'assets/toad_idle.gif', 'assets/bear_idle.gif', 'assets/terry_idle.gif'];
-        document.getElementById('mode-hardcore-img').style.backgroundImage = `url('${bossGifs[Math.floor(Math.random() * bossGifs.length)]}')`;
-        document.getElementById('mode-fun-img').style.backgroundImage = `url('${buddyGifs[Math.floor(Math.random() * buddyGifs.length)]}')`;
         this.charScreen.classList.add('hidden');
-        this.modeScreen.classList.remove('hidden');
+        this.enterGame();
     },
 
     enterGame: function() {
@@ -228,6 +230,19 @@ const gameState = {
         this.updateHUD();
         this.renderModules();
         this.generatePlanets();
+
+        const startingBuddy = this.player.crew[0];
+        if (startingBuddy) {
+            const flavorLines = {
+                bear_bot: "admires your ambition and has joined your crew!",
+                octopus: "sensed a promising harvest ahead and has joined your crew!",
+                aardvark: "spotted a profitable venture and has joined your crew!",
+                trivia_toad: "recognizes a fellow scholar and has joined your crew!",
+                terry: "has survived worse odds than these and has joined your crew!"
+            };
+            const flavor = flavorLines[startingBuddy.id] || "has joined your crew!";
+            this.showFeedback(true, `${startingBuddy.icon} ${startingBuddy.name} ${flavor}`, "NEW CREW MEMBER");
+        }
     },
 
     openShop: function() {
@@ -309,6 +324,34 @@ const gameState = {
         const renderSlot = (item, slotId, index, arrayType) => {
             const slot = document.getElementById(slotId);
             if (!slot) return;
+
+            // Drag state
+            slot.draggable = !!item;
+            slot.ondragstart = item ? (e) => {
+                this._drag = { index, arrayType };
+                slot.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            } : null;
+            slot.ondragend = () => slot.classList.remove('dragging');
+            slot.ondragover = (e) => {
+                if (!this._drag) return;
+                if (this._drag.arrayType !== arrayType) return; // no cross-type drops
+                e.preventDefault();
+                slot.classList.add('drag-over');
+            };
+            slot.ondragleave = () => slot.classList.remove('drag-over');
+            slot.ondrop = (e) => {
+                e.preventDefault();
+                slot.classList.remove('drag-over');
+                if (!this._drag || this._drag.arrayType !== arrayType) return;
+                if (this._drag.index === index) return;
+                const arr = arrayType === 'crew' ? this.player.crew : this.player.modules;
+                [arr[this._drag.index], arr[index]] = [arr[index], arr[this._drag.index]];
+                this._drag = null;
+                this.renderModules();
+                this.updateHUD();
+            };
+
             if (item) {
                 slot.classList.add('equipped');
                 if (item.gif) {
@@ -339,13 +382,8 @@ const gameState = {
 
         this.player.crew.forEach((item, i) => renderSlot(item, `crew-slot-${i + 1}`, i, 'crew'));
 
-        const hasFifthBuddy = this.player.crew[4] !== null;
         const crewGrid = document.getElementById('crew-slot-grid');
-        if (crewGrid) {
-            crewGrid.classList.toggle('three-col', hasFifthBuddy);
-            document.getElementById('crew-slot-5').classList.toggle('hidden', !hasFifthBuddy);
-            document.getElementById('crew-slot-6').classList.toggle('hidden', !hasFifthBuddy);
-        }
+        if (crewGrid) crewGrid.classList.add('three-col');
 
         this.player.modules.forEach((item, i) => renderSlot(item, `mod-slot-${i + 1}`, i, 'module'));
     },
@@ -465,7 +503,17 @@ const gameState = {
     const pilotImg = this.player.type === 'latke' ? 'assets/latke_idle.gif' : 'assets/glenn_idle.gif';
     const buddyHtml = this.player.crew
         .filter(m => m && m.gif)
-        .map(b => `<img src="${b.gif}" style="width:50px; height:50px; border:1px solid #00f2ff; margin:5px; background: rgba(0,0,0,0.5);" title="${b.name}">`)
+        .map(b => `<div style="display:flex;flex-direction:column;align-items:center;margin:5px;">
+            <img src="${b.gif}" style="width:50px;height:50px;border:1px solid #00f2ff;background:rgba(0,0,0,0.5);image-rendering:pixelated;">
+            <span style="font-size:0.65em;color:#a0f9ff;margin-top:3px;">${b.name}</span>
+        </div>`)
+        .join('');
+    const moduleHtml = this.player.modules
+        .filter(m => m)
+        .map(m => `<div style="display:flex;flex-direction:column;align-items:center;margin:5px;">
+            <span style="font-size:1.8em;">${m.icon}</span>
+            <span style="font-size:0.65em;color:#ffde00;margin-top:3px;">${m.name}</span>
+        </div>`)
         .join('');
 
     // 4. Inject Content (Updated with container padding)
@@ -486,9 +534,15 @@ const gameState = {
             </div>
 
             <div style="margin: 15px 0;">
-                <p style="font-size: 0.8em; color: #888;">Surviving Crew:</p>
+                <p style="font-size: 0.8em; color: #888; margin-bottom: 6px;">SURVIVING CREW:</p>
                 <div style="display: flex; justify-content: center; flex-wrap: wrap;">
-                    ${buddyHtml || "NO SURVIVING BUDDIES"}
+                    ${buddyHtml || '<span style="color:#444;">NO SURVIVING BUDDIES</span>'}
+                </div>
+            </div>
+            <div style="margin: 10px 0;">
+                <p style="font-size: 0.8em; color: #888; margin-bottom: 6px;">INSTALLED MODULES:</p>
+                <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+                    ${moduleHtml || '<span style="color:#444;">NO MODULES INSTALLED</span>'}
                 </div>
             </div>
 
@@ -523,16 +577,18 @@ const gameState = {
 
     try {
         // 1. Insert the new score
+        const crewIds = JSON.stringify(this.player.crew.filter(c => c).map(c => c.id));
+        const moduleIds = JSON.stringify(this.player.modules.filter(m => m).map(m => m.id));
         const { error: insertError } = await supabase
             .from('leaderboard')
-            .insert([{ name: initials, score: finalScore }]);
+            .insert([{ name: initials, score: finalScore, crew: crewIds, modules: moduleIds }]);
 
         if (insertError) throw insertError;
 
         // 2. Fetch all scores above 50
         const { data: scores, error: fetchError } = await supabase
             .from('leaderboard')
-            .select('name, score')
+            .select('name, score, crew, modules')
             .gt('score', 50)
             .order('score', { ascending: false });
 
@@ -561,20 +617,45 @@ showHighScores: function(scores) {
         <table style="width:100%; border-collapse: collapse; font-family: 'Courier New', monospace; font-size: 0.9em; margin-top:10px;">
             <tr style="border-bottom: 1px solid #00f2ff; color: #888;">
                 <th style="text-align:left; padding: 5px;">PILOT</th>
+                <th style="text-align:center; padding: 5px;">CREW &amp; MODS</th>
                 <th style="text-align:right; padding: 5px;">TRIVIUM</th>
             </tr>
     `;
 
-
     scores.forEach((s, index) => {
-        const color = index === 0 ? "#ffd700" : "#00f2ff"; // Gold for #1
+        const color = index === 0 ? "#ffd700" : "#00f2ff";
+
+        let crewHtml = '';
+        try {
+            const crewIds = JSON.parse(s.crew || '[]');
+            crewHtml = crewIds.map(id => {
+                const buddy = this.buddies.find(b => b.id === id);
+                return buddy ? `<img src="${buddy.gif}" title="${buddy.name}" style="width:28px;height:28px;image-rendering:pixelated;border:1px solid #00f2ff;background:rgba(0,0,0,0.5);">` : '';
+            }).join('');
+        } catch(e) {}
+
+        let modHtml = '';
+        try {
+            const modIds = JSON.parse(s.modules || '[]');
+            modHtml = modIds.map(id => {
+                const mod = this.shopModules.find(m => m.id === id);
+                return mod ? `<span title="${mod.name}" style="font-size:1.1em;">${mod.icon}</span>` : '';
+            }).join('');
+        } catch(e) {}
+
         tableHtml += `
             <tr style="border-bottom: 1px solid #222;">
                 <td style="text-align:left; padding: 8px 5px;">${index + 1}. ${s.name}</td>
+                <td style="text-align:center; padding: 4px 5px;">
+                    <div style="display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;">
+                        ${crewHtml}${modHtml || (!crewHtml ? '<span style="color:#444;font-size:0.75em;">—</span>' : '')}
+                    </div>
+                </td>
                 <td style="text-align:right; color: ${color}; font-weight:bold;">${s.score.toLocaleString()}</td>
             </tr>
         `;
     });
+
     tableHtml += `</table>
         <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
             <button onclick="location.reload()"
@@ -606,7 +687,7 @@ viewLeaderboard: async function() {
         // 2. Fetch all scores above 50
         const { data: scores, error } = await supabase
             .from('leaderboard')
-            .select('name, score')
+            .select('name, score, crew, modules')
             .gt('score', 50)
             .order('score', { ascending: false });
 
@@ -1136,7 +1217,12 @@ viewLeaderboard: async function() {
             if (!m) return;
             if (m.id === 'biosphere') foodNet += 4;
             if (m.id === 'content_farm') { foodNet += 2; creditNet += 6; triviumNet -= 1; }
-            if (m.id === 'octopus') foodNet += 2 + this.player.modules.filter(m => m !== null).length;
+            if (m.id === 'octopus') {
+                const adjMap = [[1,3],[0,2,4],[1,5],[0,4],[1,3,5],[2,4]];
+                const octIdx = this.player.crew.findIndex(c => c?.id === 'octopus');
+                const adjCount = octIdx >= 0 ? adjMap[octIdx].filter(i => this.player.crew[i] !== null).length : 0;
+                foodNet += 2 + adjCount * 2;
+            }
             if (m.id === 'aardvark') creditNet += 4;
             if (m.id === 'trivia_toad') { foodNet -= 1; triviumNet += 4; }
             if (m.id === 'bear_bot') { foodNet += 1; triviumNet += 1; creditNet += 1; }
@@ -1159,8 +1245,10 @@ viewLeaderboard: async function() {
             if (m.id === 'biosphere')    food.push('Biosphere: +4');
             if (m.id === 'content_farm') { food.push('Content Farm: +2'); credits.push('Content Farm: +6'); trivium.push('Content Farm: -1'); }
             if (m.id === 'octopus') {
-                const modCount = this.player.modules.filter(x => x !== null).length;
-                food.push(`Hydroponic Octopus: +${2 + modCount}`);
+                const adjMap = [[1,3],[0,2,4],[1,5],[0,4],[1,3,5],[2,4]];
+                const octIdx = this.player.crew.findIndex(c => c?.id === 'octopus');
+                const adjCount = octIdx >= 0 ? adjMap[octIdx].filter(i => this.player.crew[i] !== null).length : 0;
+                food.push(`Hydroponic Octopus: +${2 + adjCount * 2} (${adjCount} adjacent)`);
             }
             if (m.id === 'aardvark')    credits.push('Arbitrage Aardvark: +4');
             if (m.id === 'trivia_toad') { food.push('Trivia Toad: -1'); trivium.push('Trivia Toad: +4'); }
