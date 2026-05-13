@@ -240,6 +240,12 @@ const gameState = {
         this.terryQuestionCount = 0;
         this.correctAnswers = 0;
         this.wrongAnswers = 0;
+        this.correctAnswersNormal = 0;
+        this.wrongAnswersNormal = 0;
+        this.correctAnswersHard = 0;
+        this.wrongAnswersHard = 0;
+        this.categoryStats = {};
+        this.categoryStatsHard = {};
         this.highestStageReached = 1;
         const sprite = document.getElementById('pilot-sprite');
         if (sprite) {
@@ -393,6 +399,25 @@ const gameState = {
                 slot.appendChild(sellBtn);
                 slot.onclick = () => sellBtn.classList.toggle('hidden');
                 slot.setAttribute('data-tooltip', `${item.name}: ${item.desc}`);
+                const _tt = document.getElementById('slot-tooltip');
+                const _ttImg = document.getElementById('slot-tooltip-img');
+                const _ttTxt = document.getElementById('slot-tooltip-text');
+                slot.addEventListener('mouseenter', () => {
+                    _ttImg.innerHTML = item.gif
+                        ? `<img src="${item.gif}" alt="${item.name}">`
+                        : `<span>${item.icon || ''}</span>`;
+                    _ttTxt.innerText = `${item.name}\n${item.desc}`;
+                    _tt.classList.remove('hidden');
+                });
+                slot.addEventListener('mousemove', (e) => {
+                    const pad = 14;
+                    let x = e.clientX + pad, y = e.clientY + pad;
+                    if (x + 190 > window.innerWidth)  x = e.clientX - 190;
+                    if (y + 180 > window.innerHeight) y = e.clientY - 180;
+                    _tt.style.left = x + 'px';
+                    _tt.style.top  = y + 'px';
+                });
+                slot.addEventListener('mouseleave', () => _tt.classList.add('hidden'));
             } else {
                 slot.classList.remove('equipped');
                 slot.style.backgroundImage = "none";
@@ -420,7 +445,7 @@ const gameState = {
         this.renderModules();
     },
 
-    showFeedback: function(isCorrect, message, title = "TRANSMISSION RECEIVED", explanation = null) {
+    showFeedback: function(isCorrect, message, title = "TRANSMISSION RECEIVED", explanation = null, statsHtml = null) {
         const overlay = document.getElementById('feedback-overlay');
         const titleEl = document.getElementById('feedback-title');
         const msgEl = document.getElementById('feedback-msg');
@@ -431,6 +456,11 @@ const gameState = {
             expEl.style.cssText = 'margin-top: 15px; color: #a0f9ff; font-size: 0.9em; line-height: 1.5; text-align: left;';
             expEl.innerText = explanation;
             msgEl.appendChild(expEl);
+        }
+        if (statsHtml) {
+            const statsEl = document.createElement('div');
+            statsEl.innerHTML = statsHtml;
+            msgEl.appendChild(statsEl);
         }
         titleEl.className = isCorrect ? "success-text" : "failure-text";
         const isDefeat = !this.easyMode && (this.player.food <= 0 || this.player.trivium <= 0);
@@ -552,9 +582,7 @@ const gameState = {
                 <span>Trivium: ${this.player.trivium}</span>
                 <span>Credits: ${this.player.credits}</span>
             </div>
-            <div style="margin-top: 10px; padding: 8px; border: 1px solid rgba(0,242,255,0.3); font-size: 0.85em; color: #a0f9ff;">
-                ${this.getRunStats()}
-            </div>
+            ${this.buildStatsHtml()}
 
             <div style="margin: 15px 0;">
                 <p style="font-size: 0.8em; color: #888; margin-bottom: 6px;">SURVIVING CREW:</p>
@@ -896,6 +924,9 @@ viewLeaderboard: async function() {
                 if (document.getElementById('laser-action-btn')) document.getElementById('laser-action-btn').remove();
                 if (opt === qData.correct) {
                     this.correctAnswers++;
+                    this.correctAnswersHard++;
+                    if (!this.categoryStatsHard[category]) this.categoryStatsHard[category] = { correct: 0, wrong: 0 };
+                    this.categoryStatsHard[category].correct++;
                     this._suppressAscend = true;
                     this.playAscend();
                     if (this.currentSector === 3) {
@@ -915,6 +946,9 @@ viewLeaderboard: async function() {
                     }
                 } else {
                     this.wrongAnswers++;
+                    this.wrongAnswersHard++;
+                    if (!this.categoryStatsHard[category]) this.categoryStatsHard[category] = { correct: 0, wrong: 0 };
+                    this.categoryStatsHard[category].wrong++;
                     this._suppressAscend = true;
                     this.playDescend();
                     if (this.currentSector === 3) {
@@ -923,7 +957,7 @@ viewLeaderboard: async function() {
                         triviaBox.classList.add('hidden');
                         document.getElementById('boss-sprite-container').appendChild(bossIcon);
                         if (!this.easyMode && this.player.trivium <= 0) {
-                            this.showFeedback(false, `${this.sectorData[3].bossName} has drained your last Trivium reserves.\n\nThe correct answer was: ${qData.correct}\n\n${this.getRunStats()}`, "SYSTEMS FAILURE", qData.explanation);
+                            this.showFeedback(false, `${this.sectorData[3].bossName} has drained your last Trivium reserves.\n\nThe correct answer was: ${qData.correct}`, "SYSTEMS FAILURE", qData.explanation, this.buildStatsHtml());
                         } else {
                             this.showFeedback(false, `-30 Trivium. ${this.sectorData[3].bossName} is not finished. Regroup and face them again...\n\nThe correct answer was: ${qData.correct}`, "REPELLED — RETRY", qData.explanation);
                         }
@@ -1008,9 +1042,17 @@ viewLeaderboard: async function() {
 
                 if (isCorrect) {
                     this.correctAnswers++;
+                    if (isHard) { this.correctAnswersHard++; } else { this.correctAnswersNormal++; }
+                    const catBucket = isHard ? this.categoryStatsHard : this.categoryStats;
+                    if (!catBucket[category]) catBucket[category] = { correct: 0, wrong: 0 };
+                    catBucket[category].correct++;
                     this.player[reward.type.toLowerCase()] += finalVal;
                 } else {
                     this.wrongAnswers++;
+                    if (isHard) { this.wrongAnswersHard++; } else { this.wrongAnswersNormal++; }
+                    const catBucket = isHard ? this.categoryStatsHard : this.categoryStats;
+                    if (!catBucket[category]) catBucket[category] = { correct: 0, wrong: 0 };
+                    catBucket[category].wrong++;
                     this._suppressAscend = true;
                     this.playDescend();
                 }
@@ -1027,8 +1069,8 @@ viewLeaderboard: async function() {
                     const jumpNote = isCorrect
                         ? `You answered correctly, but the jump cost of ${outOf} drained your last reserves. The ship has no power to continue.`
                         : `You answered incorrectly. The jump cost then consumed your remaining ${outOf}, leaving nothing to continue.`;
-                    const deathMsg = `${jumpNote}\n\nThe correct answer was: ${qData.correct}\n\n${this.getRunStats()}`;
-                    this.showFeedback(false, deathMsg, `SYSTEMS FAILURE: OUT OF ${outOf}`, qData.explanation);
+                    const deathMsg = `${jumpNote}\n\nThe correct answer was: ${qData.correct}`;
+                    this.showFeedback(false, deathMsg, `SYSTEMS FAILURE: OUT OF ${outOf}`, qData.explanation, this.buildStatsHtml());
                 } else {
                     this.currentStage++;
                     this.highestStageReached = Math.max(this.highestStageReached, (this.currentSector - 1) * 10 + this.currentStage);
@@ -1363,6 +1405,65 @@ viewLeaderboard: async function() {
     getRunStats: function() {
         const totalStages = (this.currentSector - 1) * 10 + this.currentStage;
         return `Reached Stage ${totalStages}/30 (Sector ${this.currentSector}) — ${this.correctAnswers} correct, ${this.wrongAnswers} incorrect.`;
+    },
+
+    buildStatsHtml: function() {
+        const cn = this.correctAnswersNormal;
+        const ch = this.correctAnswersHard;
+        const wn = this.wrongAnswersNormal;
+        const wh = this.wrongAnswersHard;
+        const total = cn + ch + wn + wh;
+        const totalStages = (this.currentSector - 1) * 10 + this.currentStage;
+
+        const _bestNormal = Object.entries(this.categoryStats).filter(([,v]) => v.correct > 1).sort((a,b) => b[1].correct - a[1].correct)[0];
+        const _bestHard   = Object.entries(this.categoryStatsHard).filter(([,v]) => v.correct > 1).sort((a,b) => b[1].correct - a[1].correct)[0];
+        const topNormal = _bestNormal ? `${_bestNormal[0].replace(/_/g,' ')} (${_bestNormal[1].correct}/${_bestNormal[1].correct + _bestNormal[1].wrong})` : null;
+        const topHard   = _bestHard   ? `${_bestHard[0].replace(/_/g,' ')} (${_bestHard[1].correct}/${_bestHard[1].correct + _bestHard[1].wrong})` : null;
+
+        const canvasId = 'run-stats-pie-' + Date.now();
+        const html = `
+        <div style="margin-top:10px;padding:8px;border:1px solid rgba(0,242,255,0.3);font-size:0.85em;color:#a0f9ff;">
+            Reached Stage ${totalStages}/30 (Sector ${this.currentSector})
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:12px;flex-wrap:wrap;">
+            <canvas id="${canvasId}" width="130" height="130"></canvas>
+            <div style="font-size:0.78em;color:#ccc;text-align:left;line-height:1.8em;">
+                <div><span style="display:inline-block;width:12px;height:12px;background:#6ddb6d;margin-right:6px;vertical-align:middle;"></span>Correct Normal: ${cn}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#1a7a1a;margin-right:6px;vertical-align:middle;"></span>Correct Hard: ${ch}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#ff7a7a;margin-right:6px;vertical-align:middle;"></span>Wrong Normal: ${wn}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#7a1a1a;margin-right:6px;vertical-align:middle;"></span>Wrong Hard: ${wh}</div>
+            </div>
+        </div>
+        ${(topNormal || topHard) ? `<div style="margin-top:10px;font-size:0.78em;color:#a0f9ff;text-align:left;padding:0 8px;">
+            ${topNormal ? `<div><span style="color:#6ddb6d;">Top Normal:</span> ${topNormal}</div>` : ''}
+            ${topHard   ? `<div style="margin-top:4px;"><span style="color:#1aaa1a;">Top Hard:</span> ${topHard}</div>` : ''}
+        </div>` : ''}`;
+
+        setTimeout(() => {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || total === 0) return;
+            const ctx = canvas.getContext('2d');
+            const cx = 65, cy = 65, r = 60;
+            const slices = [
+                { val: cn, color: '#6ddb6d' },
+                { val: ch, color: '#1a7a1a' },
+                { val: wn, color: '#ff7a7a' },
+                { val: wh, color: '#7a1a1a' },
+            ].filter(s => s.val > 0);
+            let angle = -Math.PI / 2;
+            slices.forEach(s => {
+                const sweep = (s.val / total) * 2 * Math.PI;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, angle, angle + sweep);
+                ctx.closePath();
+                ctx.fillStyle = s.color;
+                ctx.fill();
+                angle += sweep;
+            });
+        }, 50);
+
+        return html;
     },
 
     showRules: function() {

@@ -344,6 +344,44 @@ body {
     pointer-events: none;
 }
 
+.slot.equipped:hover::after {
+    content: none;
+}
+
+#slot-tooltip {
+    position: fixed;
+    z-index: 1000;
+    background: #000d1a;
+    border: 1px solid #00f2ff;
+    padding: 8px 10px;
+    pointer-events: none;
+    text-align: center;
+    min-width: 110px;
+    max-width: 180px;
+}
+
+#slot-tooltip-img img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+    display: block;
+    margin: 0 auto 6px;
+}
+
+#slot-tooltip-img span {
+    display: block;
+    font-size: 2.2em;
+    margin-bottom: 6px;
+}
+
+#slot-tooltip-text {
+    font-size: 10px;
+    color: #00f2ff;
+    line-height: 1.5;
+    white-space: normal;
+    font-family: 'Courier New', monospace;
+}
+
 .slot.dragging {
     opacity: 0.4;
     cursor: grabbing;

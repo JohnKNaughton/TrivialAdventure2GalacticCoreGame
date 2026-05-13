@@ -6,8 +6,9 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 Changelog:
 
+.72 added more post run statistics, larger buddies when you hover over them
 
-.71 Added Amp Anteater and amplifying logic, changelog button updates version. Added ascending music motes for each sector to give the sense of rising investment and tension. 
+.71 Added Amp Anteater and amplifying logic, changelog button updates version. Added ascending music motes for each sector to give the sense of rising investment and tension. Added many more normal questions
 
 .7 Added starting buddy, expanded crew to 6 always, added crew and modules to supabase database, buddies are movable and can have adjacency bonus.
 
