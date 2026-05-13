@@ -294,7 +294,7 @@ Astronomy: [
         { q: "What international agreement aims to limit global warming to well below 2°C?", a: ["Kyoto Protocol", "Paris Agreement", "Montreal Protocol", "Geneva Convention"], correct: "Paris Agreement", explanation: "The Paris Agreement is a legally binding international treaty on climate change adopted by 196 parties in 2015." },
         { q: "What layer of the atmosphere contains the ozone layer?", a: ["Troposphere", "Stratosphere", "Mesosphere", "Thermosphere"], correct: "Stratosphere", explanation: "The ozone layer is located in the stratosphere and protects Earth by absorbing most of the Sun's harmful ultraviolet radiation." },
         { q: "What is the main cause of ocean acidification?", a: ["Plastic waste", "Oil spills", "CO2 absorption", "Overfishing"], correct: "CO2 absorption", explanation: "Ocean acidification is caused by the ocean absorbing excess $CO_2$ from the atmosphere, which reacts with seawater to form carbonic acid." },
-        { q: "What type of resource is replenished naturally over short periods?", a: ["Nonrenewable", "Finite", "Renewable", "Synthetic"], correct: "Renewable", explanation: "Renewable resources, such as wind or sunlight, are replenished naturally on a human timescale." },
+       
         { q: "Deforestation primarily impacts which global cycle?", a: ["Nitrogen", "Carbon", "Phosphorus", "Sulfur"], correct: "Carbon", explanation: "Trees store carbon; when they are removed, that carbon is released and fewer trees are available to absorb $CO_2$ from the air." },
         { q: "What term describes species at risk of extinction?", a: ["Invasive", "Endangered", "Native", "Dominant"], correct: "Endangered", explanation: "An endangered species is a biological species that is very likely to become extinct in the near future." }
     ],
@@ -367,23 +367,12 @@ Astronomy: [
         { q: "What is a contract?", a: ["Verbal promise", "Legally binding agreement", "Corporate charter", "Government decree"], correct: "Legally binding agreement", explanation: "A contract is an agreement between parties that is enforceable by law." },
         { q: "What does 'amicus curiae' mean?", a: ["Friend of the court", "Against the state", "Legal remedy", "Case precedent"], correct: "Friend of the court", explanation: "An amicus curiae is a non-party with a strong interest in the subject matter of a lawsuit." },
         { q: "What is tort law primarily concerned with?", a: ["Criminal punishment", "Civil wrongs", "Taxation", "Property transfer"], correct: "Civil wrongs", explanation: "Tort law deals with civil actions brought by one person against another for harm caused." },
-        { q: "What is the presumption of innocence?", a: ["Defendant must testify", "Guilt assumed", "Innocent until proven guilty", "Automatic acquittal"], correct: "Innocent until proven guilty", explanation: "This principle ensures the state must prove the defendant's guilt; they are not required to prove innocence." },
+        
         { q: "What is intellectual property?", a: ["Land ownership", "Creative works protection", "Corporate shares", "Physical goods"], correct: "Creative works protection", explanation: "Intellectual property refers to legal rights resulting from intellectual activity in industrial, scientific, or artistic fields." },
         { q: "What is extradition?", a: ["Appeal process", "Transfer of suspect between jurisdictions", "Jury selection", "Sentencing reduction"], correct: "Transfer of suspect between jurisdictions", explanation: "Extradition is the formal process of delivering a person to another jurisdiction for prosecution or punishment." },
         { q: "What is precedent in common law?", a: ["New legislation", "Executive order", "Prior judicial decision guiding future cases", "International treaty"], correct: "Prior judicial decision guiding future cases", explanation: "Precedents are principles or rules established in previous legal cases that are binding or persuasive for future ones." }
     ],
-    Common_Sense: [
-        { q: "What should you do first if you smell smoke in your house?", a: ["Go back to sleep", "Investigate alone", "Leave and call emergency services", "Open all windows"], correct: "Leave and call emergency services", explanation: "Immediate evacuation is the safest action in response to signs of a fire." },
-        { q: "In most countries, on which side of the road do vehicles drive?", a: ["Left", "Right", "Either lane", "The middle"], correct: "Right", explanation: "About 65% of countries drive on the right; left-side driving is common in the UK, Japan, and Australia." },
-        { q: "What is the safest way to cross a busy street?", a: ["Run quickly", "Cross anywhere", "Use a crosswalk", "Follow another pedestrian blindly"], correct: "Use a crosswalk", explanation: "Crosswalks are designated areas intended to help pedestrians cross safely with driver awareness." },
-        { q: "If food smells spoiled, you should:", a: ["Taste it anyway", "Cook it longer", "Throw it away", "Freeze it"], correct: "Throw it away", explanation: "Consuming spoiled food poses a high risk of food poisoning regardless of cooking time." },
-        { q: "What should you wear when riding a bicycle for safety?", a: ["Sandals", "Helmet", "Scarf", "Watch"], correct: "Helmet", explanation: "Helmets are essential for protecting the head from injury during a fall or collision." },
-        { q: "If your phone battery is at 1% and you need it later, you should:", a: ["Stream video", "Turn on airplane mode", "Increase brightness", "Play games"], correct: "Turn on airplane mode", explanation: "Airplane mode conserves power by disabling energy-intensive cellular and wireless searches." },
-        { q: "If someone is choking and cannot speak, you should perform:", a: ["CPR immediately", "The Heimlich maneuver", "Give water", "Lay them flat"], correct: "The Heimlich maneuver", explanation: "Abdominal thrusts (the Heimlich maneuver) can help clear an obstruction from the airway." },
-        { q: "What is the best way to avoid dehydration on a hot day?", a: ["Drink water regularly", "Avoid shade", "Wear dark clothing", "Skip meals"], correct: "Drink water regularly", explanation: "Regular fluid intake is necessary to replace water lost through sweat in high temperatures." },
-        { q: "If you drop glass on the floor, you should:", a: ["Pick it up barefoot", "Sweep it carefully", "Ignore it", "Kick it aside"], correct: "Sweep it carefully", explanation: "Sweeping and using a damp cloth for shards prevents injury from nearly invisible glass pieces." },
-        { q: "If you forget a password, the safest action is to:", a: ["Guess repeatedly", "Share account", "Use password recovery", "Create a new identity"], correct: "Use password recovery", explanation: "Official password recovery tools are the only secure and reliable way to regain access to an account." }
-    ],
+    
     NBA: [
         { q: "Which team has won the most NBA championships?", a: ["Chicago Bulls", "Los Angeles Lakers", "Boston Celtics", "Golden State Warriors"], correct: "Boston Celtics", explanation: "The Celtics lead the league with 18 titles after winning the 2024 championship." },
         { q: "How many players from one team are on the court at a time in an NBA game?", a: ["4", "5", "6", "7"], correct: "5", explanation: "Regulation basketball is played 5-on-5 on the court at any given time." },
@@ -411,7 +400,7 @@ Astronomy: [
     ],
     Animals: [
         { q: "What is the largest land animal?", a: ["Rhinoceros", "Elephant", "Hippopotamus", "Giraffe"], correct: "Elephant", explanation: "The African Bush Elephant is the largest living land animal, weighing up to 6 tons." },
-        { q: "Which mammal is capable of true flight?", a: ["Flying squirrel", "Bat", "Ostrich", "Penguin"], correct: "Bat", explanation: "While some mammals glide, bats are the only mammals with the structural adaptations required for powered flight." },
+        
         { q: "What is a group of lions called?", a: ["Pack", "Herd", "Pride", "Flock"], correct: "Pride", explanation: "Lions are the most social of all big cats and live in family groups known as prides." },
         { q: "Which animal is known as the fastest land animal?", a: ["Cheetah", "Horse", "Lion", "Leopard"], correct: "Cheetah", explanation: "The cheetah can reach speeds of up to 70 mph (112 km/h) in short bursts to catch its prey." },
         { q: "What do pandas primarily eat?", a: ["Fish", "Insects", "Bamboo", "Fruit"], correct: "Bamboo", explanation: "Giant pandas are specialized herbivores, with bamboo making up over 99% of their diet." },
@@ -422,7 +411,6 @@ Astronomy: [
         { q: "Which animal is known for changing its color to blend with surroundings?", a: ["Frog", "Chameleon", "Lizard", "Gecko"], correct: "Chameleon", explanation: "Chameleons change color using specialized cells called chromatophores for camouflage and communication." }
     ],
     Weather: [
-        { q: "What instrument measures wind speed?", a: ["Barometer", "Hygrometer", "Anemometer", "Altimeter"], correct: "Anemometer", explanation: "An anemometer measures wind speed using rotating cups that spin faster as wind increases." },
         { q: "What scale is commonly used to measure hurricane intensity?", a: ["Richter Scale", "Saffir-Simpson Scale", "Beaufort Scale", "Kelvin Scale"], correct: "Saffir-Simpson Scale", explanation: "The Saffir-Simpson scale classifies hurricanes into five categories based on their sustained wind speeds." },
         { q: "What type of cloud is associated with thunderstorms?", a: ["Cirrus", "Stratus", "Cumulonimbus", "Altocumulus"], correct: "Cumulonimbus", explanation: "Cumulonimbus clouds are dense, towering vertical clouds that produce heavy rain, lightning, and tornadoes." },
         { q: "What does a barometer measure?", a: ["Humidity", "Wind speed", "Air pressure", "Temperature"], correct: "Air pressure", explanation: "Barometers are essential for weather forecasting, as changes in air pressure often signal changing weather." },
@@ -483,7 +471,7 @@ Astronomy: [
         { q: "In the board game RISK, which territory is the only one that borders both North Africa and Southern Europe?", a: ["Egypt", "Western Europe", "North Africa", "Brazil"], correct: "Egypt", explanation: "Egypt is uniquely positioned on the RISK board, connecting North Africa to Southern Europe — making it one of the most strategically contested territories in the game." }
     ],
     Human_Anatomy: [
-        { q: "How many bones are in the adult human body?", a: ["198", "206", "210", "212"], correct: "206", explanation: "Adults have 206 bones; infants are born with around 270, some of which fuse together as they grow." },
+        
         { q: "How many bones are in the adult human body?", a: ["156", "206", "248", "300"], correct: "206", explanation: "Adults have 206 bones — babies are born with around 270, many of which fuse together during childhood." },
         { q: "What is the largest organ inside the human body?", a: ["Brain", "Liver", "Lungs", "Kidney"], correct: "Liver", explanation: "The liver is the largest internal organ, responsible for detoxification and protein synthesis." },
         { q: "Which part of the eye controls the amount of light entering?", a: ["Retina", "Cornea", "Iris", "Lens"], correct: "Iris", explanation: "The iris is the colored part of the eye that adjusts the size of the pupil to regulate light intake." },
@@ -499,7 +487,7 @@ Astronomy: [
         { q: "What is the deepest known point in the ocean?", a: ["Tonga Trench", "Mariana Trench", "Java Trench", "Puerto Rico Trench"], correct: "Mariana Trench", explanation: "The Challenger Deep within the Mariana Trench reaches a depth of approximately 10,935 meters." },
         { q: "Which underwater structure is the largest living thing on Earth?", a: ["Great Barrier Reef", "Belize Barrier Reef", "Palau Reefs", "Andros Barrier Reef"], correct: "Great Barrier Reef", explanation: "Visible from space, the Great Barrier Reef is composed of billions of tiny organisms called coral polyps." },
         { q: "What causes the majority of ocean waves?", a: ["Tides", "Earthquakes", "Wind", "Submarines"], correct: "Wind", explanation: "Friction between the wind and the water's surface transfers energy, creating most common ocean waves." },
-        { q: "What is the name of the deepest known point in the world's oceans?", a: ["Tonga Trench", "Puerto Rico Trench", "Challenger Deep", "Diamantina Deep"], correct: "Challenger Deep", explanation: "Challenger Deep in the Mariana Trench is the deepest known point on Earth at about 36,000 feet below sea level." },
+        
         { q: "Which current flows along the eastern coast of the US?", a: ["California Current", "Kuroshio Current", "Gulf Stream", "Agulhas Current"], correct: "Gulf Stream", explanation: "The Gulf Stream is a powerful, warm Atlantic ocean current that influences the climate of the east coast and Europe." },
         { q: "What percentage of Earth's water is found in the oceans?", a: ["75%", "85%", "97%", "99%"], correct: "97%", explanation: "Nearly all of Earth's water is saline ocean water, with only 3% being fresh water." },
         { q: "What is the phenomenon where cold, nutrient-rich water rises to the surface?", a: ["Tsunami", "Upwelling", "Downwelling", "El Niño"], correct: "Upwelling", explanation: "Upwelling supports highly productive marine ecosystems by bringing nutrients to sunlit surface layers." },

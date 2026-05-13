@@ -20,10 +20,10 @@ var gameEvents = [
             },
             {
                 label: 'Enter the whale\'s mouth, following the faint screams',
-                desc: 'Against every instinct, you pilot the ship inside. Two figures are waiting in the dark, remarkably calm.',
+                desc: 'Against every instinct, you pilot the ship inside. A figure is waiting in the dark, remarkably calm.',
                 reward: {},
                 cost: null,
-                specialAction: 'add_two_buddies'
+                specialAction: 'add_one_buddy'
             }
         ]
     },

@@ -84,7 +84,7 @@ const questionBankHard = {
     Classical_Music: [
         { q: "In what key is Beethoven's Symphony No. 3 'Eroica' written?", a: ["E-flat Major", "C Minor", "D Major", "G Major"], correct: "E-flat Major", explanation: "The Eroica was a turning point toward Romanticism and was originally dedicated to Napoleon Bonaparte." },
         { q: "Which composer pioneered the twelve-tone technique?", a: ["Mahler", "Schoenberg", "Debussy", "Stravinsky"], correct: "Schoenberg", explanation: "Arnold Schoenberg developed dodecaphony as a way to ensure all 12 notes of the chromatic scale are sounded as often as one another." },
-        { q: "What is the final movement of a sonata often called?", a: ["Adagio", "Scherzo", "Finale", "Intermezzo"], correct: "Finale", explanation: "While 'Finale' is the general term, many sonatas use Rondo or Sonata-Allegro forms for the concluding movement." },
+       
         { q: "Which Russian composer wrote the 'Rite of Spring,' which famously caused a riot at its 1913 premiere?", a: ["Igor Stravinsky", "Sergei Rachmaninoff", "Pyotr Tchaikovsky", "Dmitri Shostakovich"], correct: "Igor Stravinsky", explanation: "Stravinsky's avant-garde use of primitive rhythms and dissonance broke traditional ballet conventions and shocked the Parisian audience." },
         { q: "What is the term for a musical theme associated with a particular person, place, or idea, frequently used by Richard Wagner?", a: ["Leitmotif", "Libretto", "Cadenza", "Ostinato"], correct: "Leitmotif", explanation: "The leitmotif (leading motif) allows composers to weave complex narrative subtexts into the music, most famously in Wagner's 'Ring Cycle'." }
     ],
@@ -211,7 +211,7 @@ const questionBankHard = {
         { q: "Which designer introduced the 'New Look' silhouette that reshaped women's fashion in 1947?", a: ["Coco Chanel", "Cristóbal Balenciaga", "Christian Dior", "Hubert de Givenchy"], correct: "Christian Dior", explanation: "Dior's 1947 New Look featured nipped waists and full skirts, a dramatic departure from wartime utility clothing." },
         { q: "What 1960s fashion movement popularized miniskirts?", a: ["Mod", "Goth", "Punk", "Bohemian"], correct: "Mod", explanation: "The Mod (Modernist) movement, centered in London, broke traditional fashion rules with bold colors and shorter hemlines." },
         { q: "Which city is considered one of the 'Big Four' fashion capitals?", a: ["Milan", "Zurich", "Dubai", "Seoul"], correct: "Milan", explanation: "The 'Big Four' are Paris, London, Milan, and New York." },
-        { q: "Which designer is known for the 'New Look,' introduced in 1947?", a: ["Christian Dior", "Cristobal Balenciaga", "Hubert de Givenchy", "Gianni Versace"], correct: "Christian Dior", explanation: "The New Look featured cinched waists and full skirts, re-establishing Paris as the world's fashion center after WWII." },
+       
         { q: "What is the name of the fabric characterized by a diagonal rib or 'twill' weave, most commonly used in jeans?", a: ["Denim", "Satin", "Chiffon", "Corduroy"], correct: "Denim", explanation: "The name 'denim' derives from the French 'serge de Nîmes,' referring to the city of Nîmes where the fabric originated." }
     ],
 
@@ -224,7 +224,7 @@ const questionBankHard = {
     ],
 
     Urban_Legends_and_Folklore: [
-        { q: "What creature is said to inhabit Loch Ness?", a: ["Mokele-Mbembe", "Nessie", "Chupacabra", "Kraken"], correct: "Nessie", explanation: "The Loch Ness Monster is a 'cryptid' from Scottish folklore often described as a plesiosaur-like creature." },
+        
         { q: "The Slender Man myth originated on which type of platform?", a: ["Television series", "Reddit forum", "Photoshop contest", "Creepypasta blog"], correct: "Photoshop contest", explanation: "Created by Eric Knudsen on the 'Something Awful' forums in 2009 for a paranormal image editing contest." },
         { q: "What is the name of the internet folklore character known for endless staircases and distorted faces?", a: ["The Rake", "SCP-173", "Ben Drowned", "The Backrooms Entity"], correct: "SCP-173", explanation: "SCP-173 is the original entry of the SCP Foundation wiki, a concrete statue that can only move when not within a direct line of sight." },
         { q: "In Japanese folklore, what is a 'Yokai'?", a: ["A ghost or spirit", "A type of sushi", "A martial arts rank", "A government official"], correct: "A ghost or spirit", explanation: "Yokai is a broad class of supernatural entities in Japanese folklore, ranging from mischievous spirits to dangerous monsters." },
@@ -354,7 +354,7 @@ const questionBankHard = {
     Gothic_Literature: [
         { q: "Who wrote 'The Castle of Otranto'?", a: ["Mary Shelley", "Horace Walpole", "Bram Stoker", "Ann Radcliffe"], correct: "Horace Walpole", explanation: "Published in 1764, 'The Castle of Otranto' is widely considered the first Gothic novel." },
         { q: "What creature is central to Bram Stoker's 'Dracula'?", a: ["Werewolf", "Ghost", "Vampire", "Demon"], correct: "Vampire", explanation: "Count Dracula is a Transylvanian noble who seeks to move to England to find new blood and spread the undead curse." },
-        { q: "Which novel features the character Victor Frankenstein?", a: ["Dracula", "Frankenstein", "The Monk", "Melmoth the Wanderer"], correct: "Frankenstein", explanation: "Subtitled 'The Modern Prometheus,' Mary Shelley's novel explores the consequences of scientific hubris." },
+        
         { q: "Which 1794 novel by Ann Radcliffe is famous for its 'explained supernatural' ending?", a: ["The Mysteries of Udolpho", "The Italian", "Vathek", "Northanger Abbey"], correct: "The Mysteries of Udolpho", explanation: "Radcliffe was a pioneer of the Female Gothic, using psychological terror and eventually revealing rational causes for seemingly ghostly events." },
         { q: "What is the term for a character who is emotionally complex, rebellious, and plagued by a dark secret, common in Gothic fiction?", a: ["Byronic Hero", "Tragic Hero", "Anti-Hero", "Gothic Hero"], correct: "Byronic Hero", explanation: "Named after Lord Byron, these characters (like Heathcliff or Rochester) are quintessential to Gothic and Romantic literature." }
     ],

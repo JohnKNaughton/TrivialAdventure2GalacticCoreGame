@@ -87,11 +87,16 @@ const gameState = {
         { id: 'aardvark', name: "Arbitrage Aardvark", desc: "Generates 4 Credits for you per Jump.", icon: "🐜", gif: "assets/aardvark_idle.gif" },
         { id: 'trivia_toad', name: "Trivia Toad", desc: "Consumes 1 Food to produce 4 Trivium per Jump.", icon: "🐸", gif: "assets/toad_idle.gif" },
         { id: 'bear_bot', name: "Bear Bot", desc: "Produces 1 Food, 1 Trivium, 1 Credit per Jump.", icon: "🧸", gif: "assets/bear_idle.gif" },
-        { id: 'terry', name: "Terry the Tardigrade", desc: "Eliminates one wrong answer automatically every 3rd question.", icon: "🐾", gif: "assets/terry_idle.gif" }
+        { id: 'terry', name: "Terry the Tardigrade", desc: "Eliminates one wrong answer automatically every 3rd question.", icon: "🐾", gif: "assets/terry_idle.gif" },
+        { id: 'amp_anteater', name: "Amp Anteater", desc: "Doubles the effect of the buddy directly above or below it in Crew Quarters.", icon: "📢", gif: "assets/amp_anteater_idle.gif" }
     ],
 
     events: gameEvents,
     easyMode: false,
+    noteIndex: 0,
+    _audioCtx: null,
+    _suppressAscend: false,
+    _toneActive: false,
 
     // 2. ELEMENT GETTERS
     get introScreen() { return document.getElementById('intro-terminal'); },
@@ -104,6 +109,13 @@ const gameState = {
     // 3. CORE FUNCTIONS
     init: function() {
         console.log("Sequence Initiated...");
+        fetch('README.md').then(r => r.text()).then(text => {
+            const match = text.match(/^\.\d+/m);
+            if (match) {
+                const btn = document.querySelector('#debug-controls button[onclick="gameState.showChangelog()"]');
+                if (btn) btn.innerText = `v0${match[0]} CHANGELOG`;
+            }
+        }).catch(() => {});
         this.bgMusic.loop = true;
         this.bgMusic.volume = 0.3;
 
@@ -113,6 +125,14 @@ const gameState = {
                 this.musicStarted = true;
             }
         }, { once: true });
+
+        document.addEventListener('click', (e) => {
+            if (!this._toneActive) return;
+            if (!e.target.closest('button, .char-card, .shop-item, .planet-card')) return;
+            if (e.target.closest('#rules-overlay') || e.target.id === 'rules-btn') return;
+            if (this._suppressAscend) { this._suppressAscend = false; return; }
+            this.playTone(1);
+        });
 
         if (sessionStorage.getItem('introSeen')) {
             this.showMenu();
@@ -180,7 +200,7 @@ const gameState = {
     showCharacterSelect: function() {
         this.menuScreen.classList.add('hidden');
         const bossGifs = ['assets/boss1-idle.gif', 'assets/boss2-idle.gif', 'assets/boss3-idle.gif'];
-        const buddyGifs = ['assets/octopus_idle.gif', 'assets/aardvark_idle.gif', 'assets/toad_idle.gif', 'assets/bear_idle.gif', 'assets/terry_idle.gif'];
+        const buddyGifs = ['assets/octopus_idle.gif', 'assets/aardvark_idle.gif', 'assets/toad_idle.gif', 'assets/bear_idle.gif', 'assets/terry_idle.gif', 'assets/amp_anteater_idle.gif'];
         document.getElementById('mode-hardcore-img').style.backgroundImage = `url('${bossGifs[Math.floor(Math.random() * bossGifs.length)]}')`;
         document.getElementById('mode-fun-img').style.backgroundImage = `url('${buddyGifs[Math.floor(Math.random() * buddyGifs.length)]}')`;
         this.modeScreen.classList.remove('hidden');
@@ -188,6 +208,7 @@ const gameState = {
 
     selectMode: function(mode) {
         this.easyMode = (mode === 'fun');
+        this._toneActive = true;
         this.modeScreen.classList.add('hidden');
         this.charScreen.classList.remove('hidden');
     },
@@ -238,7 +259,8 @@ const gameState = {
                 octopus: "sensed a promising harvest ahead and has joined your crew!",
                 aardvark: "spotted a profitable venture and has joined your crew!",
                 trivia_toad: "recognizes a fellow scholar and has joined your crew!",
-                terry: "has survived worse odds than these and has joined your crew!"
+                terry: "has survived worse odds than these and has joined your crew!",
+                amp_anteater: "can already hear the potential and has joined your crew!"
             };
             const flavor = flavorLines[startingBuddy.id] || "has joined your crew!";
             this.showFeedback(true, `${startingBuddy.icon} ${startingBuddy.name} ${flavor}`, "NEW CREW MEMBER");
@@ -468,6 +490,7 @@ const gameState = {
         }
 
         // 6. Show the message from the COMPLETED sector
+        this.noteIndex = 0;
         this.showFeedback(true, completedSectorData.message, "WARP SUCCESSFUL");
         
         this.updateHUD(); 
@@ -724,7 +747,9 @@ viewLeaderboard: async function() {
             container.innerHTML = '<p style="color:red">ERROR: questionBank not loaded! Keys=' + (typeof questionBank) + '</p>';
             return;
         }
-        const shuffledCats = Object.keys(questionBank).sort(() => 0.5 - Math.random());
+        const _cats = Object.keys(questionBank);
+        for (let _i = _cats.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [_cats[_i], _cats[_j]] = [_cats[_j], _cats[_i]]; }
+        const shuffledCats = _cats;
 
         const makeNormal = (i) => {
             const cat = shuffledCats[i];
@@ -784,7 +809,8 @@ viewLeaderboard: async function() {
         const grid = document.getElementById('boss-category-grid');
         grid.innerHTML = "";
         const hardCats = Object.keys(questionBankHard);
-        const shuffled = hardCats.sort(() => 0.5 - Math.random()).slice(0, 4);
+        for (let _i = hardCats.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [hardCats[_i], hardCats[_j]] = [hardCats[_j], hardCats[_i]]; }
+        const shuffled = hardCats.slice(0, 4);
         shuffled.forEach(cat => {
             const btn = document.createElement('button');
             btn.className = "category-btn";
@@ -817,7 +843,7 @@ viewLeaderboard: async function() {
             console.warn(`pickQuestion: no questions found for category "${category}"`);
             return { q: "???", a: ["A", "B", "C", "D"], correct: "A" };
         }
-        const key = category;
+        const key = (bank === questionBankHard ? 'hard:' : 'normal:') + category;
         if (!this.player.usedQuestions[key]) this.player.usedQuestions[key] = new Set();
         const used = this.player.usedQuestions[key];
         // Reset if all questions in this category have been seen
@@ -870,6 +896,8 @@ viewLeaderboard: async function() {
                 if (document.getElementById('laser-action-btn')) document.getElementById('laser-action-btn').remove();
                 if (opt === qData.correct) {
                     this.correctAnswers++;
+                    this._suppressAscend = true;
+                    this.playAscend();
                     if (this.currentSector === 3) {
                         // CLEANUP before victory to prevent blank screen overlap
                         triviaBox.classList.add('hidden');
@@ -887,6 +915,8 @@ viewLeaderboard: async function() {
                     }
                 } else {
                     this.wrongAnswers++;
+                    this._suppressAscend = true;
+                    this.playDescend();
                     if (this.currentSector === 3) {
                         this.player.trivium = Math.max(0, this.player.trivium - 30);
                         this.updateHUD();
@@ -915,10 +945,13 @@ viewLeaderboard: async function() {
             if (wrong.length > 0) wrong[Math.floor(Math.random() * wrong.length)].style.visibility = "hidden";
         };
         if (this.player.modules.some(m => m?.id === 'gatling_laser')) removeOneWrong();
-        if (this.terryQuestionCount % 3 === 0) {
-            const terryCount = this.player.crew.filter(m => m?.id === 'terry').length;
-            for (let i = 0; i < terryCount; i++) removeOneWrong();
-        }
+        const _vertAdj = [[3],[4],[5],[0],[1],[2]];
+        this.player.crew.forEach((m, idx) => {
+            if (!m || m.id !== 'terry') return;
+            const amped = _vertAdj[idx].some(i => this.player.crew[i]?.id === 'amp_anteater');
+            const fires = amped ? (this.terryQuestionCount % 3 !== 0) : (this.terryQuestionCount % 3 === 0);
+            if (fires) removeOneWrong();
+        });
     },
 
     startTrivia: function(category, reward, isHard = false) {
@@ -978,6 +1011,8 @@ viewLeaderboard: async function() {
                     this.player[reward.type.toLowerCase()] += finalVal;
                 } else {
                     this.wrongAnswers++;
+                    this._suppressAscend = true;
+                    this.playDescend();
                 }
 
                 const { foodNet, triviumNet, creditNet } = this.getJumpCosts();
@@ -1011,10 +1046,13 @@ viewLeaderboard: async function() {
             if (wrong.length > 0) wrong[Math.floor(Math.random() * wrong.length)].style.visibility = "hidden";
         };
         if (this.player.modules.some(m => m?.id === 'gatling_laser')) removeOneWrong();
-        if (this.terryQuestionCount % 3 === 0) {
-            const terryCount = this.player.crew.filter(m => m?.id === 'terry').length;
-            for (let i = 0; i < terryCount; i++) removeOneWrong();
-        }
+        const _vertAdj = [[3],[4],[5],[0],[1],[2]];
+        this.player.crew.forEach((m, idx) => {
+            if (!m || m.id !== 'terry') return;
+            const amped = _vertAdj[idx].some(i => this.player.crew[i]?.id === 'amp_anteater');
+            const fires = amped ? (this.terryQuestionCount % 3 !== 0) : (this.terryQuestionCount % 3 === 0);
+            if (fires) removeOneWrong();
+        });
     },
 
     openTavern: function() {
@@ -1105,11 +1143,10 @@ viewLeaderboard: async function() {
             return;
         }
 
-        if (opt.specialAction === 'add_two_buddies') {
+        if (opt.specialAction === 'add_one_buddy') {
             const added = [];
-            for (let i = 0; i < 2; i++) {
-                const emptySlot = this.player.crew.indexOf(null);
-                if (emptySlot === -1) break;
+            const emptySlot = this.player.crew.indexOf(null);
+            if (emptySlot !== -1) {
                 const buddy = this.buddies[Math.floor(Math.random() * this.buddies.length)];
                 this.player.crew[emptySlot] = { ...buddy };
                 added.push(buddy.name);
@@ -1120,8 +1157,8 @@ viewLeaderboard: async function() {
             document.getElementById('spaceship-floor').classList.remove('hidden');
             this.eventJustCompleted = true;
             const msg = added.length === 0
-                ? 'Figures emerged from the darkness, but your crew quarters were already full. They slipped back into the void.'
-                : `Two visitors emerged from the darkness: ${added.join(' and ')}.`;
+                ? 'A figure emerged from the darkness, but your crew quarters were already full. They slipped back into the void.'
+                : `A visitor emerged from the darkness: ${added[0]}.`;
             this.showFeedback(true, msg, 'FROM THE WHALE');
             return;
         }
@@ -1184,6 +1221,7 @@ viewLeaderboard: async function() {
         }
         document.getElementById('event-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
+        document.getElementById('spaceship-floor').classList.remove('hidden');
         this.eventJustCompleted = true;
         const msg = buddyId
             ? `A perfect copy steps out of the pod, ready to serve. Your crew quarters now hold two ${this.buddies.find(b => b.id === buddyId)?.name || 'crew members'}.`
@@ -1213,20 +1251,29 @@ viewLeaderboard: async function() {
         let foodNet = -5;
         let triviumNet = -({ 1: 5, 2: 10, 3: 20 }[this.currentSector] || 5);
         let creditNet = 0;
-        [...this.player.modules, ...this.player.crew].forEach(m => {
+
+        this.player.modules.forEach(m => {
             if (!m) return;
             if (m.id === 'biosphere') foodNet += 4;
             if (m.id === 'content_farm') { foodNet += 2; creditNet += 6; triviumNet -= 1; }
-            if (m.id === 'octopus') {
-                const adjMap = [[1,3],[0,2,4],[1,5],[0,4],[1,3,5],[2,4]];
-                const octIdx = this.player.crew.findIndex(c => c?.id === 'octopus');
-                const adjCount = octIdx >= 0 ? adjMap[octIdx].filter(i => this.player.crew[i] !== null).length : 0;
-                foodNet += 2 + adjCount * 2;
-            }
-            if (m.id === 'aardvark') creditNet += 4;
-            if (m.id === 'trivia_toad') { foodNet -= 1; triviumNet += 4; }
-            if (m.id === 'bear_bot') { foodNet += 1; triviumNet += 1; creditNet += 1; }
         });
+
+        const vertAdjMap = [[3],[4],[5],[0],[1],[2]];
+        const crewAdjMap = [[1,3],[0,2,4],[1,5],[0,4],[1,3,5],[2,4]];
+        const isAmped = (idx) => vertAdjMap[idx].some(i => this.player.crew[i]?.id === 'amp_anteater');
+
+        this.player.crew.forEach((m, idx) => {
+            if (!m) return;
+            const mult = isAmped(idx) ? 2 : 1;
+            if (m.id === 'octopus') {
+                const adjCount = crewAdjMap[idx].filter(i => this.player.crew[i] !== null).length;
+                foodNet += (2 + adjCount * 2) * mult;
+            }
+            if (m.id === 'aardvark') creditNet += 4 * mult;
+            if (m.id === 'trivia_toad') { foodNet -= 1 * mult; triviumNet += 4 * mult; }
+            if (m.id === 'bear_bot') { foodNet += 1 * mult; triviumNet += 1 * mult; creditNet += 1 * mult; }
+        });
+
         if (this.player.modules.some(m => m?.id === 'gaming_lounge')) {
             const crewCount = this.player.crew.filter(m => m !== null).length;
             foodNet -= crewCount;
@@ -1240,19 +1287,27 @@ viewLeaderboard: async function() {
         const food = [`Base Jump Cost: -5`];
         const trivium = [`Sector ${this.currentSector} Jump Cost: ${baseTrivium}`];
         const credits = [`Base: 0`];
-        [...this.player.modules, ...this.player.crew].forEach(m => {
+        this.player.modules.forEach(m => {
             if (!m) return;
             if (m.id === 'biosphere')    food.push('Biosphere: +4');
             if (m.id === 'content_farm') { food.push('Content Farm: +2'); credits.push('Content Farm: +6'); trivium.push('Content Farm: -1'); }
+        });
+
+        const vertAdjMap = [[3],[4],[5],[0],[1],[2]];
+        const crewAdjMap = [[1,3],[0,2,4],[1,5],[0,4],[1,3,5],[2,4]];
+        const isAmped = (idx) => vertAdjMap[idx].some(i => this.player.crew[i]?.id === 'amp_anteater');
+
+        this.player.crew.forEach((m, idx) => {
+            if (!m) return;
+            const mult = isAmped(idx) ? 2 : 1;
+            const amp = mult === 2 ? ' (2x Amp)' : '';
             if (m.id === 'octopus') {
-                const adjMap = [[1,3],[0,2,4],[1,5],[0,4],[1,3,5],[2,4]];
-                const octIdx = this.player.crew.findIndex(c => c?.id === 'octopus');
-                const adjCount = octIdx >= 0 ? adjMap[octIdx].filter(i => this.player.crew[i] !== null).length : 0;
-                food.push(`Hydroponic Octopus: +${2 + adjCount * 2} (${adjCount} adjacent)`);
+                const adjCount = crewAdjMap[idx].filter(i => this.player.crew[i] !== null).length;
+                food.push(`Hydroponic Octopus: +${(2 + adjCount * 2) * mult}${amp} (${adjCount} adjacent)`);
             }
-            if (m.id === 'aardvark')    credits.push('Arbitrage Aardvark: +4');
-            if (m.id === 'trivia_toad') { food.push('Trivia Toad: -1'); trivium.push('Trivia Toad: +4'); }
-            if (m.id === 'bear_bot')    { food.push('Bear Bot: +1'); trivium.push('Bear Bot: +1'); credits.push('Bear Bot: +1'); }
+            if (m.id === 'aardvark')    credits.push(`Arbitrage Aardvark: +${4 * mult}${amp}`);
+            if (m.id === 'trivia_toad') { food.push(`Trivia Toad: -${mult}${amp}`); trivium.push(`Trivia Toad: +${4 * mult}${amp}`); }
+            if (m.id === 'bear_bot')    { food.push(`Bear Bot: +${mult}${amp}`); trivium.push(`Bear Bot: +${mult}${amp}`); credits.push(`Bear Bot: +${mult}${amp}`); }
         });
         if (this.player.modules.some(m => m?.id === 'gaming_lounge')) {
             const crewCount = this.player.crew.filter(m => m !== null).length;
@@ -1318,7 +1373,85 @@ viewLeaderboard: async function() {
         document.getElementById('rules-overlay').classList.add('hidden');
     },
 
+    getAudioCtx: function() {
+        if (!this._audioCtx) this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return this._audioCtx;
+    },
+
+    playTone: function(direction) {
+        if (!this._toneActive) return;
+        try {
+            const ctx = this.getAudioCtx();
+            const freq = 65.41 * Math.pow(2, this.noteIndex / 12);
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            const t = ctx.currentTime;
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(0.081, t + 0.045);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 2.1);
+            osc.start(t);
+            osc.stop(t + 2.1);
+            this.noteIndex = Math.min(this.noteIndex + 1, 36);
+        } catch(e) {}
+    },
+
+    playDescend: function() {
+        if (!this._toneActive) return;
+        try {
+            const ctx = this.getAudioCtx();
+            const t = ctx.currentTime;
+            for (let i = 0; i < 3; i++) {
+                const idx = Math.max(0, this.noteIndex - i * 2);
+                const freq = 65.41 * Math.pow(2, idx / 12);
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                const start = t + i * 0.18;
+                gain.gain.setValueAtTime(0, start);
+                gain.gain.linearRampToValueAtTime(0.081, start + 0.045);
+                gain.gain.exponentialRampToValueAtTime(0.001, start + 2.1);
+                osc.start(start);
+                osc.stop(start + 2.1);
+            }
+            this.noteIndex = Math.max(0, this.noteIndex - 6);
+        } catch(e) {}
+    },
+
+    playAscend: function() {
+        if (!this._toneActive) return;
+        try {
+            const ctx = this.getAudioCtx();
+            const t = ctx.currentTime;
+            for (let i = 0; i < 3; i++) {
+                const idx = Math.min(36, this.noteIndex + i * 2);
+                const freq = 65.41 * Math.pow(2, idx / 12);
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                const start = t + i * 0.18;
+                gain.gain.setValueAtTime(0, start);
+                gain.gain.linearRampToValueAtTime(0.081, start + 0.045);
+                gain.gain.exponentialRampToValueAtTime(0.001, start + 2.1);
+                osc.start(start);
+                osc.stop(start + 2.1);
+            }
+            this.noteIndex = Math.min(36, this.noteIndex + 6);
+        } catch(e) {}
+    },
+
     confirmAbandon: function() {
+        this._suppressAscend = true;
+        this.playDescend();
         document.getElementById('abandon-overlay').classList.remove('hidden');
     },
 
@@ -1327,6 +1460,7 @@ viewLeaderboard: async function() {
     },
 
     returnToMenu: function() {
+        this._toneActive = false;
         location.reload();
     }
 };
