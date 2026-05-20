@@ -95,11 +95,38 @@
                 <p style="margin: 0; font-size: 0.85em; color: #a0f9ff;">A classic challenging roguelite experience. Running out of Food or Trivium will end the game. Compete against other pilots to register the highest Trivium score in the Galactic Hall of Fame.</p>
             </div>
         </div>
-        <div class="char-card" style="width: 380px; display: flex; align-items: center; gap: 20px; text-align: left;" onclick="gameState.selectMode('fun')">
-            <div id="mode-fun-img" style="width: 64px; height: 64px; flex-shrink: 0; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated;"></div>
+        <div class="char-card" style="width: 380px; display: flex; align-items: center; gap: 20px; text-align: left;" onclick="gameState.selectMode('casual')">
+            <div id="mode-casual-img" style="width: 64px; height: 64px; flex-shrink: 0; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated;"></div>
             <div>
-                <h3 style="margin: 0 0 8px;">FUN ADVENTURE</h3>
+                <h3 style="margin: 0 0 8px;">CASUAL ADVENTURE</h3>
                 <p style="margin: 0; font-size: 0.85em; color: #a0f9ff;">A carefree trivia adventure where you assemble a colorful crew and amass as much Trivium as possible. Resources cannot drop below zero — no defeat condition and no stakes.</p>
+            </div>
+        </div>
+        <div style="margin-top: 8px; text-align: center;">
+            <p style="font-size: 0.75em; color: #a070c0; letter-spacing: 1px; margin-bottom: 8px;">── STUDY ADVENTURES ──</p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <div class="char-card study-mode-card" onclick="gameState.selectMode('study_datascience')">
+                    <div class="study-mode-icon">📊</div>
+                    <div class="study-mode-label">DATA SCIENCE</div>
+                </div>
+                <div class="char-card study-mode-card" onclick="gameState.selectMode('study_spaceandelements')">
+                    <div class="study-mode-icon">🔭</div>
+                    <div class="study-mode-label">SPACE &amp; ELEMENTS</div>
+                </div>
+                <div style="position:relative;display:inline-block;">
+                    <div class="char-card study-mode-card" onclick="gameState.selectMode('study_vocabulary')">
+                        <div class="study-mode-icon">📖</div>
+                        <div class="study-mode-label">VOCABULARY</div>
+                    </div>
+                    <div class="wip-sticker">🚧 WIP</div>
+                </div>
+                <div style="position:relative;display:inline-block;">
+                    <div class="char-card study-mode-card" onclick="gameState.selectMode('study_history')">
+                        <div class="study-mode-icon">📜</div>
+                        <div class="study-mode-label">HISTORY</div>
+                    </div>
+                    <div class="wip-sticker">🚧 WIP</div>
+                </div>
             </div>
         </div>
     </div>
@@ -221,6 +248,10 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="questionbanks/questionBank.js"></script>
     <script src="questionbanks/questionBankHard.js"></script>
+    <script src="questionbanks/StudyVocabulary.js"></script>
+    <script src="questionbanks/StudyHistory.js"></script>
+    <script src="questionbanks/StudyDatascience.js"></script>
+    <script src="questionbanks/StudySpaceandElements.js"></script>
     <script src="events.js"></script>
     <script src="game.js"></script>
     <div id="rules-overlay" class="hidden">

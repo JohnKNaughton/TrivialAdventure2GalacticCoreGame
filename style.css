@@ -243,6 +243,48 @@ body {
     transform: translateY(-10px);
 }
 
+.study-mode-card {
+    width: 90px;
+    padding: 12px 8px;
+    text-align: center;
+    border-color: #a070c0;
+}
+
+.study-mode-card:hover {
+    background: rgba(160, 112, 192, 0.2);
+    border-color: #c090e0;
+}
+
+.wip-sticker {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f5a623;
+    color: #1a0a00;
+    font-size: 0.52em;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    padding: 2px 5px;
+    border-radius: 4px;
+    transform: rotate(12deg);
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    letter-spacing: 0.5px;
+}
+
+.study-mode-icon {
+    font-size: 1.8em;
+    margin-bottom: 6px;
+}
+
+.study-mode-label {
+    font-size: 0.62em;
+    color: #c090e0;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+}
+
 #spaceship-floor {
     position: fixed;
     bottom: 0;

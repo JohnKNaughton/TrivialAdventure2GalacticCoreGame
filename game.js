@@ -83,7 +83,7 @@ const gameState = {
     ],
 
     buddies: [
-        { id: 'octopus', name: "Hydroponic Octopus", desc: "+2 Food per Jump. Generates +2 Food for each adjacent Buddy.", icon: "🐙", gif: "assets/octopus_idle.gif" },
+        { id: 'octopus', name: "Hydroponic Octopus", desc: "+2 Food per Jump. Generates +1 Food for each adjacent Buddy.", icon: "🐙", gif: "assets/octopus_idle.gif" },
         { id: 'aardvark', name: "Arbitrage Aardvark", desc: "Generates 4 Credits for you per Jump.", icon: "🐜", gif: "assets/aardvark_idle.gif" },
         { id: 'trivia_toad', name: "Trivia Toad", desc: "Consumes 1 Food to produce 4 Trivium per Jump.", icon: "🐸", gif: "assets/toad_idle.gif" },
         { id: 'bear_bot', name: "Bear Bot", desc: "Produces 1 Food, 1 Trivium, 1 Credit per Jump.", icon: "🧸", gif: "assets/bear_idle.gif" },
@@ -130,6 +130,7 @@ const gameState = {
             if (!this._toneActive) return;
             if (!e.target.closest('button, .char-card, .shop-item, .planet-card')) return;
             if (e.target.closest('#rules-overlay') || e.target.id === 'rules-btn') return;
+            if (e.target.closest('#shop-screen')) return;
             if (this._suppressAscend) { this._suppressAscend = false; return; }
             this.playTone(1);
         });
@@ -202,12 +203,40 @@ const gameState = {
         const bossGifs = ['assets/boss1-idle.gif', 'assets/boss2-idle.gif', 'assets/boss3-idle.gif'];
         const buddyGifs = ['assets/octopus_idle.gif', 'assets/aardvark_idle.gif', 'assets/toad_idle.gif', 'assets/bear_idle.gif', 'assets/terry_idle.gif', 'assets/amp_anteater_idle.gif'];
         document.getElementById('mode-hardcore-img').style.backgroundImage = `url('${bossGifs[Math.floor(Math.random() * bossGifs.length)]}')`;
-        document.getElementById('mode-fun-img').style.backgroundImage = `url('${buddyGifs[Math.floor(Math.random() * buddyGifs.length)]}')`;
+        document.getElementById('mode-casual-img').style.backgroundImage = `url('${buddyGifs[Math.floor(Math.random() * buddyGifs.length)]}')`;
         this.modeScreen.classList.remove('hidden');
     },
 
+    studyTypes: [
+        { key: 'study_datascience',      label: 'STUDY: DATA SCIENCE',       shortName: 'Data Science' },
+        { key: 'study_spaceandelements', label: 'STUDY: SPACE AND ELEMENTS', shortName: 'Space & Elements' },
+        { key: 'study_vocabulary',       label: 'STUDY: VOCABULARY',         shortName: 'Vocabulary' },
+        { key: 'study_history',          label: 'STUDY: HISTORY',            shortName: 'History' },
+    ],
+
+    getStudyBankForKey: function(key) {
+        const map = {
+            'study_vocabulary':       typeof studyBankVocabulary      !== 'undefined' ? studyBankVocabulary      : null,
+            'study_history':          typeof studyBankHistory          !== 'undefined' ? studyBankHistory          : null,
+            'study_datascience':      typeof studyBankDataScience      !== 'undefined' ? studyBankDataScience      : null,
+            'study_spaceandelements': typeof studyBankSpaceAndElements !== 'undefined' ? studyBankSpaceAndElements : null,
+        };
+        return map[key] || null;
+    },
+
     selectMode: function(mode) {
-        this.easyMode = (mode === 'fun');
+        const isStudy = mode.startsWith('study_');
+        this.easyMode = (mode === 'casual');
+        this.runType = mode;
+        this.activeStudyBank = null;
+        this.activeStudyLabel = null;
+        if (isStudy) {
+            const def = this.studyTypes.find(t => t.key === mode);
+            if (def) {
+                this.activeStudyLabel = def.shortName;
+                this.activeStudyBank = this.getStudyBankForKey(mode);
+            }
+        }
         this._toneActive = true;
         this.modeScreen.classList.add('hidden');
         this.charScreen.classList.remove('hidden');
@@ -238,6 +267,8 @@ const gameState = {
         this.currentStage = 1;
         this.usedEventIds = new Set();
         this.terryQuestionCount = 0;
+        if (!this.activeStudyBank) this.activeStudyBank = null;
+        if (!this.activeStudyLabel) this.activeStudyLabel = null;
         this.correctAnswers = 0;
         this.wrongAnswers = 0;
         this.correctAnswersNormal = 0;
@@ -296,7 +327,8 @@ const gameState = {
         const container = document.getElementById('shop-offers');
         container.innerHTML = "";
         
-        const shuffled = [...availableModules].sort(() => 0.5 - Math.random());
+        const shuffled = [...availableModules];
+        for (let _i = shuffled.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [shuffled[_i], shuffled[_j]] = [shuffled[_j], shuffled[_i]]; }
         const selections = shuffled.slice(0, 4).sort((a, b) => a.cost - b.cost);
 
         selections.forEach((mod, index) => {
@@ -315,6 +347,42 @@ const gameState = {
             container.appendChild(item);
         });
 
+        if (this.currentSector === 3) {
+            const gain = Math.floor(this.player.credits / 2);
+            const special = document.createElement('div');
+            special.id = 'shop-item-converter';
+            special.className = 'shop-item';
+            special.style.borderColor = '#ffd700';
+            special.innerHTML = `
+                <h4 style="color:#ffd700;">⚗️ Quantum Credit Exchanger</h4>
+                <p>A black-market data broker offers to liquidate your remaining Credits into raw Trivium data at 50% conversion. All Credits spent.</p>
+                <p style="font-size:0.82em;color:#ffd700;margin-top:4px;">Convert ${this.player.credits}C → +${gain} Trivium</p>
+                <div class="buy-area">
+                    <button class="buy-btn" id="converter-btn" ${this.player.credits < 2 ? 'disabled' : ''}
+                        onclick="gameState.convertCreditsToTrivium()">CONVERT</button>
+                </div>
+            `;
+            container.appendChild(special);
+        }
+
+    },
+
+    convertCreditsToTrivium: function() {
+        const gain = Math.floor(this.player.credits / 2);
+        if (gain < 1) return;
+        this.player.trivium += gain;
+        this.player.credits = 0;
+        this.updateHUD();
+        document.getElementById('shop-resources').innerHTML =
+            `FOOD: <b>${this.player.food}</b> &nbsp;|&nbsp; TRIVIUM: <b>${this.player.trivium}</b> &nbsp;|&nbsp; CREDITS: <b>${this.player.credits}</b>`;
+        const slot = document.getElementById('shop-item-converter');
+        if (slot) {
+            slot.innerHTML = `<div class="sold-out" style="color:#ffd700;">+${gain} Trivium acquired!</div>`;
+            slot.style.opacity = '0.5';
+            slot.style.borderStyle = 'dashed';
+        }
+        const shopDialogue = document.querySelector('#shop-screen .shop-dialogue');
+        if (shopDialogue) shopDialogue.innerHTML = `"Good doing business with you, ${this.player.name}. That data is yours now."`;
     },
 
     buyModule: function(modId, shopIndex) {
@@ -464,8 +532,12 @@ const gameState = {
         }
         titleEl.className = isCorrect ? "success-text" : "failure-text";
         const isDefeat = !this.easyMode && (this.player.food <= 0 || this.player.trivium <= 0);
-        document.getElementById('feedback-close-btn').classList.toggle('hidden', isDefeat);
-        document.getElementById('feedback-menu-btn').classList.toggle('hidden', !isDefeat);
+        const closeBtn = document.getElementById('feedback-close-btn');
+        const menuBtn  = document.getElementById('feedback-menu-btn');
+        closeBtn.style.display = '';
+        menuBtn.style.display  = '';
+        closeBtn.classList.toggle('hidden', isDefeat);
+        menuBtn.classList.toggle('hidden', !isDefeat);
         overlay.classList.remove('hidden');
     },
 
@@ -599,13 +671,11 @@ const gameState = {
 
             <div style="border-top: 1px solid #444; padding-top: 15px; margin-bottom: 20px;">
                 <p>Final Trivium Score: <span style="color: #00f2ff; font-size: 1.5em;">${this.player.trivium}</span></p>
-                ${this.easyMode
-                    ? `<p style="color:#a0f9ff; font-size:0.85em; font-style:italic;">Fun Adventure runs are not submitted to the Hall of Fame. Start a Hardcore Adventure to compete!</p>`
-                    : `<p>A Prize to the Highest Trivium Score at end of Demo</p>
-                       <input type="text" id="player-initials" placeholder="AAA" maxlength="3"
-                              style="text-transform: uppercase; width: 60px; text-align: center; background: #000; color: #00f2ff; border: 1px solid #00f2ff; padding: 5px;">
-                       <button onclick="gameState.submitScore()" style="background: #00f2ff; color: #000; border: none; padding: 6px 12px; font-weight: bold; cursor: pointer; font-family: 'Courier New', monospace;">SUBMIT</button>`
-                }
+                <p>${this.runType === 'hardcore' ? 'Submit your Trivium score to the Galactic Hall of Fame!' : this.runType === 'casual' ? 'Log your run to the database:' : 'Submit your score to the Study Leaderboard!'}</p>
+                ${this.runType === 'casual' ? `<p style="color:#888; font-size:0.78em; font-style:italic; margin-top:-6px; margin-bottom:6px;">Casual scores are stored privately and not shown on the public leaderboard.</p>` : ''}
+                <input type="text" id="player-initials" placeholder="AAA" maxlength="3"
+                       style="text-transform: uppercase; width: 60px; text-align: center; background: #000; color: #00f2ff; border: 1px solid #00f2ff; padding: 5px;">
+                <button onclick="gameState.submitScore()" style="background: #00f2ff; color: #000; border: none; padding: 6px 12px; font-weight: bold; cursor: pointer; font-family: 'Courier New', monospace;">SUBMIT</button>
             </div>
 
             <button onclick="location.reload()" style="display: block; width: 100%; margin-top: 20px; background: rgba(194, 86, 86, 0.2); border: 1px solid rgb(194, 86, 86); color: rgb(194, 86, 86); cursor: pointer; font-size: 0.9em; padding: 10px;">RETURN TO TITLE SCREEN</button>
@@ -618,38 +688,49 @@ const gameState = {
     overlay.style.display = "flex"; 
 },
 
-   submitScore: async function() {
+    submitScore: async function() {
     const initials = document.getElementById('player-initials').value.toUpperCase() || "AAA";
     const finalScore = this.player.trivium;
-    
+
     const btn = document.querySelector('button[onclick="gameState.submitScore()"]');
     btn.innerText = "UPLOADING...";
     btn.disabled = true;
 
     try {
-        // 1. Insert the new score
         const crewIds = JSON.stringify(this.player.crew.filter(c => c).map(c => c.id));
         const moduleIds = JSON.stringify(this.player.modules.filter(m => m).map(m => m.id));
         const { error: insertError } = await supabase
             .from('leaderboard')
-            .insert([{ name: initials, score: finalScore, crew: crewIds, modules: moduleIds }]);
+            .insert([{ name: initials, score: finalScore, crew: crewIds, modules: moduleIds, RunType: this.runType }]);
 
         if (insertError) throw insertError;
 
-        // 2. Fetch all scores above 50
         const { data: scores, error: fetchError } = await supabase
             .from('leaderboard')
-            .select('name, score, crew, modules')
-            .gt('score', 50)
+            .select('name, score, crew, modules, RunType')
+            .eq('RunType', this.runType)
+            .gt('score', 0)
             .order('score', { ascending: false });
 
         if (fetchError) throw fetchError;
 
-        // 3. Show the high score table
-        this.showHighScores(this.filterScores(scores));
+        const filtered = this.filterScores(scores);
+        const msgEl = document.getElementById('feedback-msg');
+        if (this.runType === 'hardcore') {
+            this.showHighScores(filtered);
+        } else if (this.runType === 'casual') {
+            msgEl.innerHTML = `<p style="color:#6ddb6d;font-size:1em;">Run logged successfully!</p>
+                <p style="color:#888;font-size:0.82em;">Your casual score of <span style="color:#00f2ff;">${finalScore}</span> has been saved.</p>
+                <button onclick="location.reload()" style="display:block;width:100%;margin-top:20px;background:rgba(194,86,86,0.2);border:1px solid rgb(194,86,86);color:rgb(194,86,86);cursor:pointer;padding:10px;">START NEW MISSION</button>`;
+        } else {
+            const studyDef = this.studyTypes.find(t => t.key === this.runType);
+            const label = studyDef ? studyDef.label : 'STUDY';
+            msgEl.innerHTML = this.buildStudySectionHtml(filtered, label) +
+                `<button onclick="location.reload()" style="display:block;width:100%;margin-top:20px;background:rgba(194,86,86,0.2);border:1px solid rgb(194,86,86);color:rgb(194,86,86);cursor:pointer;padding:10px;">START NEW MISSION</button>`;
+        }
     } catch (err) {
         console.error("Supabase Error:", err.message);
-        this.showFeedback(false, "Score transmission failed. Check your connection and try again.", "TRANSMISSION FAILED");
+        this.showFeedback(false, `Score transmission failed: ${err.message || err}`, "TRANSMISSION FAILED");
     }
 },
 
@@ -661,105 +742,120 @@ filterScores: function(scores) {
     });
 },
 
+buildHardcoreTableHtml: function(scores) {
+    if (scores.length === 0) return '<p style="color:#444;font-size:0.85em;text-align:center;">No scores yet.</p>';
+    let html = `<table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;font-size:0.9em;margin-top:6px;">
+        <tr style="border-bottom:1px solid #00f2ff;color:#888;">
+            <th style="text-align:left;padding:5px;">PILOT</th>
+            <th style="text-align:center;padding:5px;">CREW &amp; MODS</th>
+            <th style="text-align:right;padding:5px;">TRIVIUM</th>
+        </tr>`;
+    scores.forEach((s, i) => {
+        const color = i === 0 ? "#ffd700" : "#00f2ff";
+        let crewHtml = '';
+        try { crewHtml = JSON.parse(s.crew||'[]').map(id => { const b = this.buddies.find(b=>b.id===id); return b ? `<img src="${b.gif}" title="${b.name}" style="width:28px;height:28px;image-rendering:pixelated;border:1px solid #00f2ff;background:rgba(0,0,0,0.5);">` : ''; }).join(''); } catch(e) {}
+        let modHtml = '';
+        try { modHtml = JSON.parse(s.modules||'[]').map(id => { const m = this.shopModules.find(m=>m.id===id); return m ? `<span title="${m.name}" style="font-size:1.1em;">${m.icon}</span>` : ''; }).join(''); } catch(e) {}
+        html += `<tr style="border-bottom:1px solid #222;">
+            <td style="text-align:left;padding:8px 5px;">${i+1}. ${s.name}</td>
+            <td style="text-align:center;padding:4px 5px;"><div style="display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;">${crewHtml}${modHtml||(!crewHtml?'<span style="color:#444;font-size:0.75em;">—</span>':'')}</div></td>
+            <td style="text-align:right;color:${color};font-weight:bold;">${s.score.toLocaleString()}</td>
+        </tr>`;
+    });
+    return html + '</table>';
+},
+
+buildStudySectionHtml: function(scores, label) {
+    let html = `<div style="margin-top:18px;border-top:1px solid #333;padding-top:10px;">
+        <h3 style="color:#a070c0;font-size:0.85em;letter-spacing:1px;margin-bottom:6px;">${label}</h3>`;
+    if (scores.length === 0) {
+        html += '<p style="color:#444;font-size:0.8em;">No scores yet.</p>';
+    } else {
+        html += `<table style="width:100%;border-collapse:collapse;font-family:'Courier New',monospace;font-size:0.85em;">
+            <tr style="border-bottom:1px solid #4a2a6a;color:#888;">
+                <th style="text-align:left;padding:4px;">PILOT</th>
+                <th style="text-align:center;padding:4px;">CREW &amp; MODS</th>
+                <th style="text-align:right;padding:4px;">TRIVIUM</th>
+            </tr>`;
+        scores.forEach((s, i) => {
+            const color = i === 0 ? "#ffd700" : "#a070c0";
+            let crewHtml = '';
+            try { crewHtml = JSON.parse(s.crew||'[]').map(id => { const b = this.buddies.find(b=>b.id===id); return b ? `<img src="${b.gif}" title="${b.name}" style="width:24px;height:24px;image-rendering:pixelated;border:1px solid #a070c0;background:rgba(0,0,0,0.5);">` : ''; }).join(''); } catch(e) {}
+            let modHtml = '';
+            try { modHtml = JSON.parse(s.modules||'[]').map(id => { const m = this.shopModules.find(m=>m.id===id); return m ? `<span title="${m.name}" style="font-size:1em;">${m.icon}</span>` : ''; }).join(''); } catch(e) {}
+            html += `<tr style="border-bottom:1px solid #1a1a2a;">
+                <td style="text-align:left;padding:5px;">${i+1}. ${s.name}</td>
+                <td style="text-align:center;padding:3px 4px;"><div style="display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;">${crewHtml}${modHtml||(!crewHtml?'<span style="color:#444;font-size:0.75em;">—</span>':'')}</div></td>
+                <td style="text-align:right;color:${color};font-weight:bold;">${s.score.toLocaleString()}</td>
+            </tr>`;
+        });
+        html += '</table>';
+    }
+    return html + '</div>';
+},
+
 showHighScores: function(scores) {
     const msgEl = document.getElementById('feedback-msg');
-    let tableHtml = `
-        <h3 style="color:#00f2ff; text-shadow: 0 0 10px #00f2ff;"></h3>
-        <table style="width:100%; border-collapse: collapse; font-family: 'Courier New', monospace; font-size: 0.9em; margin-top:10px;">
-            <tr style="border-bottom: 1px solid #00f2ff; color: #888;">
-                <th style="text-align:left; padding: 5px;">PILOT</th>
-                <th style="text-align:center; padding: 5px;">CREW &amp; MODS</th>
-                <th style="text-align:right; padding: 5px;">TRIVIUM</th>
-            </tr>
-    `;
-
-    scores.forEach((s, index) => {
-        const color = index === 0 ? "#ffd700" : "#00f2ff";
-
-        let crewHtml = '';
-        try {
-            const crewIds = JSON.parse(s.crew || '[]');
-            crewHtml = crewIds.map(id => {
-                const buddy = this.buddies.find(b => b.id === id);
-                return buddy ? `<img src="${buddy.gif}" title="${buddy.name}" style="width:28px;height:28px;image-rendering:pixelated;border:1px solid #00f2ff;background:rgba(0,0,0,0.5);">` : '';
-            }).join('');
-        } catch(e) {}
-
-        let modHtml = '';
-        try {
-            const modIds = JSON.parse(s.modules || '[]');
-            modHtml = modIds.map(id => {
-                const mod = this.shopModules.find(m => m.id === id);
-                return mod ? `<span title="${mod.name}" style="font-size:1.1em;">${mod.icon}</span>` : '';
-            }).join('');
-        } catch(e) {}
-
-        tableHtml += `
-            <tr style="border-bottom: 1px solid #222;">
-                <td style="text-align:left; padding: 8px 5px;">${index + 1}. ${s.name}</td>
-                <td style="text-align:center; padding: 4px 5px;">
-                    <div style="display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;">
-                        ${crewHtml}${modHtml || (!crewHtml ? '<span style="color:#444;font-size:0.75em;">—</span>' : '')}
-                    </div>
-                </td>
-                <td style="text-align:right; color: ${color}; font-weight:bold;">${s.score.toLocaleString()}</td>
-            </tr>
-        `;
-    });
-
-    tableHtml += `</table>
-        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-            <button onclick="location.reload()"
-                style="background:#00f2ff; color:#000; border:none; padding:12px; cursor:pointer; font-weight:bold; font-family: inherit;">
-                START NEW MISSION
-            </button>
-        </div>
-    `;
-
-    msgEl.innerHTML = tableHtml;
+    msgEl.innerHTML = this.buildHardcoreTableHtml(scores) +
+        `<div style="margin-top:20px;"><button onclick="location.reload()" style="background:#00f2ff;color:#000;border:none;padding:12px;cursor:pointer;font-weight:bold;font-family:inherit;width:100%;">START NEW MISSION</button></div>`;
 },
 viewLeaderboard: async function() {
-    // 1. Show the overlay immediately so the user knows something is happening
     const overlay = document.getElementById('feedback-overlay');
     const msgEl = document.getElementById('feedback-msg');
     const titleEl = document.getElementById('feedback-title');
+    const closeBtn = document.getElementById('feedback-close-btn');
+    const menuBtn  = document.getElementById('feedback-menu-btn');
 
+    closeBtn.classList.add('hidden');
+    menuBtn.classList.add('hidden');
     titleEl.innerText = "Galactic Hall of Fame";
     msgEl.innerHTML = "<p style='text-align:center;'>Accessing Galactic Archives...</p>";
     overlay.classList.remove('hidden');
     overlay.style.display = "flex";
 
+    const closeLeaderboard = () => {
+        overlay.classList.add('hidden');
+        overlay.style.display = "";
+        closeBtn.classList.remove('hidden');
+    };
+
     if (!supabase) {
-        msgEl.innerHTML = "<p style='color:#ff4444;'>Connection Error: Database blocked by browser tracking prevention.</p>";
+        msgEl.innerHTML = "<p style='color:#ff4444;'>Connection Error: Database blocked by browser tracking prevention.</p><br><button onclick=\"gameState.viewLeaderboard.__close()\">CLOSE</button>";
         return;
     }
 
     try {
-        // 2. Fetch all scores above 50
-        const { data: scores, error } = await supabase
+        let { data: allScores, error } = await supabase
             .from('leaderboard')
-            .select('name, score, crew, modules')
-            .gt('score', 50)
+            .select('name, score, crew, modules, RunType')
             .order('score', { ascending: false });
 
         if (error) throw error;
 
-        // 3. Reuse your existing table display logic
-        this.showHighScores(this.filterScores(scores));
-        
-        // 4. Update the button to say "BACK TO MENU" instead of "NEW MISSION"
-        // This ensures they don't accidentally reload the page if they just wanted to peek
-        const menuBtn = msgEl.querySelector('button');
-        if (menuBtn) {
-            
-            menuBtn.onclick = () => {
-                overlay.classList.add('hidden');
-                overlay.style.display = "none";
-            };
-        }
+        // Normalize: map RunType → run_type for all downstream filtering
+        allScores = (allScores || []).map(s => ({ ...s, run_type: s.RunType || '' }));
+
+        const hardcoreScores = this.filterScores(
+            (allScores || []).filter(s => {
+                const rt = (s.run_type || '').toLowerCase();
+                return (rt === 'hardcore' || rt === '') && s.score > 50;
+            })
+        );
+
+        let html = `<h3 style="color:#00f2ff;text-shadow:0 0 10px #00f2ff;margin-bottom:6px;">⭐ HARDCORE HALL OF FAME</h3>`;
+        html += this.buildHardcoreTableHtml(hardcoreScores);
+
+        this.studyTypes.forEach(type => {
+            const typeScores = this.filterScores((allScores || []).filter(s => s.run_type === type.key));
+            html += this.buildStudySectionHtml(typeScores, type.label);
+        });
+
+        html += `<div style="margin-top:20px;"><button style="background:#00f2ff;color:#000;border:none;padding:12px;cursor:pointer;font-weight:bold;font-family:inherit;width:100%;">CLOSE</button></div>`;
+        msgEl.innerHTML = html;
+        msgEl.querySelector('div:last-child button').onclick = closeLeaderboard;
     } catch (err) {
         console.error("Fetch Error:", err);
-        msgEl.innerHTML = "<p style='color:#ff4444;'>Failed to sync with Hall of Fame.</p>";
+        msgEl.innerHTML = `<p style='color:#ff4444;'>Failed to sync with Hall of Fame.</p><p style='color:#888;font-size:0.8em;'>${err.message || err}</p><br><button onclick="document.getElementById('feedback-overlay').classList.add('hidden')" style="margin-top:8px;">CLOSE</button>`;
     }
 },
 
@@ -775,29 +871,29 @@ viewLeaderboard: async function() {
             container.innerHTML = '<p style="color:red">ERROR: questionBank not loaded! Keys=' + (typeof questionBank) + '</p>';
             return;
         }
-        const _cats = Object.keys(questionBank);
-        for (let _i = _cats.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [_cats[_i], _cats[_j]] = [_cats[_j], _cats[_i]]; }
-        const shuffledCats = _cats;
-
-        const makeNormal = (i) => {
-            const cat = shuffledCats[i];
-            const resType = resources[i];
+        const makeNode = (cat, resType) => {
             const amount = Math.floor(Math.random() * (14 - 9 + 1) + 9);
-            const nodeName = amount === 14 ? "Planet" : amount === 13 ? "Dwarf Planet" : amount === 12 ? "Moon" : amount === 11 ? "Asteroid" : amount === 10 ? "Trading Beacon" : "Research Habitat";
+            const nodeName = amount === 14 ? "Planet" : amount === 13 ? "Dwarf Planet" : amount === 12 ? "Moon" : amount === 11 ? "Asteroid" : amount === 10 ? "O'neill Cylinder" : "Research Habitat";
             this.createNodeCard(container, cat, resType, amount, nodeName, false);
         };
 
-        makeNormal(0); // Food
-        makeNormal(1); // Trivium
-
-        if (this.currentSector >= 2) {
-            const hardCats = Object.keys(questionBankHard);
-            const eliteCat = hardCats[Math.floor(Math.random() * hardCats.length)];
-            const eliteAmount = Math.floor(Math.random() * (28 - 18 + 1) + 18);
-            this.createNodeCard(container, eliteCat, "Trivium", eliteAmount, "-HARD NODE-", true);
+        if (this.activeStudyBank) {
+            makeNode(this.activeStudyLabel, "Food");
+            makeNode(this.activeStudyLabel, "Trivium");
+            makeNode(this.activeStudyLabel, "Credits");
+        } else {
+            const _cats = Object.keys(questionBank);
+            for (let _i = _cats.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [_cats[_i], _cats[_j]] = [_cats[_j], _cats[_i]]; }
+            makeNode(_cats[0], "Food");
+            makeNode(_cats[1], "Trivium");
+            if (this.currentSector >= 2) {
+                const hardCats = Object.keys(questionBankHard);
+                const eliteCat = hardCats[Math.floor(Math.random() * hardCats.length)];
+                const eliteAmount = Math.floor(Math.random() * (28 - 18 + 1) + 18);
+                this.createNodeCard(container, eliteCat, "Trivium", eliteAmount, "-HARD NODE-", true);
+            }
+            makeNode(_cats[2], "Credits");
         }
-
-        makeNormal(2); // Credits
     },
 
     createNodeCard: function(container, cat, resType, amount, nodeName, isHard) {
@@ -836,17 +932,25 @@ viewLeaderboard: async function() {
     renderBossCategories: function() {
         const grid = document.getElementById('boss-category-grid');
         grid.innerHTML = "";
-        const hardCats = Object.keys(questionBankHard);
-        for (let _i = hardCats.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [hardCats[_i], hardCats[_j]] = [hardCats[_j], hardCats[_i]]; }
-        const shuffled = hardCats.slice(0, 4);
-        shuffled.forEach(cat => {
+        if (this.activeStudyBank) {
             const btn = document.createElement('button');
             btn.className = "category-btn";
-            btn.innerText = cat.replace(/_/g, ' ');
-            btn.onclick = () => this.startSuddenDeath(cat);
+            btn.innerText = this.activeStudyLabel;
+            btn.onclick = () => this.startSuddenDeath(this.activeStudyLabel);
             grid.appendChild(btn);
-        });
-        this.updateRerollButton();
+            document.getElementById('reroll-container').innerHTML = "";
+        } else {
+            const hardCats = Object.keys(questionBankHard);
+            for (let _i = hardCats.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [hardCats[_i], hardCats[_j]] = [hardCats[_j], hardCats[_i]]; }
+            hardCats.slice(0, 4).forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = "category-btn";
+                btn.innerText = cat.replace(/_/g, ' ');
+                btn.onclick = () => this.startSuddenDeath(cat);
+                grid.appendChild(btn);
+            });
+            this.updateRerollButton();
+        }
     },
 
     updateRerollButton: function() {
@@ -895,7 +999,10 @@ viewLeaderboard: async function() {
         bossUI.classList.add('hidden');
         triviaBox.classList.remove('hidden');
 
-        const qData = this.pickQuestion(questionBankHard, category);
+        const bossBank = this.activeStudyBank
+            ? { [this.activeStudyLabel]: this.activeStudyBank }
+            : questionBankHard;
+        const qData = this.pickQuestion(bossBank, category);
 
         document.getElementById('category-label').innerText = `CRITICAL: ${category.replace(/_/g, ' ')}`;
         document.getElementById('question-text').innerText = qData.q;
@@ -992,7 +1099,9 @@ viewLeaderboard: async function() {
         document.getElementById('choice-container').classList.add('hidden');
         const tBox = document.getElementById('trivia-box');
         tBox.classList.remove('hidden');
-        const sourceBank = isHard ? questionBankHard : questionBank;
+        const sourceBank = this.activeStudyBank
+            ? { [this.activeStudyLabel]: this.activeStudyBank }
+            : (isHard ? questionBankHard : questionBank);
         let qData;
         try {
             qData = this.pickQuestion(sourceBank, category);
@@ -1104,7 +1213,9 @@ viewLeaderboard: async function() {
         const container = document.getElementById('buddy-offers');
         container.innerHTML = "";
         const available = this.buddies.filter(b => !this.player.crew.some(m => m?.id === b.id));
-        const selections = available.sort(() => 0.5 - Math.random()).slice(0, 2);
+        const _avail = [...available];
+        for (let _i = _avail.length - 1; _i > 0; _i--) { const _j = Math.floor(Math.random() * (_i + 1)); [_avail[_i], _avail[_j]] = [_avail[_j], _avail[_i]]; }
+        const selections = _avail.slice(0, 2);
         selections.forEach(buddy => {
             const div = document.createElement('div');
             div.className = 'shop-item';
@@ -1272,7 +1383,23 @@ viewLeaderboard: async function() {
     },
 
     debugJumpToBoss: function() {
-        // Corrected to jump to Sector 3 Boss
+        if (!this.player) {
+            this.player = { name: "Debug", food: 10, trivium: 10, credits: 0, type: "latke", modules: [null, null, null, null], crew: [null, null, null, null, null, null], usedQuestions: {} };
+        }
+        if (this.easyMode === undefined) this.easyMode = false;
+        if (!this.runType) this.runType = 'hardcore';
+        if (this.activeStudyBank === undefined) this.activeStudyBank = null;
+        if (this.activeStudyLabel === undefined) this.activeStudyLabel = null;
+        if (!this.categoryStats)     this.categoryStats = {};
+        if (!this.categoryStatsHard) this.categoryStatsHard = {};
+        if (!this.correctAnswersNormal) this.correctAnswersNormal = 0;
+        if (!this.wrongAnswersNormal)   this.wrongAnswersNormal = 0;
+        if (!this.correctAnswersHard)   this.correctAnswersHard = 0;
+        if (!this.wrongAnswersHard)     this.wrongAnswersHard = 0;
+        if (!this.correctAnswers) this.correctAnswers = 0;
+        if (!this.wrongAnswers)   this.wrongAnswers = 0;
+        if (!this.usedEventIds)   this.usedEventIds = new Set();
+
         this.currentSector = 3;
         this.currentStage = 10;
         this.player.food = 10;
@@ -1280,9 +1407,10 @@ viewLeaderboard: async function() {
 
         const data = this.sectorData[3];
         document.body.style.backgroundImage = data.background;
-        
+
         document.getElementById('menu-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
+        document.getElementById('spaceship-floor').classList.remove('hidden');
 
         this.updateHUD();
         this.triggerBossEncounter();
@@ -1309,7 +1437,7 @@ viewLeaderboard: async function() {
             const mult = isAmped(idx) ? 2 : 1;
             if (m.id === 'octopus') {
                 const adjCount = crewAdjMap[idx].filter(i => this.player.crew[i] !== null).length;
-                foodNet += (2 + adjCount * 2) * mult;
+                foodNet += (2 + adjCount * 1) * mult;
             }
             if (m.id === 'aardvark') creditNet += 4 * mult;
             if (m.id === 'trivia_toad') { foodNet -= 1 * mult; triviumNet += 4 * mult; }
@@ -1345,7 +1473,7 @@ viewLeaderboard: async function() {
             const amp = mult === 2 ? ' (2x Amp)' : '';
             if (m.id === 'octopus') {
                 const adjCount = crewAdjMap[idx].filter(i => this.player.crew[i] !== null).length;
-                food.push(`Hydroponic Octopus: +${(2 + adjCount * 2) * mult}${amp} (${adjCount} adjacent)`);
+                food.push(`Hydroponic Octopus: +${(2 + adjCount * 1) * mult}${amp} (${adjCount} adjacent)`);
             }
             if (m.id === 'aardvark')    credits.push(`Arbitrage Aardvark: +${4 * mult}${amp}`);
             if (m.id === 'trivia_toad') { food.push(`Trivia Toad: -${mult}${amp}`); trivium.push(`Trivia Toad: +${4 * mult}${amp}`); }
@@ -1408,50 +1536,66 @@ viewLeaderboard: async function() {
     },
 
     buildStatsHtml: function() {
+        const isStudy = !!this.activeStudyBank;
         const cn = this.correctAnswersNormal;
         const ch = this.correctAnswersHard;
         const wn = this.wrongAnswersNormal;
         const wh = this.wrongAnswersHard;
-        const total = cn + ch + wn + wh;
+        const totalCorrect = cn + ch;
+        const totalWrong   = wn + wh;
+        const total = totalCorrect + totalWrong;
         const totalStages = (this.currentSector - 1) * 10 + this.currentStage;
 
-        const _bestNormal = Object.entries(this.categoryStats).filter(([,v]) => v.correct > 1).sort((a,b) => b[1].correct - a[1].correct)[0];
-        const _bestHard   = Object.entries(this.categoryStatsHard).filter(([,v]) => v.correct > 1).sort((a,b) => b[1].correct - a[1].correct)[0];
-        const topNormal = _bestNormal ? `${_bestNormal[0].replace(/_/g,' ')} (${_bestNormal[1].correct}/${_bestNormal[1].correct + _bestNormal[1].wrong})` : null;
-        const topHard   = _bestHard   ? `${_bestHard[0].replace(/_/g,' ')} (${_bestHard[1].correct}/${_bestHard[1].correct + _bestHard[1].wrong})` : null;
-
         const canvasId = 'run-stats-pie-' + Date.now();
+
+        let legendHtml, slices;
+        if (isStudy) {
+            legendHtml = `
+                <div><span style="display:inline-block;width:12px;height:12px;background:#6ddb6d;margin-right:6px;vertical-align:middle;"></span>Correct: ${totalCorrect}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#ff7a7a;margin-right:6px;vertical-align:middle;"></span>Wrong: ${totalWrong}</div>`;
+            slices = [
+                { val: totalCorrect, color: '#6ddb6d' },
+                { val: totalWrong,   color: '#ff7a7a' },
+            ];
+        } else {
+            const _bestNormal = Object.entries(this.categoryStats).filter(([,v]) => v.correct > 1).sort((a,b) => b[1].correct - a[1].correct)[0];
+            const _bestHard   = Object.entries(this.categoryStatsHard).filter(([,v]) => v.correct > 1).sort((a,b) => b[1].correct - a[1].correct)[0];
+            const topNormal = _bestNormal ? `${_bestNormal[0].replace(/_/g,' ')} (${_bestNormal[1].correct}/${_bestNormal[1].correct + _bestNormal[1].wrong})` : null;
+            const topHard   = _bestHard   ? `${_bestHard[0].replace(/_/g,' ')} (${_bestHard[1].correct}/${_bestHard[1].correct + _bestHard[1].wrong})` : null;
+            legendHtml = `
+                <div><span style="display:inline-block;width:12px;height:12px;background:#6ddb6d;margin-right:6px;vertical-align:middle;"></span>Correct Normal: ${cn}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#1a7a1a;margin-right:6px;vertical-align:middle;"></span>Correct Hard: ${ch}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#ff7a7a;margin-right:6px;vertical-align:middle;"></span>Wrong Normal: ${wn}</div>
+                <div><span style="display:inline-block;width:12px;height:12px;background:#7a1a1a;margin-right:6px;vertical-align:middle;"></span>Wrong Hard: ${wh}</div>
+                ${(topNormal || topHard) ? `<div style="margin-top:6px;">
+                    ${topNormal ? `<div><span style="color:#6ddb6d;">Top Normal:</span> ${topNormal}</div>` : ''}
+                    ${topHard   ? `<div><span style="color:#1aaa1a;">Top Hard:</span> ${topHard}</div>` : ''}
+                </div>` : ''}`;
+            slices = [
+                { val: cn, color: '#6ddb6d' },
+                { val: ch, color: '#1a7a1a' },
+                { val: wn, color: '#ff7a7a' },
+                { val: wh, color: '#7a1a1a' },
+            ];
+        }
+
         const html = `
         <div style="margin-top:10px;padding:8px;border:1px solid rgba(0,242,255,0.3);font-size:0.85em;color:#a0f9ff;">
             Reached Stage ${totalStages}/30 (Sector ${this.currentSector})
         </div>
         <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin-top:12px;flex-wrap:wrap;">
             <canvas id="${canvasId}" width="130" height="130"></canvas>
-            <div style="font-size:0.78em;color:#ccc;text-align:left;line-height:1.8em;">
-                <div><span style="display:inline-block;width:12px;height:12px;background:#6ddb6d;margin-right:6px;vertical-align:middle;"></span>Correct Normal: ${cn}</div>
-                <div><span style="display:inline-block;width:12px;height:12px;background:#1a7a1a;margin-right:6px;vertical-align:middle;"></span>Correct Hard: ${ch}</div>
-                <div><span style="display:inline-block;width:12px;height:12px;background:#ff7a7a;margin-right:6px;vertical-align:middle;"></span>Wrong Normal: ${wn}</div>
-                <div><span style="display:inline-block;width:12px;height:12px;background:#7a1a1a;margin-right:6px;vertical-align:middle;"></span>Wrong Hard: ${wh}</div>
-            </div>
-        </div>
-        ${(topNormal || topHard) ? `<div style="margin-top:10px;font-size:0.78em;color:#a0f9ff;text-align:left;padding:0 8px;">
-            ${topNormal ? `<div><span style="color:#6ddb6d;">Top Normal:</span> ${topNormal}</div>` : ''}
-            ${topHard   ? `<div style="margin-top:4px;"><span style="color:#1aaa1a;">Top Hard:</span> ${topHard}</div>` : ''}
-        </div>` : ''}`;
+            <div style="font-size:0.78em;color:#ccc;text-align:left;line-height:1.8em;">${legendHtml}</div>
+        </div>`;
 
         setTimeout(() => {
             const canvas = document.getElementById(canvasId);
             if (!canvas || total === 0) return;
             const ctx = canvas.getContext('2d');
             const cx = 65, cy = 65, r = 60;
-            const slices = [
-                { val: cn, color: '#6ddb6d' },
-                { val: ch, color: '#1a7a1a' },
-                { val: wn, color: '#ff7a7a' },
-                { val: wh, color: '#7a1a1a' },
-            ].filter(s => s.val > 0);
+            const activeSlices = slices.filter(s => s.val > 0);
             let angle = -Math.PI / 2;
-            slices.forEach(s => {
+            activeSlices.forEach(s => {
                 const sweep = (s.val / total) * 2 * Math.PI;
                 ctx.beginPath();
                 ctx.moveTo(cx, cy);
