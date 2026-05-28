@@ -53,6 +53,8 @@ const gameState = {
     },
     bgMusic: new Audio('assets/space_music.mp3'),
     musicStarted: false,
+    jumpAnimDuration: 5000,
+    jumpAnimActive: false,
     currentStage: 1,
     currentSector: 1, 
     sectorBackgrounds: {
@@ -264,6 +266,7 @@ const gameState = {
         this.charScreen.classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
         document.getElementById('spaceship-floor').classList.remove('hidden');
+        document.getElementById('minimap').classList.remove('hidden');
         this.currentStage = 1;
         this.usedEventIds = new Set();
         this.terryQuestionCount = 0;
@@ -288,6 +291,7 @@ const gameState = {
         this.updateHUD();
         this.renderModules();
         this.generatePlanets();
+        this.initParticles();
 
         const startingBuddy = this.player.crew[0];
         if (startingBuddy) {
@@ -308,6 +312,7 @@ const gameState = {
         this.gameScreen.classList.add('hidden');
         this.shopScreen.classList.remove('hidden');
         document.getElementById('spaceship-floor').classList.remove('hidden');
+        document.getElementById('minimap').classList.remove('hidden');
         document.getElementById('shop-resources').innerHTML =
             `FOOD: <b>${this.player.food}</b> &nbsp;|&nbsp; TRIVIUM: <b>${this.player.trivium}</b> &nbsp;|&nbsp; CREDITS: <b>${this.player.credits}</b>`;
         
@@ -354,8 +359,8 @@ const gameState = {
             special.className = 'shop-item';
             special.style.borderColor = '#ffd700';
             special.innerHTML = `
-                <h4 style="color:#ffd700;">⚗️ Quantum Credit Exchanger</h4>
-                <p>A black-market data broker offers to liquidate your remaining Credits into raw Trivium data at 50% conversion. All Credits spent.</p>
+                <h4 style="color:#ffd700;">Credit Alchemizer</h4>
+                <p>All Credits spent.</p>
                 <p style="font-size:0.82em;color:#ffd700;margin-top:4px;">Convert ${this.player.credits}C → +${gain} Trivium</p>
                 <div class="buy-area">
                     <button class="buy-btn" id="converter-btn" ${this.player.credits < 2 ? 'disabled' : ''}
@@ -538,13 +543,19 @@ const gameState = {
         menuBtn.style.display  = '';
         closeBtn.classList.toggle('hidden', isDefeat);
         menuBtn.classList.toggle('hidden', !isDefeat);
+        const hud = document.getElementById('hud');
+        overlay.style.top = hud ? (hud.offsetTop + hud.offsetHeight) + 'px' : '0';
         overlay.classList.remove('hidden');
     },
 
     closeFeedback: function() {
     document.getElementById('feedback-overlay').classList.add('hidden');
+    // Only hide the boss icon if we're leaving the boss screen, not during mid-boss feedback
+    const bossUi = document.getElementById('boss-ui');
     const bossIcon = document.getElementById('boss-icon');
-    if (bossIcon) bossIcon.classList.add('hidden');
+    if (bossIcon && bossUi && !bossUi.classList.contains('hidden')) {
+        bossIcon.classList.add('hidden');
+    }
 
     if (this.eventJustCompleted) {
         this.eventJustCompleted = false;
@@ -567,7 +578,8 @@ const gameState = {
         this.openShop();
         return;
     } else if (this.currentStage === 10) {
-        document.getElementById('current-stage').innerText = "10";
+        this.updateHUD();
+        this.updateMinimap();
         this.triggerBossEncounter();
         return;
     } else if (this.currentStage > 10) {
@@ -604,15 +616,6 @@ const gameState = {
 },
 
     showVictoryScreen: function() {
-    // 1. Hide the gameplay layers
-    this.gameScreen.classList.add('hidden');
-    
-    // Hide all other potential UI elements
-    const uiElements = ['boss-ui', 'trivia-box', 'shop-screen', 'tavern-screen'];
-    uiElements.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-    });
 
     const overlay = document.getElementById('feedback-overlay');
     const msgEl = document.getElementById('feedback-msg');
@@ -683,7 +686,8 @@ const gameState = {
     `;
 
     // 5. Show the Overlay and hide the default "Continue" button
-    if (closeBtn) closeBtn.style.display = 'none'; 
+    if (closeBtn) closeBtn.style.display = 'none';
+    overlay.style.top = '0';
     overlay.classList.remove('hidden');
     overlay.style.display = "flex"; 
 },
@@ -721,12 +725,12 @@ const gameState = {
         } else if (this.runType === 'casual') {
             msgEl.innerHTML = `<p style="color:#6ddb6d;font-size:1em;">Run logged successfully!</p>
                 <p style="color:#888;font-size:0.82em;">Your casual score of <span style="color:#00f2ff;">${finalScore}</span> has been saved.</p>
-                <button onclick="location.reload()" style="display:block;width:100%;margin-top:20px;background:rgba(194,86,86,0.2);border:1px solid rgb(194,86,86);color:rgb(194,86,86);cursor:pointer;padding:10px;">START NEW MISSION</button>`;
+                <button onclick="location.reload()" style="display:block;width:100%;margin-top:20px;background:rgba(194,86,86,0.2);border:1px solid rgb(194,86,86);color:rgb(194,86,86);cursor:pointer;padding:10px;">Menu</button>`;
         } else {
             const studyDef = this.studyTypes.find(t => t.key === this.runType);
             const label = studyDef ? studyDef.label : 'STUDY';
             msgEl.innerHTML = this.buildStudySectionHtml(filtered, label) +
-                `<button onclick="location.reload()" style="display:block;width:100%;margin-top:20px;background:rgba(194,86,86,0.2);border:1px solid rgb(194,86,86);color:rgb(194,86,86);cursor:pointer;padding:10px;">START NEW MISSION</button>`;
+                `<button onclick="location.reload()" style="display:block;width:100%;margin-top:20px;background:rgba(194,86,86,0.2);border:1px solid rgb(194,86,86);color:rgb(194,86,86);cursor:pointer;padding:10px;">Menu</button>`;
         }
     } catch (err) {
         console.error("Supabase Error:", err.message);
@@ -795,9 +799,14 @@ buildStudySectionHtml: function(scores, label) {
 },
 
 showHighScores: function(scores) {
+    const titleEl = document.getElementById('feedback-title');
+    if (titleEl) {
+        titleEl.innerHTML = '⭐ GALACTIC HALL OF FAME';
+        titleEl.className = 'success-text';
+    }
     const msgEl = document.getElementById('feedback-msg');
     msgEl.innerHTML = this.buildHardcoreTableHtml(scores) +
-        `<div style="margin-top:20px;"><button onclick="location.reload()" style="background:#00f2ff;color:#000;border:none;padding:12px;cursor:pointer;font-weight:bold;font-family:inherit;width:100%;">START NEW MISSION</button></div>`;
+        `<div style="margin-top:20px;"><button onclick="location.reload()" style="background:#00f2ff;color:#000;border:none;padding:12px;cursor:pointer;font-weight:bold;font-family:inherit;width:100%;">BACK TO MENU</button></div>`;
 },
 viewLeaderboard: async function() {
     const overlay = document.getElementById('feedback-overlay');
@@ -810,6 +819,7 @@ viewLeaderboard: async function() {
     menuBtn.classList.add('hidden');
     titleEl.innerText = "Galactic Hall of Fame";
     msgEl.innerHTML = "<p style='text-align:center;'>Accessing Galactic Archives...</p>";
+    overlay.style.top = '0';
     overlay.classList.remove('hidden');
     overlay.style.display = "flex";
 
@@ -897,15 +907,32 @@ viewLeaderboard: async function() {
     },
 
     createNodeCard: function(container, cat, resType, amount, nodeName, isHard) {
+        const nodeAssetBase = {
+            'Planet':           'assets/location_planet',
+            'Dwarf Planet':     'assets/location_dwarf_planet',
+            'Moon':             'assets/location_moon',
+            'Asteroid':         'assets/location_asteroid',
+            "O'neill Cylinder":  'assets/location_oneill_cylinder',
+            'Research Habitat': 'assets/location_research_habitat',
+            '-HARD NODE-':      'assets/location_hard_node',
+        };
+        const base = nodeAssetBase[nodeName] || 'assets/latke_idle';
+        // Try PNG first, fall back to GIF, then to default
+        const imgSrc = `${base}.png`;
+        const imgFallback = `${base}.gif`;
+
         const card = document.createElement('div');
         card.className = isHard ? 'planet-card elite-node' : 'planet-card';
+        const tooltip = `${cat.replace(/_/g, ' ')} ${nodeName}`;
         card.innerHTML = `
-  <h3>
-    ${cat.replace(/_/g, ' ')} <br> 
-    ${nodeName} <br>
-  
+  <h3>${cat.replace(/_/g, ' ')}</h3>
   <span class="reward-tag">+${amount} ${resType}</span>
-`; 
+  <div style="margin-top:8px;">
+    <img src="${imgSrc}"
+         onerror="this.onerror=null;this.src='${imgFallback}'"
+         title="${tooltip}"
+         style="width:83px;height:83px;image-rendering:pixelated;display:block;margin:0 auto;">
+  </div>`;
         card.onclick = () => this.startTrivia(cat, {type: resType, val: amount}, isHard);
         container.appendChild(card);
     },
@@ -1149,13 +1176,23 @@ viewLeaderboard: async function() {
                     bonusText = " (+50% Amplifier!)";
                 }
 
+                // disable all answer buttons immediately to prevent double-click
+                grid.querySelectorAll('button').forEach(b => b.disabled = true);
+
+                // snapshot resource values BEFORE any changes
+                const oldFood    = this.player.food;
+                const oldTrivium = this.player.trivium;
+                const oldCredits = this.player.credits;
+
+                const resKey = reward.type.toLowerCase();
+
                 if (isCorrect) {
                     this.correctAnswers++;
                     if (isHard) { this.correctAnswersHard++; } else { this.correctAnswersNormal++; }
                     const catBucket = isHard ? this.categoryStatsHard : this.categoryStats;
                     if (!catBucket[category]) catBucket[category] = { correct: 0, wrong: 0 };
                     catBucket[category].correct++;
-                    this.player[reward.type.toLowerCase()] += finalVal;
+                    this.player[resKey] += finalVal;
                 } else {
                     this.wrongAnswers++;
                     if (isHard) { this.wrongAnswersHard++; } else { this.wrongAnswersNormal++; }
@@ -1167,25 +1204,75 @@ viewLeaderboard: async function() {
                 }
 
                 const { foodNet, triviumNet, creditNet } = this.getJumpCosts();
-
-                this.player.food += foodNet;
+                this.player.food    += foodNet;
                 this.player.trivium += triviumNet;
                 this.player.credits += creditNet;
                 this.updateHUD();
 
+                // show feedback popup immediately
                 if (!this.easyMode && (this.player.food <= 0 || this.player.trivium <= 0)) {
                     const outOf = this.player.food <= 0 && this.player.trivium <= 0 ? "FOOD and TRIVIUM" : this.player.food <= 0 ? "FOOD" : "TRIVIUM";
                     const jumpNote = isCorrect
                         ? `You answered correctly, but the jump cost of ${outOf} drained your last reserves. The ship has no power to continue.`
                         : `You answered incorrectly. The jump cost then consumed your remaining ${outOf}, leaving nothing to continue.`;
-                    const deathMsg = `${jumpNote}\n\nThe correct answer was: ${qData.correct}`;
-                    this.showFeedback(false, deathMsg, `SYSTEMS FAILURE: OUT OF ${outOf}`, qData.explanation, this.buildStatsHtml());
+                    this.showFeedback(false, `${jumpNote}\n\nThe correct answer was: ${qData.correct}`, `SYSTEMS FAILURE: OUT OF ${outOf}`, qData.explanation, this.buildStatsHtml());
                 } else {
                     this.currentStage++;
                     this.highestStageReached = Math.max(this.highestStageReached, (this.currentSector - 1) * 10 + this.currentStage);
-                    let msg = isCorrect ? "" : `Incorrect. The correct answer was ${qData.correct}.`;
+                    const msg   = isCorrect ? "" : `Incorrect. The correct answer was ${qData.correct}.`;
                     const title = isCorrect ? `CORRECT! +${finalVal} ${reward.type}${bonusText}` : "Incorrect";
                     this.showFeedback(isCorrect, msg, title, qData.explanation);
+                }
+
+                // animate all resource stats from old → new over the jump animation period
+                const DURATION = this.jumpAnimDuration;
+                this.jumpAnimActive = true;
+                const enginesEl = document.getElementById('ship-engines');
+                if (enginesEl) enginesEl.classList.add('jump-active');
+                setTimeout(() => {
+                    this.jumpAnimActive = false;
+                    if (enginesEl) enginesEl.classList.remove('jump-active');
+                }, DURATION);
+                const pairs = [
+                    ['food-stat',    oldFood,    this.player.food],
+                    ['trivium-stat', oldTrivium, this.player.trivium],
+                    ['credits-stat', oldCredits, this.player.credits],
+                ].filter(([, s, e]) => s !== e);
+
+                if (pairs.length) {
+                    const catLabel = document.getElementById('category-label');
+                    if (isCorrect && catLabel) {
+                        catLabel.style.color      = '#00ff88';
+                        catLabel.style.textShadow = '0 0 12px #00ff88';
+                        setTimeout(() => { catLabel.style.color = ''; catLabel.style.textShadow = ''; }, DURATION);
+                    }
+                    // colour each stat and its label green/red based on direction
+                    pairs.forEach(([id, start, end]) => {
+                        const color = end > start ? '#00ff88' : '#ff4444';
+                        const statEl  = document.getElementById(id);
+                        const labelEl = document.getElementById(id.replace('-stat', '-label'));
+                        if (statEl)  statEl.style.color  = color;
+                        if (labelEl) labelEl.style.color = color;
+                    });
+                    setTimeout(() => {
+                        pairs.forEach(([id]) => {
+                            const statEl  = document.getElementById(id);
+                            const labelEl = document.getElementById(id.replace('-stat', '-label'));
+                            if (statEl)  statEl.style.color  = '';
+                            if (labelEl) labelEl.style.color = '';
+                        });
+                    }, DURATION);
+                    const t0 = performance.now();
+                    const tick = (now) => {
+                        const p     = Math.min((now - t0) / DURATION, 1);
+                        const eased = 1 - Math.pow(1 - p, 2);
+                        pairs.forEach(([id, start, end]) => {
+                            const el = document.getElementById(id);
+                            if (el) el.innerText = Math.round(start + (end - start) * eased);
+                        });
+                        if (p < 1) requestAnimationFrame(tick);
+                    };
+                    requestAnimationFrame(tick);
                 }
             };
             grid.appendChild(btn);
@@ -1209,6 +1296,7 @@ viewLeaderboard: async function() {
     openTavern: function() {
         this.gameScreen.classList.add('hidden');
         document.getElementById('spaceship-floor').classList.add('hidden');
+        document.getElementById('minimap').classList.add('hidden');
         document.getElementById('tavern-screen').classList.remove('hidden');
         const container = document.getElementById('buddy-offers');
         container.innerHTML = "";
@@ -1241,6 +1329,7 @@ viewLeaderboard: async function() {
         document.getElementById('tavern-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
         document.getElementById('spaceship-floor').classList.remove('hidden');
+        document.getElementById('minimap').classList.remove('hidden');
         this.generatePlanets();
     },
 
@@ -1252,6 +1341,7 @@ viewLeaderboard: async function() {
 
         this.gameScreen.classList.add('hidden');
         document.getElementById('spaceship-floor').classList.add('hidden');
+        document.getElementById('minimap').classList.add('hidden');
         const screen = document.getElementById('event-screen');
         screen.classList.remove('hidden');
 
@@ -1308,6 +1398,7 @@ viewLeaderboard: async function() {
             document.getElementById('event-screen').classList.add('hidden');
             this.gameScreen.classList.remove('hidden');
             document.getElementById('spaceship-floor').classList.remove('hidden');
+            document.getElementById('minimap').classList.remove('hidden');
             this.eventJustCompleted = true;
             const msg = added.length === 0
                 ? 'A figure emerged from the darkness, but your crew quarters were already full. They slipped back into the void.'
@@ -1324,6 +1415,7 @@ viewLeaderboard: async function() {
         document.getElementById('event-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
         document.getElementById('spaceship-floor').classList.remove('hidden');
+        document.getElementById('minimap').classList.remove('hidden');
         this.eventJustCompleted = true;
         this.showFeedback(true, `${rewardText}${costText}`, opt.label.toUpperCase());
     },
@@ -1375,6 +1467,7 @@ viewLeaderboard: async function() {
         document.getElementById('event-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
         document.getElementById('spaceship-floor').classList.remove('hidden');
+        document.getElementById('minimap').classList.remove('hidden');
         this.eventJustCompleted = true;
         const msg = buddyId
             ? `A perfect copy steps out of the pod, ready to serve. Your crew quarters now hold two ${this.buddies.find(b => b.id === buddyId)?.name || 'crew members'}.`
@@ -1402,6 +1495,7 @@ viewLeaderboard: async function() {
 
         this.currentSector = 3;
         this.currentStage = 10;
+        this.bossRerollCost = 2;
         this.player.food = 10;
         this.player.trivium = 10;
 
@@ -1411,6 +1505,7 @@ viewLeaderboard: async function() {
         document.getElementById('menu-screen').classList.add('hidden');
         this.gameScreen.classList.remove('hidden');
         document.getElementById('spaceship-floor').classList.remove('hidden');
+        document.getElementById('minimap').classList.remove('hidden');
 
         this.updateHUD();
         this.triggerBossEncounter();
@@ -1528,6 +1623,102 @@ viewLeaderboard: async function() {
         ['food-label', 'food-cost'].forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('data-tooltip', foodTip); });
         ['trivium-label', 'trivium-cost'].forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('data-tooltip', triviumTip); });
         ['credits-label', 'credit-gain'].forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('data-tooltip', creditTip); });
+        this.updateMinimap();
+    },
+
+    updateMinimap: function() {
+        const minimap = document.getElementById('minimap');
+        if (!minimap) return;
+        const hidden = id => document.getElementById(id)?.classList.contains('hidden') ?? true;
+        // Stages 4, 6, 8 each serve double duty: the special screen AND the following
+        // trivia. Once the special screen is gone, advance past its node.
+        let activeIdx;
+        if      (this.currentStage === 4 && hidden('tavern-screen')) activeIdx = 4;  // "4"
+        else if (this.currentStage === 6 && hidden('event-screen'))  activeIdx = 7;  // "6"
+        else if (this.currentStage === 8 && hidden('shop-screen'))   activeIdx = 10; // "8"
+        else {
+            // Full mapping: nodes 0-12, with phantom nodes 5,8,11 for stages 5,7,9
+            const stageNodeIdx = { 1:0, 2:1, 3:2, 4:3, 5:5, 6:6, 7:8, 8:9, 9:11, 10:12 };
+            activeIdx = stageNodeIdx[this.currentStage] ?? 0;
+        }
+        const stops = minimap.querySelectorAll('.minimap-stop');
+        const connectors = minimap.querySelectorAll('.minimap-connector');
+        stops.forEach((stop, idx) => {
+            stop.classList.toggle('active',   idx === activeIdx);
+            stop.classList.toggle('visited',  idx < activeIdx);
+        });
+        connectors.forEach((conn, idx) => {
+            conn.classList.toggle('visited', idx < activeIdx);
+        });
+    },
+
+    initParticles: function() {
+        const canvas = document.getElementById('particle-canvas');
+        if (!canvas) return;
+
+        const MARGIN_PX   = Math.round(0.25 * 96); // 0.25 inches
+        const COUNT       = 27;
+        const BASE_MIN    = 0.8;
+        const BASE_MAX    = 2.2;
+
+        const mkParticle = (w, h) => ({
+            x:       Math.random() * w,
+            y:       Math.random() * h,
+            r:       0.8 + Math.random() * 1.4,
+            speed:   BASE_MIN + Math.random() * (BASE_MAX - BASE_MIN),
+            opacity: 0.2 + Math.random() * 0.5,
+        });
+
+        let particles = [];
+        let lastW = 0, lastH = 0;
+
+        const syncCanvas = () => {
+            const ship = document.getElementById('spaceship-floor');
+            if (!ship || ship.classList.contains('hidden')) {
+                canvas.style.display = 'none';
+                return false;
+            }
+            const rect = ship.getBoundingClientRect();
+            const w = window.innerWidth;
+            const h = Math.round(rect.height + MARGIN_PX * 2);
+            canvas.style.top = (rect.top - MARGIN_PX) + 'px';
+            canvas.style.display = 'block';
+            if (w !== lastW || h !== lastH) {
+                canvas.width  = w;
+                canvas.height = h;
+                lastW = w; lastH = h;
+                particles = Array.from({ length: COUNT }, () => mkParticle(w, h));
+            }
+            return true;
+        };
+
+        window.addEventListener('resize', () => { lastW = 0; });
+
+        const ctx = canvas.getContext('2d');
+
+        const tick = () => {
+            if (!syncCanvas()) { requestAnimationFrame(tick); return; }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const speedMult = this.jumpAnimActive ? 5 : 1;
+
+            particles.forEach(p => {
+                p.x -= p.speed * speedMult;
+                if (p.x + p.r < 0) {
+                    p.x       = canvas.width + p.r;
+                    p.y       = Math.random() * canvas.height;
+                    p.opacity = 0.2 + Math.random() * 0.5;
+                }
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(tick);
+        };
+
+        requestAnimationFrame(tick);
     },
 
     getRunStats: function() {

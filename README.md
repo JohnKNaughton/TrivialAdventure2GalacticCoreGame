@@ -5,6 +5,10 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 
 Changelog:
+
+.74 getting graphics update on branch working, reformatted gameplay screen to just be stacked rectangles, added working minimap and debugged it, added jump animation to slowly update resources and partcles and engine flare when accelerating in jump animation. Greatly increased data science question banks. Reformated main screen, 
+
+
 .73 Added Study Mode! Opened up supabase to record for all GameTypes in column and enabled StudySpaceandElements and StudyDataScience fully playable, other 3 placeholders for now. Fixed some other logic and bug fixes, added third shop option credit alchemizer that allows you to convert credits to trivium at half rate. 
 
 .72 added more post run statistics, larger buddies when you hover over them
