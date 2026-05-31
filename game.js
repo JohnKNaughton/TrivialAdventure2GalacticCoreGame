@@ -54,6 +54,7 @@ const gameState = {
     bgMusic: new Audio('assets/space_music.mp3'),
     musicStarted: false,
     jumpAnimDuration: 5000,
+    stockpileDuration: 2000,
     jumpAnimActive: false,
     currentStage: 1,
     currentSector: 1, 
@@ -142,10 +143,11 @@ const gameState = {
             return;
         }
 
+        this._injectIntroLocations();
         this.introScreen.onclick = () => this.skipIntro();
         this.introTimer = setTimeout(() => {
             this.showMenu();
-        }, 15000);
+        }, 12000);
     },
 
     skipIntro: function() {
@@ -159,6 +161,7 @@ const gameState = {
         this.introScreen.classList.add('hidden');
         this.menuScreen.classList.remove('hidden');
         this.menuScreen.classList.add('fade-in');
+        document.querySelectorAll('.intro-location-img').forEach(el => el.remove());
     },
 
     replayCinematic: function() {
@@ -166,12 +169,12 @@ const gameState = {
         const intro = this.introScreen;
         const p = intro.querySelector('p');
         intro.classList.remove('hidden');
-        // Force CSS animation restart
         p.style.animation = 'none';
-        p.offsetHeight; // trigger reflow
+        p.offsetHeight;
         p.style.animation = '';
+        this._injectIntroLocations();
         intro.onclick = () => this.skipCinematic();
-        this.cinematicTimer = setTimeout(() => this.skipCinematic(), 25000);
+        this.cinematicTimer = setTimeout(() => this.skipCinematic(), 12000);
     },
 
     skipCinematic: function() {
@@ -179,6 +182,37 @@ const gameState = {
         this.introScreen.onclick = null;
         this.introScreen.classList.add('hidden');
         this.menuScreen.classList.remove('hidden');
+        document.querySelectorAll('.intro-location-img').forEach(el => el.remove());
+    },
+
+    _injectIntroLocations: function() {
+        document.querySelectorAll('.intro-location-img').forEach(el => el.remove());
+        const allVariants = [
+            'assets/location_planet.png', 'assets/location_planet2.png',
+            'assets/location_dwarf_planet.png', 'assets/location_dwarf_planet2.png',
+            'assets/location_moon.png',
+            'assets/location_asteroid.gif',
+            'assets/location_oneill_cylinder.png',
+            'assets/location_research_habitat.png',
+            'assets/location_hard_node.png', 'assets/location_hard_node2.png', 'assets/location_hard_node3.png',
+        ];
+        const shuffled = [...allVariants].sort(() => Math.random() - 0.5).slice(0, 6);
+        const positions = [
+            { side: 'left',  top: '12%' },
+            { side: 'right', top: '27%' },
+            { side: 'left',  top: '42%' },
+            { side: 'right', top: '57%' },
+            { side: 'left',  top: '72%' },
+            { side: 'right', top: '82%' },
+        ];
+        shuffled.forEach((src, i) => {
+            const pos = positions[i];
+            const el = document.createElement('img');
+            el.src = src;
+            el.className = 'intro-location-img';
+            el.style.cssText = `position:absolute;${pos.side}:5%;top:${pos.top};width:80px;height:80px;image-rendering:pixelated;opacity:0;animation:fadeIn 1.5s ${i * 0.4}s forwards;pointer-events:none;`;
+            this.introScreen.appendChild(el);
+        });
     },
 
     showChangelog: function() {
@@ -870,6 +904,7 @@ viewLeaderboard: async function() {
 },
 
     generatePlanets: function() {
+        this._screenVariants = {};
         this.updateHUD();
         document.getElementById('current-stage').innerText = this.currentStage;
         document.getElementById('choice-container').classList.remove('hidden');
@@ -883,7 +918,7 @@ viewLeaderboard: async function() {
         }
         const makeNode = (cat, resType) => {
             const amount = Math.floor(Math.random() * (14 - 9 + 1) + 9);
-            const nodeName = amount === 14 ? "Planet" : amount === 13 ? "Dwarf Planet" : amount === 12 ? "Moon" : amount === 11 ? "Asteroid" : amount === 10 ? "O'neill Cylinder" : "Research Habitat";
+            const nodeName = amount === 14 ? "Planet" : amount === 13 ? "Dwarf Planet" : amount === 12 ? "Moon" : amount === 11 ? "Asteroid Field" : amount === 10 ? "O'neill Cylinder" : "Research Habitat";
             this.createNodeCard(container, cat, resType, amount, nodeName, false);
         };
 
@@ -907,19 +942,23 @@ viewLeaderboard: async function() {
     },
 
     createNodeCard: function(container, cat, resType, amount, nodeName, isHard) {
-        const nodeAssetBase = {
-            'Planet':           'assets/location_planet',
-            'Dwarf Planet':     'assets/location_dwarf_planet',
-            'Moon':             'assets/location_moon',
-            'Asteroid':         'assets/location_asteroid',
-            "O'neill Cylinder":  'assets/location_oneill_cylinder',
-            'Research Habitat': 'assets/location_research_habitat',
-            '-HARD NODE-':      'assets/location_hard_node',
+        const nodeAssetVariants = {
+            'Planet':           ['assets/location_planet.png', 'assets/location_planet2.png'],
+            'Dwarf Planet':     ['assets/location_dwarf_planet.png', 'assets/location_dwarf_planet2.png'],
+            'Moon':             ['assets/location_moon.png'],
+            'Asteroid Field':   ['assets/location_asteroid.gif'],
+            "O'neill Cylinder": ['assets/location_oneill_cylinder.png'],
+            'Research Habitat': ['assets/location_research_habitat.png'],
+            '-HARD NODE-':      ['assets/location_hard_node.png', 'assets/location_hard_node2.png', 'assets/location_hard_node3.png'],
         };
-        const base = nodeAssetBase[nodeName] || 'assets/latke_idle';
-        // Try PNG first, fall back to GIF, then to default
-        const imgSrc = `${base}.png`;
-        const imgFallback = `${base}.gif`;
+        const variants = nodeAssetVariants[nodeName] || ['assets/latke_idle.gif'];
+        if (!this._screenVariants) this._screenVariants = {};
+        const usedIndices = this._screenVariants[nodeName] || [];
+        const availableIndices = variants.map((_, i) => i).filter(i => !usedIndices.includes(i));
+        const pool = availableIndices.length > 0 ? availableIndices : variants.map((_, i) => i);
+        const chosenIdx = pool[Math.floor(Math.random() * pool.length)];
+        this._screenVariants[nodeName] = [...usedIndices, chosenIdx];
+        const imgSrc = variants[chosenIdx];
 
         const card = document.createElement('div');
         card.className = isHard ? 'planet-card elite-node' : 'planet-card';
@@ -929,9 +968,8 @@ viewLeaderboard: async function() {
   <span class="reward-tag">+${amount} ${resType}</span>
   <div style="margin-top:8px;">
     <img src="${imgSrc}"
-         onerror="this.onerror=null;this.src='${imgFallback}'"
          title="${tooltip}"
-         style="width:83px;height:83px;image-rendering:pixelated;display:block;margin:0 auto;">
+         style="width:100px;height:100px;image-rendering:pixelated;display:block;margin:0 auto;">
   </div>`;
         card.onclick = () => this.startTrivia(cat, {type: resType, val: amount}, isHard);
         container.appendChild(card);
@@ -1225,7 +1263,8 @@ viewLeaderboard: async function() {
                 }
 
                 // animate all resource stats from old → new over the jump animation period
-                const DURATION = this.jumpAnimDuration;
+                const DURATION       = this.jumpAnimDuration;
+                const STOCK_DURATION = this.stockpileDuration;
                 this.jumpAnimActive = true;
                 const enginesEl = document.getElementById('ship-engines');
                 if (enginesEl) enginesEl.classList.add('jump-active');
@@ -1244,7 +1283,7 @@ viewLeaderboard: async function() {
                     if (isCorrect && catLabel) {
                         catLabel.style.color      = '#00ff88';
                         catLabel.style.textShadow = '0 0 12px #00ff88';
-                        setTimeout(() => { catLabel.style.color = ''; catLabel.style.textShadow = ''; }, DURATION);
+                        setTimeout(() => { catLabel.style.color = ''; catLabel.style.textShadow = ''; }, STOCK_DURATION);
                     }
                     // colour each stat and its label green/red based on direction
                     pairs.forEach(([id, start, end]) => {
@@ -1261,10 +1300,10 @@ viewLeaderboard: async function() {
                             if (statEl)  statEl.style.color  = '';
                             if (labelEl) labelEl.style.color = '';
                         });
-                    }, DURATION);
+                    }, STOCK_DURATION);
                     const t0 = performance.now();
                     const tick = (now) => {
-                        const p     = Math.min((now - t0) / DURATION, 1);
+                        const p     = Math.min((now - t0) / STOCK_DURATION, 1);
                         const eased = 1 - Math.pow(1 - p, 2);
                         pairs.forEach(([id, start, end]) => {
                             const el = document.getElementById(id);
