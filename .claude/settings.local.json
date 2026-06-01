@@ -5,7 +5,9 @@
       "Bash(sed -n '1,499p' game.js)",
       "Bash(sed -n '500,847p' game.js)",
       "Bash(mv game_temp.js game.js)",
-      "Bash(python3 -c ':*)"
+      "Bash(python3 -c ':*)",
+      "Bash(node -e ' *)",
+      "Bash(sed 's/^[[:space:]]*//')"
     ]
   }
 }

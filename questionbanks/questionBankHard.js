@@ -1,21 +1,3 @@
-const questionBankHardCategories = [
-    "Particle_Physics", "Microbiology", "Renaissance_Art", "Number_Theory",
-    "Organic_Chemistry", "Phonetics", "Botany", "Pre_Socratic_Philosophy",
-    "Classical_Music", "Obscure_Geography", "Cryptography", "Astrobiology",
-    "Topology", "Entomology", "Anime_and_Manga", "Superhero_Comics",
-    "Video_Game_Lore", "Prestige_Television", "Contemporary_Hip_Hop",
-    "Fantasy_Literature", "Sci_Fi_Cinema", "Reality_TV_and_Streaming",
-    "Esports", "Internet_Culture", "Fashion_History", "Culinary_Techniques",
-    "Urban_Legends_and_Folklore", "Board_Games", "Space_Opera", "Naval_History",
-    "Watchmaking", "Paleoclimatology", "Sumerology", "Competitive_Chess",
-    "Formula_One_Technics", "Brewing_Science", "Quantum_Computing", "Calligraphy",
-    "Linguistic_Typology", "Mycology", "Cartography", "Numismatics",
-    "Volcanology", "Gothic_Literature", "Retrocomputing", "Railway_Signaling",
-    "Mechanical_Keyboards", "Fountain_Pens", "Electric_Vehicles", "Biohacking",
-    "Fantasy_Sports_Analytics", "NBA", "National_Parks", "Tarot_Cards",
-    "Beach_Volleyball", "Elden_Ring", "Zelda_Games", "Astrology", "Aeronautical_Engineering", "Epigenetics", "High_Frequency_Trading", "Ancient_Mesoamerica", "Theoretical_Neuroscience", "Classical_Islamic_Philosophy"
-];
-
 const questionBankHard = {
     Particle_Physics: [
         { q: "Which boson is responsible for giving elementary particles mass via spontaneous symmetry breaking?", a: ["Higgs", "Z Boson", "Photon", "Gluon"], correct: "Higgs", explanation: "The Higgs boson is the excitation of the Higgs field; particles gain mass by interacting with this field via the Brout-Englert-Higgs mechanism." },
@@ -564,5 +546,321 @@ const questionBankHard = {
         { q: "Which gymnast has the most World Championship medals in history?", a: ["Simone Biles", "Nadia Comăneci", "Vitaly Scherbo", "Kohei Uchimura"], correct: "Simone Biles", explanation: "Biles has 30 World Championship medals (23 gold), making her the most decorated gymnast of all time." },
         { q: "Who is the only Formula 1 driver to win seven World Championships, a record shared with Lewis Hamilton?", a: ["Michael Schumacher", "Ayrton Senna", "Juan Manuel Fangio", "Sebastian Vettel"], correct: "Michael Schumacher", explanation: "Schumacher dominated the early 2000s with Ferrari, a feat Hamilton matched in 2020 with Mercedes." },
         { q: "In cricket, which player's career batting average of 99.94 is widely considered the greatest statistical achievement in any major sport?", a: ["Sir Don Bradman", "Sachin Tendulkar", "Brian Lara", "Sir Viv Richards"], correct: "Sir Don Bradman", explanation: "Bradman's average is nearly 40 runs higher than the next best player's, representing a statistical outlier of more than four standard deviations." }
-    ]
+    ],
+    Astronomy_and_Cosmology: [
+    { q: "What is the name of the boundary around a black hole beyond which no information can escape?", a: ["Event Horizon", "Photon Sphere", "Ergosphere", "Schwarzschild Radius"], correct: "Event Horizon", explanation: "The event horizon is the point of no return surrounding a black hole; anything crossing it cannot communicate with the outside universe." },
+    { q: "Which observation provided the strongest evidence for the Big Bang theory over the Steady State model?", a: ["Cosmic Microwave Background", "Gravitational Waves", "Dark Matter Halos", "Pulsars"], correct: "Cosmic Microwave Background", explanation: "The discovery of the CMB in 1965 matched predictions of a hot early universe and dealt a major blow to the Steady State model." },
+    { q: "What is the Chandrasekhar limit approximately equal to?", a: ["1.4 Solar Masses", "3 Solar Masses", "0.5 Solar Masses", "10 Solar Masses"], correct: "1.4 Solar Masses", explanation: "The Chandrasekhar limit is the maximum mass a white dwarf can have before electron degeneracy pressure fails to support it." },
+    { q: "Which type of supernova results from the thermonuclear disruption of a white dwarf?", a: ["Type Ia", "Type II", "Type Ib", "Type IIn"], correct: "Type Ia", explanation: "Type Ia supernovae occur when a white dwarf reaches a critical mass and undergoes runaway nuclear fusion." },
+    { q: "What term describes the apparent recession of distant galaxies due to the expansion of space itself?", a: ["Hubble Flow", "Red Giant Drift", "Cosmic Shear", "Stellar Aberration"], correct: "Hubble Flow", explanation: "The Hubble Flow refers to galaxy motions caused by cosmic expansion and forms the basis of Hubble's Law." }
+],
+
+Game_Theory: [
+    { q: "In the classic Prisoner's Dilemma, what outcome is the Nash equilibrium?", a: ["Both Defect", "Both Cooperate", "One Cooperates, One Defects", "Randomized Cooperation"], correct: "Both Defect", explanation: "Although mutual cooperation is better collectively, rational self-interest leads both players to defect." },
+    { q: "Who is generally credited with formalizing modern game theory alongside Oskar Morgenstern?", a: ["John von Neumann", "John Nash", "Thomas Schelling", "Kenneth Arrow"], correct: "John von Neumann", explanation: "Von Neumann and Morgenstern's 1944 work laid the foundations of modern game theory." },
+    { q: "What is a Nash equilibrium?", a: ["A strategy profile where no player benefits from unilateral deviation", "A strategy maximizing total welfare", "A strictly dominant strategy", "A zero-sum outcome"], correct: "A strategy profile where no player benefits from unilateral deviation", explanation: "In a Nash equilibrium, each player's strategy is optimal given the strategies chosen by others." },
+    { q: "Which game is commonly used to model cooperation in repeated interactions?", a: ["Iterated Prisoner's Dilemma", "Matching Pennies", "Battle of the Sexes", "Chicken"], correct: "Iterated Prisoner's Dilemma", explanation: "Repeated play allows strategies like Tit-for-Tat to encourage cooperation." },
+    { q: "What does a dominant strategy guarantee?", a: ["At least as good a payoff regardless of opponents' actions", "Maximum social welfare", "A Nash equilibrium", "A Pareto-optimal outcome"], correct: "At least as good a payoff regardless of opponents' actions", explanation: "A dominant strategy performs at least as well as any alternative strategy in every possible scenario." }
+],
+
+Ancient_Rome: [
+    { q: "Which Roman emperor is traditionally credited with establishing the Principate?", a: ["Augustus", "Tiberius", "Julius Caesar", "Trajan"], correct: "Augustus", explanation: "Augustus transformed Rome from a republic into an imperial system while preserving republican appearances." },
+    { q: "What was the primary legislative assembly of the plebeians called?", a: ["Concilium Plebis", "Comitia Centuriata", "Roman Senate", "Comitia Curiata"], correct: "Concilium Plebis", explanation: "The Plebeian Council passed resolutions known as plebiscites that eventually gained force of law." },
+    { q: "Which Roman historian wrote the 'Annals' and 'Histories'?", a: ["Tacitus", "Livy", "Suetonius", "Polybius"], correct: "Tacitus", explanation: "Tacitus is among the most important sources for the early Roman Empire." },
+    { q: "What was the Roman frontier system known as along many imperial borders?", a: ["Limes", "Viae", "Forum", "Cursus"], correct: "Limes", explanation: "The limes consisted of fortifications, roads, and military installations marking imperial boundaries." },
+    { q: "Which battle in 9 CE resulted in the destruction of three Roman legions in Germania?", a: ["Battle of the Teutoburg Forest", "Battle of Actium", "Battle of Cannae", "Battle of Zama"], correct: "Battle of the Teutoburg Forest", explanation: "Arminius led Germanic tribes to a decisive victory that halted Roman expansion east of the Rhine." }
+],
+
+Behavioral_Economics: [
+    { q: "Which cognitive bias describes people's tendency to weigh losses more heavily than equivalent gains?", a: ["Loss Aversion", "Anchoring", "Availability Bias", "Framing"], correct: "Loss Aversion", explanation: "Prospect Theory shows that losses typically feel more significant than gains of equal magnitude." },
+    { q: "Who co-developed Prospect Theory with Daniel Kahneman?", a: ["Amos Tversky", "Herbert Simon", "Richard Thaler", "George Akerlof"], correct: "Amos Tversky", explanation: "Kahneman and Tversky revolutionized economics by incorporating psychological insights into decision-making." },
+    { q: "What is the tendency to rely too heavily on the first piece of information encountered?", a: ["Anchoring", "Endowment Effect", "Confirmation Bias", "Mental Accounting"], correct: "Anchoring", explanation: "Anchors influence judgments even when they are arbitrary or irrelevant." },
+    { q: "Which concept describes valuing an owned object more highly simply because one owns it?", a: ["Endowment Effect", "Status Quo Bias", "Hyperbolic Discounting", "Sunk Cost Fallacy"], correct: "Endowment Effect", explanation: "Ownership itself often increases perceived value." },
+    { q: "What term describes people's preference for immediate rewards over larger delayed rewards?", a: ["Hyperbolic Discounting", "Rational Expectations", "Risk Dominance", "Utility Maximization"], correct: "Hyperbolic Discounting", explanation: "Individuals often discount future benefits at inconsistent rates, favoring immediate gratification." }
+],
+
+Meteorology: [
+    { q: "What atmospheric boundary separates the troposphere from the stratosphere?", a: ["Tropopause", "Mesopause", "Thermopause", "Stratopause"], correct: "Tropopause", explanation: "The tropopause marks the upper limit of most weather activity." },
+    { q: "Which scale is commonly used to classify tornado intensity based on damage?", a: ["Enhanced Fujita Scale", "Saffir-Simpson Scale", "Richter Scale", "Beaufort Scale"], correct: "Enhanced Fujita Scale", explanation: "The EF scale estimates tornado strength from observed structural damage." },
+    { q: "What process causes air parcels to cool as they rise and expand?", a: ["Adiabatic Cooling", "Radiative Cooling", "Conduction", "Latent Heating"], correct: "Adiabatic Cooling", explanation: "Rising air expands in lower pressure environments and cools without exchanging heat." },
+    { q: "Which cloud type is most strongly associated with severe thunderstorms?", a: ["Cumulonimbus", "Cirrus", "Altostratus", "Stratus"], correct: "Cumulonimbus", explanation: "Towering cumulonimbus clouds can produce lightning, hail, and tornadoes." },
+    { q: "The Coriolis effect is primarily caused by what?", a: ["Earth's Rotation", "Solar Radiation", "Ocean Currents", "Gravity Variations"], correct: "Earth's Rotation", explanation: "Earth's rotation causes moving air and water to appear deflected relative to the surface." }
+],
+
+Genetics: [
+    { q: "Which enzyme synthesizes RNA from a DNA template during transcription?", a: ["RNA Polymerase", "DNA Polymerase", "Ligase", "Helicase"], correct: "RNA Polymerase", explanation: "RNA polymerase reads DNA and constructs complementary RNA molecules." },
+    { q: "What term describes a gene variant at a specific locus?", a: ["Allele", "Codon", "Operon", "Exon"], correct: "Allele", explanation: "Alleles are alternative versions of the same gene." },
+    { q: "Which scientist is credited with discovering transposable genetic elements?", a: ["Barbara McClintock", "Rosalind Franklin", "Thomas Hunt Morgan", "Frederick Sanger"], correct: "Barbara McClintock", explanation: "McClintock's discovery of 'jumping genes' was initially controversial but later earned a Nobel Prize." },
+    { q: "What is the name of the process by which pre-mRNA is edited to remove introns?", a: ["Splicing", "Translation", "Replication", "Transduction"], correct: "Splicing", explanation: "Spliceosomes remove introns and join exons to form mature mRNA." },
+    { q: "Which inheritance pattern typically appears in every generation and requires only one copy of the allele?", a: ["Autosomal Dominant", "Autosomal Recessive", "X-linked Recessive", "Mitochondrial"], correct: "Autosomal Dominant", explanation: "Autosomal dominant traits generally manifest whenever the allele is present." }
+],
+
+Byzantine_History: [
+    { q: "Which emperor ordered the compilation of the Corpus Juris Civilis?", a: ["Justinian I", "Heraclius", "Basil II", "Constantine XI"], correct: "Justinian I", explanation: "The Corpus Juris Civilis became one of the most influential legal works in history." },
+    { q: "What was the capital of the Byzantine Empire?", a: ["Constantinople", "Nicaea", "Antioch", "Alexandria"], correct: "Constantinople", explanation: "Constantinople served as the imperial capital for over a millennium." },
+    { q: "Which military-administrative system divided Byzantine territory into provinces governed by strategoi?", a: ["Theme System", "Tetrarchy", "Pronoia", "Exarchate"], correct: "Theme System", explanation: "Themes were established to improve defense and administration." },
+    { q: "What controversial religious dispute centered on the veneration of icons?", a: ["Iconoclasm", "Arianism", "Monophysitism", "Nestorianism"], correct: "Iconoclasm", explanation: "Iconoclasm involved periods during which religious images were banned or destroyed." },
+    { q: "Which event in 1453 marked the end of the Byzantine Empire?", a: ["Fall of Constantinople", "Battle of Manzikert", "Fourth Crusade", "Siege of Nicaea"], correct: "Fall of Constantinople", explanation: "The Ottoman conquest of Constantinople ended the Byzantine Empire." }
+],
+
+Machine_Learning: [
+    { q: "What is the primary purpose of a loss function in machine learning?", a: ["Measure prediction error", "Increase dataset size", "Normalize features", "Reduce dimensionality"], correct: "Measure prediction error", explanation: "Loss functions quantify how far model predictions are from desired outputs." },
+    { q: "Which algorithm is most closely associated with finding a local minimum by following gradients?", a: ["Gradient Descent", "K-Means", "Apriori", "PageRank"], correct: "Gradient Descent", explanation: "Gradient descent updates parameters in the direction that most rapidly reduces loss." },
+    { q: "What problem occurs when a model learns training data too closely and performs poorly on new data?", a: ["Overfitting", "Regularization", "Normalization", "Bagging"], correct: "Overfitting", explanation: "Overfitted models capture noise instead of generalizable patterns." },
+    { q: "Which architecture introduced the self-attention mechanism central to modern large language models?", a: ["Transformer", "Perceptron", "ResNet", "Autoencoder"], correct: "Transformer", explanation: "The Transformer architecture was introduced in the 2017 paper 'Attention Is All You Need'." },
+    { q: "What metric is commonly used to evaluate binary classifiers across multiple thresholds?", a: ["ROC-AUC", "Mean Squared Error", "Silhouette Score", "BLEU"], correct: "ROC-AUC", explanation: "ROC-AUC measures how well a classifier distinguishes between positive and negative classes." }
+],
+
+Comparative_Religion: [
+    { q: "Which concept in Hindu philosophy refers to the cycle of birth, death, and rebirth?", a: ["Samsara", "Moksha", "Dharma", "Atman"], correct: "Samsara", explanation: "Samsara is the ongoing cycle from which liberation is sought." },
+    { q: "What is the central goal of Buddhism?", a: ["Nirvana", "Salvation by Grace", "Messianic Redemption", "Theosis"], correct: "Nirvana", explanation: "Nirvana represents liberation from suffering and the cycle of rebirth." },
+    { q: "Which sacred text is traditionally associated with Zoroastrianism?", a: ["Avesta", "Tanakh", "Tripitaka", "Guru Granth Sahib"], correct: "Avesta", explanation: "The Avesta contains the primary religious texts of Zoroastrianism." },
+    { q: "In Islamic theology, what does 'Tawhid' refer to?", a: ["The Oneness of God", "Pilgrimage", "Prophethood", "Divine Law"], correct: "The Oneness of God", explanation: "Tawhid is the foundational doctrine that God is singular and indivisible." },
+    { q: "Which religion originated in Punjab during the 15th century under Guru Nanak?", a: ["Sikhism", "Jainism", "Baháʼí Faith", "Shinto"], correct: "Sikhism", explanation: "Sikhism emerged in northern India and emphasizes devotion to one God and equality of humanity." }
+],
+
+Materials_Science: [
+    { q: "What crystal defect consists of a missing atom in a lattice site?", a: ["Vacancy", "Dislocation", "Interstitial", "Grain Boundary"], correct: "Vacancy", explanation: "Vacancies are point defects where lattice positions are unoccupied." },
+    { q: "Which property measures a material's resistance to permanent deformation?", a: ["Yield Strength", "Thermal Conductivity", "Reflectivity", "Specific Heat"], correct: "Yield Strength", explanation: "Yield strength marks the onset of plastic deformation." },
+    { q: "What is the primary strengthening mechanism in stainless steel?", a: ["Alloying with Chromium", "Radioactive Doping", "Hydration", "Polymerization"], correct: "Alloying with Chromium", explanation: "Chromium forms a protective oxide layer and contributes to corrosion resistance." },
+    { q: "Which class of materials exhibits zero electrical resistance below a critical temperature?", a: ["Superconductors", "Semiconductors", "Piezoelectrics", "Elastomers"], correct: "Superconductors", explanation: "Superconductors conduct electricity without resistance below their critical temperature." },
+    { q: "What is the term for a material that returns to its original shape after deformation?", a: ["Elastic", "Plastic", "Brittle", "Viscous"], correct: "Elastic", explanation: "Elastic materials recover their original dimensions when stress is removed." }
+], 
+International_Law: [
+    { q: "Which treaty is generally regarded as establishing the modern system of sovereign states in Europe?", a: ["Peace of Westphalia", "Treaty of Versailles", "Congress of Vienna", "Treaty of Utrecht"], correct: "Peace of Westphalia", explanation: "The Peace of Westphalia of 1648 is often cited as the foundation of the modern state system and the principle of sovereignty." },
+    { q: "Which international court primarily adjudicates disputes between states?", a: ["International Court of Justice", "International Criminal Court", "European Court of Human Rights", "Permanent Court of Arbitration"], correct: "International Court of Justice", explanation: "The ICJ, located in The Hague, is the principal judicial organ of the United Nations." },
+    { q: "What principle prohibits a state from returning refugees to territories where they face persecution?", a: ["Non-refoulement", "Jus cogens", "Extradition", "Universal jurisdiction"], correct: "Non-refoulement", explanation: "Non-refoulement is a cornerstone of international refugee law and is codified in the 1951 Refugee Convention." },
+    { q: "Which body has the authority to refer situations to the International Criminal Court even involving non-member states?", a: ["UN Security Council", "UN General Assembly", "International Court of Justice", "NATO"], correct: "UN Security Council", explanation: "The Security Council can refer situations to the ICC under Chapter VII powers." },
+    { q: "What term describes a peremptory norm from which no derogation is permitted?", a: ["Jus Cogens", "Soft Law", "Customary Practice", "Lex Specialis"], correct: "Jus Cogens", explanation: "Jus cogens norms include prohibitions against genocide, slavery, and torture." }
+],
+
+Medieval_History: [
+    { q: "Which battle in 1066 resulted in the Norman conquest of England?", a: ["Battle of Hastings", "Battle of Stamford Bridge", "Battle of Agincourt", "Battle of Bosworth Field"], correct: "Battle of Hastings", explanation: "William the Conqueror defeated Harold II and established Norman rule in England." },
+    { q: "What was the primary purpose of the Hanseatic League?", a: ["Facilitating Trade", "Organizing Crusades", "Religious Reform", "Defending Byzantium"], correct: "Facilitating Trade", explanation: "The Hanseatic League was a commercial alliance of merchant cities across Northern Europe." },
+    { q: "Which medieval philosopher is known for synthesizing Aristotelian philosophy with Christian theology?", a: ["Thomas Aquinas", "William of Ockham", "Peter Abelard", "Duns Scotus"], correct: "Thomas Aquinas", explanation: "Aquinas's Summa Theologica became one of the most influential works of scholastic philosophy." },
+    { q: "What document signed in 1215 limited the powers of the English monarch?", a: ["Magna Carta", "Golden Bull", "Edict of Milan", "Treaty of Tordesillas"], correct: "Magna Carta", explanation: "The Magna Carta established principles that later influenced constitutional government." },
+    { q: "Which empire was ruled by Mansa Musa during the 14th century?", a: ["Mali Empire", "Songhai Empire", "Ghana Empire", "Kanem-Bornu"], correct: "Mali Empire", explanation: "Mansa Musa's pilgrimage to Mecca became legendary for its immense display of wealth." }
+],
+
+Statistical_Inference: [
+    { q: "What does a p-value represent in hypothesis testing?", a: ["Probability of obtaining data at least as extreme assuming the null hypothesis", "Probability the null hypothesis is true", "Chance the experiment failed", "Likelihood of Type II error"], correct: "Probability of obtaining data at least as extreme assuming the null hypothesis", explanation: "A p-value measures compatibility between observed data and the null hypothesis." },
+    { q: "What is a Type I error?", a: ["Rejecting a true null hypothesis", "Failing to reject a false null hypothesis", "Using a biased sample", "Miscalculating variance"], correct: "Rejecting a true null hypothesis", explanation: "Type I errors are false positives and occur with probability alpha." },
+    { q: "Which theorem states that sample means tend toward a normal distribution as sample size increases?", a: ["Central Limit Theorem", "Bayes' Theorem", "Law of Total Probability", "Gauss-Markov Theorem"], correct: "Central Limit Theorem", explanation: "The CLT is one of the foundational results of statistical inference." },
+    { q: "What does a 95% confidence interval mean under repeated sampling?", a: ["95% of such intervals would contain the true parameter", "The parameter has 95% probability of being in the interval", "95% of data points lie in the interval", "The estimate is 95% accurate"], correct: "95% of such intervals would contain the true parameter", explanation: "Confidence intervals describe long-run procedure performance, not parameter probabilities." },
+    { q: "Which estimator property means it converges to the true value as sample size grows?", a: ["Consistency", "Efficiency", "Sufficiency", "Unbiasedness"], correct: "Consistency", explanation: "A consistent estimator approaches the true parameter as the sample size approaches infinity." }
+],
+
+Ancient_Egypt: [
+    { q: "Which pharaoh is associated with the religious reforms centered on Aten worship?", a: ["Akhenaten", "Ramesses II", "Thutmose III", "Djoser"], correct: "Akhenaten", explanation: "Akhenaten attempted to elevate Aten as the primary deity in Egyptian religion." },
+    { q: "What script was primarily used for monumental inscriptions in Ancient Egypt?", a: ["Hieroglyphs", "Demotic", "Coptic", "Linear A"], correct: "Hieroglyphs", explanation: "Hieroglyphs were used extensively on temples, tombs, and monuments." },
+    { q: "Which artifact was crucial in deciphering Egyptian hieroglyphs?", a: ["Rosetta Stone", "Narmer Palette", "Book of the Dead", "Bent Pyramid"], correct: "Rosetta Stone", explanation: "The Rosetta Stone contained the same text in multiple scripts, enabling decipherment." },
+    { q: "What was the primary purpose of canopic jars?", a: ["Storing Organs During Mummification", "Holding Grain", "Recording Taxes", "Religious Offerings"], correct: "Storing Organs During Mummification", explanation: "Canopic jars preserved internal organs removed during the embalming process." },
+    { q: "Which Old Kingdom ruler commissioned the Great Pyramid at Giza?", a: ["Khufu", "Khafre", "Menkaure", "Sneferu"], correct: "Khufu", explanation: "The Great Pyramid was built as the tomb of Pharaoh Khufu during the Fourth Dynasty." }
+],
+
+Macroeconomics: [
+    { q: "What does GDP measure?", a: ["Total Market Value of Final Goods and Services Produced Domestically", "Total Wealth of Citizens", "Government Revenue", "National Savings"], correct: "Total Market Value of Final Goods and Services Produced Domestically", explanation: "GDP is the most commonly used measure of aggregate economic output." },
+    { q: "Which curve illustrates the inverse relationship between unemployment and inflation in the short run?", a: ["Phillips Curve", "Laffer Curve", "Lorenz Curve", "IS Curve"], correct: "Phillips Curve", explanation: "The Phillips Curve historically suggested a tradeoff between inflation and unemployment." },
+    { q: "What policy tool is most directly controlled by a central bank?", a: ["Interest Rates", "Corporate Taxes", "Tariffs", "Government Spending"], correct: "Interest Rates", explanation: "Central banks influence economic activity primarily through monetary policy." },
+    { q: "What is stagflation?", a: ["High Inflation Combined With Economic Stagnation", "Rapid Growth With Deflation", "Falling Wages During Expansion", "Balanced Budget Surplus"], correct: "High Inflation Combined With Economic Stagnation", explanation: "Stagflation became especially prominent during the 1970s oil shocks." },
+    { q: "What does the 'natural rate of unemployment' refer to?", a: ["Long-run unemployment consistent with stable inflation", "Zero unemployment", "Seasonal unemployment only", "Government unemployment target"], correct: "Long-run unemployment consistent with stable inflation", explanation: "It reflects frictional and structural unemployment in an economy." }
+],
+
+Greek_Mythology: [
+    { q: "Who was the Titan that stole fire and gave it to humanity?", a: ["Prometheus", "Atlas", "Cronus", "Epimetheus"], correct: "Prometheus", explanation: "Prometheus's gift of fire led Zeus to punish him by chaining him to a rock." },
+    { q: "Which hero slew the Minotaur in the Labyrinth?", a: ["Theseus", "Perseus", "Jason", "Bellerophon"], correct: "Theseus", explanation: "Theseus navigated the Labyrinth with the aid of Ariadne's thread." },
+    { q: "Who was the mother of Apollo and Artemis?", a: ["Leto", "Hera", "Demeter", "Thetis"], correct: "Leto", explanation: "Leto gave birth to the twin deities Apollo and Artemis on Delos." },
+    { q: "What creature guarded the entrance to the Underworld?", a: ["Cerberus", "Hydra", "Chimera", "Orthrus"], correct: "Cerberus", explanation: "Cerberus was the multi-headed hound of Hades." },
+    { q: "Which goddess emerged fully grown from the head of Zeus?", a: ["Athena", "Artemis", "Persephone", "Hestia"], correct: "Athena", explanation: "Athena's unusual birth symbolized wisdom springing directly from Zeus." }
+],
+
+Cybersecurity: [
+    { q: "What type of attack involves overwhelming a service with traffic from many compromised systems?", a: ["Distributed Denial-of-Service", "SQL Injection", "Privilege Escalation", "Cross-Site Scripting"], correct: "Distributed Denial-of-Service", explanation: "DDoS attacks use numerous devices to exhaust a target's resources." },
+    { q: "Which cryptographic property ensures a message has not been altered?", a: ["Integrity", "Availability", "Nonrepudiation", "Confidentiality"], correct: "Integrity", explanation: "Integrity mechanisms such as hashes detect unauthorized modifications." },
+    { q: "What is phishing?", a: ["Fraudulent Attempt to Obtain Sensitive Information", "A Network Scanning Technique", "A Password Encryption Method", "A Backup Procedure"], correct: "Fraudulent Attempt to Obtain Sensitive Information", explanation: "Phishing typically uses deceptive emails or websites to steal credentials." },
+    { q: "Which principle grants users only the permissions necessary for their tasks?", a: ["Least Privilege", "Defense in Depth", "Zero Trust", "Availability"], correct: "Least Privilege", explanation: "Limiting permissions reduces the impact of compromised accounts." },
+    { q: "What does a public key infrastructure primarily manage?", a: ["Digital Certificates", "Database Replication", "Network Routing", "File Compression"], correct: "Digital Certificates", explanation: "PKI enables trust relationships through certificate issuance and validation." }
+],
+
+Ecology: [
+    { q: "What term describes the variety of life within an ecosystem?", a: ["Biodiversity", "Biomass", "Succession", "Carrying Capacity"], correct: "Biodiversity", explanation: "Biodiversity encompasses genetic, species, and ecosystem diversity." },
+    { q: "Which ecological relationship benefits one organism while harming another?", a: ["Parasitism", "Mutualism", "Commensalism", "Facilitation"], correct: "Parasitism", explanation: "Parasites gain resources from hosts at the host's expense." },
+    { q: "What is primary succession?", a: ["Community Development on Bare Substrate", "Seasonal Species Migration", "Predator Population Growth", "Nutrient Cycling"], correct: "Community Development on Bare Substrate", explanation: "Primary succession occurs where no soil previously existed." },
+    { q: "What term describes the maximum population size an environment can sustainably support?", a: ["Carrying Capacity", "Niche Width", "Trophic Limit", "Biopotential"], correct: "Carrying Capacity", explanation: "Carrying capacity reflects resource limitations within an ecosystem." },
+    { q: "Which organisms occupy the highest trophic level in a food web?", a: ["Apex Predators", "Primary Consumers", "Producers", "Decomposers"], correct: "Apex Predators", explanation: "Apex predators generally have few or no natural predators." }
+],
+
+Architecture: [
+    { q: "Which architectural style is characterized by flying buttresses and pointed arches?", a: ["Gothic", "Romanesque", "Baroque", "Neoclassical"], correct: "Gothic", explanation: "Gothic architecture emphasized height, light, and structural innovation." },
+    { q: "Who designed the Fallingwater residence in Pennsylvania?", a: ["Frank Lloyd Wright", "Le Corbusier", "Mies van der Rohe", "Louis Sullivan"], correct: "Frank Lloyd Wright", explanation: "Fallingwater is one of the most celebrated examples of organic architecture." },
+    { q: "What is the central open courtyard of a traditional Roman house called?", a: ["Atrium", "Apse", "Narthex", "Loggia"], correct: "Atrium", explanation: "The atrium served as the main public and ceremonial space in Roman homes." },
+    { q: "Which architect is associated with the concept of the 'Five Points of Architecture'?", a: ["Le Corbusier", "Antoni Gaudí", "Christopher Wren", "Alvar Aalto"], correct: "Le Corbusier", explanation: "Le Corbusier's principles helped define modernist architecture." },
+    { q: "The dome of the Pantheon in Rome is notable primarily because it remains what?", a: ["Largest Unreinforced Concrete Dome", "Oldest Steel Dome", "Tallest Dome Ever Built", "Largest Brick Dome"], correct: "Largest Unreinforced Concrete Dome", explanation: "Nearly two millennia later, the Pantheon's dome remains an engineering marvel." }
+],
+
+Operations_Research: [
+    { q: "Which algorithm is most famously used to solve shortest-path problems in graphs with non-negative edge weights?", a: ["Dijkstra's Algorithm", "Ford-Fulkerson", "Bellman-Ford", "Prim's Algorithm"], correct: "Dijkstra's Algorithm", explanation: "Dijkstra's algorithm efficiently computes shortest paths from a source node." },
+    { q: "Linear programming seeks to optimize what?", a: ["An Objective Function Subject to Constraints", "A Probability Distribution", "A Differential Equation", "A Cryptographic Key"], correct: "An Objective Function Subject to Constraints", explanation: "Linear programming is one of the foundational methods in operations research." },
+    { q: "Which method is classically used to solve linear programming problems?", a: ["Simplex Method", "Monte Carlo Simulation", "Kruskal's Algorithm", "A* Search"], correct: "Simplex Method", explanation: "The simplex method traverses vertices of a feasible region to find an optimum." },
+    { q: "What does queueing theory primarily study?", a: ["Waiting Lines and Service Systems", "Stock Market Pricing", "Manufacturing Defects", "Weather Forecasting"], correct: "Waiting Lines and Service Systems", explanation: "Queueing theory analyzes congestion, waiting times, and service efficiency." },
+    { q: "What is the objective of the traveling salesman problem?", a: ["Find the Shortest Route Visiting All Cities Once", "Maximize Profit Across Cities", "Balance Traffic Flow", "Minimize Fuel Consumption Per Vehicle"], correct: "Find the Shortest Route Visiting All Cities Once", explanation: "The traveling salesman problem is one of the most famous NP-hard optimization problems." }
+],
+Evolutionary_Biology: [
+    { q: "What mechanism of evolution occurs when allele frequencies change due to random sampling effects?", a: ["Genetic Drift", "Gene Flow", "Natural Selection", "Adaptive Radiation"], correct: "Genetic Drift", explanation: "Genetic drift is especially important in small populations, where chance events can significantly alter allele frequencies." },
+    { q: "Which evolutionary biologist proposed the concept of punctuated equilibrium with Stephen Jay Gould?", a: ["Niles Eldredge", "Ernst Mayr", "Richard Dawkins", "Theodosius Dobzhansky"], correct: "Niles Eldredge", explanation: "Eldredge and Gould argued that species often experience long periods of stability interrupted by relatively rapid evolutionary change." },
+    { q: "What is the term for the evolution of similar traits in unrelated lineages due to similar selective pressures?", a: ["Convergent Evolution", "Divergent Evolution", "Genetic Assimilation", "Phyletic Gradualism"], correct: "Convergent Evolution", explanation: "Examples include the independent evolution of wings in birds, bats, and insects." },
+    { q: "Which concept describes the reproductive success of an organism relative to others in a population?", a: ["Fitness", "Plasticity", "Carrying Capacity", "Speciation"], correct: "Fitness", explanation: "In evolutionary biology, fitness refers to the contribution of genes to future generations." },
+    { q: "What type of speciation occurs when populations become geographically isolated?", a: ["Allopatric Speciation", "Sympatric Speciation", "Parapatric Speciation", "Hybrid Speciation"], correct: "Allopatric Speciation", explanation: "Allopatric speciation is one of the most common mechanisms by which new species arise." }
+],
+
+Neuroscience: [
+    { q: "Which neurotransmitter is most strongly associated with reward prediction and reinforcement learning?", a: ["Dopamine", "GABA", "Acetylcholine", "Serotonin"], correct: "Dopamine", explanation: "Dopamine neurons encode reward prediction errors, a foundational concept in computational neuroscience." },
+    { q: "What structure connects the left and right cerebral hemispheres?", a: ["Corpus Callosum", "Thalamus", "Hippocampus", "Pons"], correct: "Corpus Callosum", explanation: "The corpus callosum is the largest white-matter tract in the human brain." },
+    { q: "Which lobe of the brain is primarily associated with visual processing?", a: ["Occipital Lobe", "Temporal Lobe", "Parietal Lobe", "Frontal Lobe"], correct: "Occipital Lobe", explanation: "The primary visual cortex is located in the occipital lobe." },
+    { q: "Long-term potentiation is most closely associated with what cognitive function?", a: ["Memory Formation", "Language Production", "Motor Coordination", "Pain Perception"], correct: "Memory Formation", explanation: "LTP is a long-lasting strengthening of synapses thought to underlie learning and memory." },
+    { q: "Which glial cell type forms myelin in the central nervous system?", a: ["Oligodendrocytes", "Schwann Cells", "Astrocytes", "Microglia"], correct: "Oligodendrocytes", explanation: "Oligodendrocytes can myelinate multiple axons within the CNS." }
+],
+
+Diplomatic_History: [
+    { q: "Which congress redrew much of Europe's political map after the Napoleonic Wars?", a: ["Congress of Vienna", "Congress of Berlin", "Treaty of Utrecht", "Congress of Aix-la-Chapelle"], correct: "Congress of Vienna", explanation: "The Congress of Vienna established a balance-of-power framework that shaped Europe for decades." },
+    { q: "Who served as the principal Austrian diplomat at the Congress of Vienna?", a: ["Klemens von Metternich", "Otto von Bismarck", "Talleyrand", "Castlereagh"], correct: "Klemens von Metternich", explanation: "Metternich was a leading architect of post-Napoleonic European diplomacy." },
+    { q: "What doctrine guided U.S. opposition to European colonization in the Western Hemisphere?", a: ["Monroe Doctrine", "Truman Doctrine", "Marshall Plan", "Roosevelt Corollary"], correct: "Monroe Doctrine", explanation: "Announced in 1823, it became a cornerstone of U.S. foreign policy." },
+    { q: "Which treaty formally ended World War I between Germany and the Allied Powers?", a: ["Treaty of Versailles", "Treaty of Brest-Litovsk", "Treaty of Tordesillas", "Treaty of Paris"], correct: "Treaty of Versailles", explanation: "The treaty imposed territorial losses, reparations, and military restrictions on Germany." },
+    { q: "Who was the chief French representative at the Paris Peace Conference of 1919?", a: ["Georges Clemenceau", "Charles de Gaulle", "Raymond Poincaré", "Aristide Briand"], correct: "Georges Clemenceau", explanation: "Known as 'The Tiger,' Clemenceau advocated a hard line toward Germany." }
+],
+
+Sociology: [
+    { q: "Which sociologist authored 'The Protestant Ethic and the Spirit of Capitalism'?", a: ["Max Weber", "Émile Durkheim", "Karl Marx", "Georg Simmel"], correct: "Max Weber", explanation: "Weber argued that certain Protestant values contributed to the development of capitalism." },
+    { q: "What term describes norms and networks that facilitate collective action within a society?", a: ["Social Capital", "Cultural Lag", "Anomie", "Bureaucracy"], correct: "Social Capital", explanation: "Social capital refers to the value derived from social relationships and trust." },
+    { q: "According to Durkheim, what is 'anomie'?", a: ["Normlessness", "Class Conflict", "Alienation", "Social Mobility"], correct: "Normlessness", explanation: "Durkheim used anomie to describe social conditions where norms are weak or unclear." },
+    { q: "Which perspective emphasizes how social reality is created through everyday interactions?", a: ["Symbolic Interactionism", "Structural Functionalism", "Conflict Theory", "World Systems Theory"], correct: "Symbolic Interactionism", explanation: "This perspective focuses on meaning-making through social interaction." },
+    { q: "Who is most associated with conflict theory?", a: ["Karl Marx", "Talcott Parsons", "Erving Goffman", "Harriet Martineau"], correct: "Karl Marx", explanation: "Conflict theory emphasizes struggles over power and resources." }
+],
+
+Classical_Greece: [
+    { q: "Which city-state led the Delian League following the Persian Wars?", a: ["Athens", "Sparta", "Corinth", "Thebes"], correct: "Athens", explanation: "Athens transformed the Delian League into a maritime empire." },
+    { q: "Who wrote the 'History of the Peloponnesian War'?", a: ["Thucydides", "Herodotus", "Xenophon", "Polybius"], correct: "Thucydides", explanation: "Thucydides is renowned for his analytical and evidence-based historical method." },
+    { q: "Which battle marked the decisive Greek naval victory over Persia in 480 BCE?", a: ["Battle of Salamis", "Battle of Plataea", "Battle of Marathon", "Battle of Thermopylae"], correct: "Battle of Salamis", explanation: "The Greek fleet's victory at Salamis was a turning point in the Greco-Persian Wars." },
+    { q: "What governing body consisted of male citizens in democratic Athens?", a: ["Ecclesia", "Gerousia", "Areopagus", "Bouleuterion"], correct: "Ecclesia", explanation: "The Ecclesia was the principal assembly responsible for major decisions." },
+    { q: "Which philosopher founded the Lyceum?", a: ["Aristotle", "Plato", "Socrates", "Zeno"], correct: "Aristotle", explanation: "The Lyceum became one of the most influential intellectual institutions of antiquity." }
+],
+
+Semantics_and_Pragmatics: [
+    { q: "Who introduced the concept of conversational implicature?", a: ["H. P. Grice", "Noam Chomsky", "Ferdinand de Saussure", "Roman Jakobson"], correct: "H. P. Grice", explanation: "Grice's theory explains how speakers convey meaning beyond literal content." },
+    { q: "What term refers to the literal meaning of a linguistic expression independent of context?", a: ["Semantics", "Pragmatics", "Discourse", "Prosody"], correct: "Semantics", explanation: "Semantics studies conventional meaning encoded in language." },
+    { q: "Which maxim is violated when a speaker deliberately provides less information than required?", a: ["Maxim of Quantity", "Maxim of Quality", "Maxim of Relation", "Maxim of Manner"], correct: "Maxim of Quantity", explanation: "The quantity maxim concerns providing an appropriate amount of information." },
+    { q: "What is deixis?", a: ["Context-Dependent Reference", "Sound Change", "Word Formation", "Syntactic Movement"], correct: "Context-Dependent Reference", explanation: "Words like 'here,' 'there,' and 'you' rely on contextual information." },
+    { q: "Which branch of linguistics studies language use in context?", a: ["Pragmatics", "Morphology", "Phonology", "Orthography"], correct: "Pragmatics", explanation: "Pragmatics examines how meaning depends on speakers, listeners, and situations." }
+],
+
+Ancient_China: [
+    { q: "Which dynasty first unified China under a centralized imperial government?", a: ["Qin Dynasty", "Han Dynasty", "Tang Dynasty", "Zhou Dynasty"], correct: "Qin Dynasty", explanation: "Qin Shi Huang unified China in 221 BCE and standardized many aspects of administration." },
+    { q: "Who is traditionally regarded as the founder of Confucianism?", a: ["Confucius", "Laozi", "Mencius", "Han Feizi"], correct: "Confucius", explanation: "Confucius emphasized ethics, education, and social harmony." },
+    { q: "Which philosophical school emphasized strict laws and state authority?", a: ["Legalism", "Daoism", "Mohism", "Confucianism"], correct: "Legalism", explanation: "Legalist thinkers heavily influenced Qin governance." },
+    { q: "The Silk Road primarily connected China with which broader region?", a: ["Eurasia", "Sub-Saharan Africa", "Polynesia", "Australia"], correct: "Eurasia", explanation: "The Silk Road facilitated trade and cultural exchange across Eurasia." },
+    { q: "Which Han Dynasty historian authored the 'Records of the Grand Historian'?", a: ["Sima Qian", "Ban Zhao", "Zhang Heng", "Wang Chong"], correct: "Sima Qian", explanation: "Sima Qian's work remains one of the most important historical sources for ancient China." }
+],
+
+Behavioral_Genetics: [
+    { q: "What study design is classically used to estimate the heritability of traits by comparing identical and fraternal twins?", a: ["Twin Studies", "Cross-Sectional Studies", "Case-Control Studies", "Meta-Analyses"], correct: "Twin Studies", explanation: "Twin studies compare genetic similarity to estimate genetic contributions to traits." },
+    { q: "What does heritability measure?", a: ["Variation Attributable to Genetic Differences Within a Population", "The probability a trait is inherited", "The number of genes involved", "The strength of natural selection"], correct: "Variation Attributable to Genetic Differences Within a Population", explanation: "Heritability is a population-level statistic, not an individual-level measure." },
+    { q: "What is a polygenic trait?", a: ["A Trait Influenced by Many Genes", "A Trait Controlled by One Gene", "A Trait Determined Only by Environment", "A Mitochondrial Trait"], correct: "A Trait Influenced by Many Genes", explanation: "Most complex human traits are polygenic." },
+    { q: "What term describes interactions between genetic predispositions and environmental influences?", a: ["Gene-Environment Interaction", "Genetic Drift", "Linkage Disequilibrium", "Founder Effect"], correct: "Gene-Environment Interaction", explanation: "The effects of genes often depend on environmental context." },
+    { q: "Genome-wide association studies are commonly abbreviated as what?", a: ["GWAS", "PCR", "SNP", "LTP"], correct: "GWAS", explanation: "GWAS identify statistical associations between genetic variants and traits." }
+],
+
+Energy_Systems: [
+    { q: "What device converts chemical energy directly into electrical energy through electrochemical reactions?", a: ["Fuel Cell", "Heat Pump", "Turbine", "Flywheel"], correct: "Fuel Cell", explanation: "Fuel cells generate electricity continuously as fuel and oxidizer are supplied." },
+    { q: "Which law of thermodynamics states that energy cannot be created or destroyed?", a: ["First Law", "Second Law", "Third Law", "Zeroth Law"], correct: "First Law", explanation: "The First Law expresses conservation of energy." },
+    { q: "What quantity measures the efficiency of a heat pump?", a: ["Coefficient of Performance", "Power Factor", "Capacity Factor", "Load Factor"], correct: "Coefficient of Performance", explanation: "COP is the ratio of useful heating or cooling provided to energy consumed." },
+    { q: "Which technology stores energy by pumping water to a higher elevation?", a: ["Pumped Hydroelectric Storage", "Compressed Air Storage", "Thermal Storage", "Flywheel Storage"], correct: "Pumped Hydroelectric Storage", explanation: "It is one of the most widely deployed grid-scale energy storage technologies." },
+    { q: "What does capacity factor measure for a power plant?", a: ["Actual Output Relative to Maximum Possible Output", "Thermal Efficiency", "Fuel Cost", "Carbon Intensity"], correct: "Actual Output Relative to Maximum Possible Output", explanation: "Capacity factor compares real generation to theoretical maximum generation." }
+],
+
+History_of_Mathematics: [
+    { q: "Which ancient mathematician is credited with the earliest known axiomatic treatment of geometry?", a: ["Euclid", "Archimedes", "Apollonius", "Ptolemy"], correct: "Euclid", explanation: "Euclid's Elements became one of the most influential mathematical texts ever written." },
+    { q: "Who independently co-developed calculus alongside Isaac Newton?", a: ["Gottfried Wilhelm Leibniz", "Leonhard Euler", "Joseph Lagrange", "Carl Gauss"], correct: "Gottfried Wilhelm Leibniz", explanation: "Leibniz introduced much of the notation still used in calculus today." },
+    { q: "Which mathematician proved the Last Theorem that bears his name in 1994?", a: ["Andrew Wiles", "John Conway", "Terence Tao", "Michael Atiyah"], correct: "Andrew Wiles", explanation: "Wiles's proof of Fermat's Last Theorem was a landmark achievement in modern mathematics." },
+    { q: "Who introduced the concept of non-Euclidean geometry independently of János Bolyai?", a: ["Nikolai Lobachevsky", "Bernhard Riemann", "David Hilbert", "Felix Klein"], correct: "Nikolai Lobachevsky", explanation: "Lobachevsky helped demonstrate that Euclid's parallel postulate was not logically necessary." },
+    { q: "Which mathematician is most associated with the formalization of set theory?", a: ["Georg Cantor", "Évariste Galois", "Henri Poincaré", "Augustin Cauchy"], correct: "Georg Cantor", explanation: "Cantor's work on infinite sets fundamentally transformed mathematics." }
+],
+Political_Philosophy: [
+    { q: "Which philosopher argued that political authority derives from a social contract designed to protect natural rights?", a: ["John Locke", "Thomas Hobbes", "Jean-Jacques Rousseau", "Niccolò Machiavelli"], correct: "John Locke", explanation: "Locke argued that governments exist to protect life, liberty, and property, and may be overthrown if they fail to do so." },
+    { q: "In 'Leviathan,' what did Thomas Hobbes describe as life in the state of nature?", a: ["Solitary, poor, nasty, brutish, and short", "A condition of natural harmony", "Governed by rational consensus", "Characterized by civic virtue"], correct: "Solitary, poor, nasty, brutish, and short", explanation: "Hobbes believed strong political authority was necessary to prevent chaos and conflict." },
+    { q: "Which political philosopher is most associated with the concept of the 'general will'?", a: ["Jean-Jacques Rousseau", "John Stuart Mill", "Edmund Burke", "Immanuel Kant"], correct: "Jean-Jacques Rousseau", explanation: "Rousseau argued that legitimate political authority should reflect the collective will of citizens." },
+    { q: "Who wrote 'On Liberty,' a classic defense of individual freedom and free expression?", a: ["John Stuart Mill", "Alexis de Tocqueville", "Thomas Paine", "Jeremy Bentham"], correct: "John Stuart Mill", explanation: "Mill's harm principle remains one of the most influential arguments for civil liberties." },
+    { q: "Which thinker authored 'The Prince'?", a: ["Niccolò Machiavelli", "Thomas More", "Francis Bacon", "Montesquieu"], correct: "Niccolò Machiavelli", explanation: "The Prince examined political power and statecraft from a pragmatic rather than moral perspective." }
+],
+
+Oceanography: [
+    { q: "What is the name of the global system of deep-ocean circulation driven by temperature and salinity differences?", a: ["Thermohaline Circulation", "Ekman Transport", "Upwelling", "Gyre Dynamics"], correct: "Thermohaline Circulation", explanation: "Thermohaline circulation is often called the ocean's 'conveyor belt' and plays a major role in climate." },
+    { q: "Which ocean trench is the deepest known location on Earth?", a: ["Mariana Trench", "Tonga Trench", "Java Trench", "Puerto Rico Trench"], correct: "Mariana Trench", explanation: "The Challenger Deep within the Mariana Trench is the deepest measured point in the oceans." },
+    { q: "What process brings cold, nutrient-rich water to the ocean surface?", a: ["Upwelling", "Downwelling", "Subduction", "Stratification"], correct: "Upwelling", explanation: "Upwelling supports highly productive marine ecosystems and fisheries." },
+    { q: "What percentage of Earth's surface is covered by oceans?", a: ["About 71%", "About 50%", "About 62%", "About 84%"], correct: "About 71%", explanation: "The oceans cover approximately 71% of the Earth's surface." },
+    { q: "Which layer of the ocean receives enough sunlight for photosynthesis?", a: ["Photic Zone", "Abyssal Zone", "Bathyal Zone", "Hadal Zone"], correct: "Photic Zone", explanation: "The photic zone contains sufficient light for photosynthetic organisms such as phytoplankton." }
+],
+
+Archaeology: [
+    { q: "What dating method relies on the radioactive decay of carbon-14?", a: ["Radiocarbon Dating", "Dendrochronology", "Thermoluminescence", "Potassium-Argon Dating"], correct: "Radiocarbon Dating", explanation: "Radiocarbon dating is widely used to estimate the age of organic materials." },
+    { q: "Which archaeological site is most closely associated with the Minoan civilization?", a: ["Knossos", "Mycenae", "Troy", "Pergamon"], correct: "Knossos", explanation: "Knossos on Crete was the largest center of Minoan civilization." },
+    { q: "What is the term for a human-made object recovered by archaeologists?", a: ["Artifact", "Ecofact", "Feature", "Assemblage"], correct: "Artifact", explanation: "Artifacts include tools, pottery, jewelry, and other portable objects." },
+    { q: "Which city was famously buried by the eruption of Mount Vesuvius in 79 CE?", a: ["Pompeii", "Herculaneum", "Ostia", "Capua"], correct: "Pompeii", explanation: "Pompeii provides one of the best-preserved snapshots of Roman urban life." },
+    { q: "What is dendrochronology primarily used to study?", a: ["Tree Rings", "Ancient Coins", "Ceramic Styles", "DNA Sequences"], correct: "Tree Rings", explanation: "Tree-ring analysis can provide highly precise chronological information." }
+],
+
+Signal_Processing: [
+    { q: "What mathematical transform decomposes a signal into its frequency components?", a: ["Fourier Transform", "Laplace Transform", "Zeta Transform", "Hilbert Transform"], correct: "Fourier Transform", explanation: "The Fourier Transform is foundational to modern signal processing and communications." },
+    { q: "According to the Nyquist-Shannon theorem, what is the minimum sampling rate required to avoid aliasing?", a: ["Twice the Highest Frequency", "Equal to the Highest Frequency", "Half the Highest Frequency", "Four Times the Highest Frequency"], correct: "Twice the Highest Frequency", explanation: "Sampling below the Nyquist rate can cause different signals to become indistinguishable." },
+    { q: "What is aliasing?", a: ["Distortion Caused by Undersampling", "Amplification of Noise", "Signal Compression", "Phase Cancellation"], correct: "Distortion Caused by Undersampling", explanation: "Aliasing occurs when high-frequency content is misrepresented as lower frequencies." },
+    { q: "Which filter ideally passes low frequencies while attenuating high frequencies?", a: ["Low-Pass Filter", "Band-Stop Filter", "High-Pass Filter", "All-Pass Filter"], correct: "Low-Pass Filter", explanation: "Low-pass filters are commonly used to remove high-frequency noise." },
+    { q: "Signal-to-noise ratio compares signal power to what?", a: ["Noise Power", "Bandwidth", "Frequency", "Amplitude"], correct: "Noise Power", explanation: "A higher SNR generally indicates a cleaner and more reliable signal." }
+],
+
+History_of_Science: [
+    { q: "Who is often credited with formulating the laws of planetary motion?", a: ["Johannes Kepler", "Galileo Galilei", "Tycho Brahe", "Nicolaus Copernicus"], correct: "Johannes Kepler", explanation: "Kepler's three laws accurately described planetary orbits around the Sun." },
+    { q: "Which scientist's observations were central to the development of the theory of evolution by natural selection?", a: ["Charles Darwin", "Gregor Mendel", "Alfred Wegener", "Louis Pasteur"], correct: "Charles Darwin", explanation: "Darwin's observations during the voyage of the Beagle informed his evolutionary theory." },
+    { q: "Who introduced the heliocentric model in 'De revolutionibus orbium coelestium'?", a: ["Nicolaus Copernicus", "Ptolemy", "Kepler", "Galileo"], correct: "Nicolaus Copernicus", explanation: "Copernicus challenged the geocentric model by placing the Sun at the center of the planetary system." },
+    { q: "Which scientist developed the first successful vaccine against smallpox?", a: ["Edward Jenner", "Louis Pasteur", "Robert Koch", "Joseph Lister"], correct: "Edward Jenner", explanation: "Jenner's work laid the foundation for modern immunology." },
+    { q: "What scientific revolution is most associated with Isaac Newton's 'Principia'?", a: ["Scientific Revolution", "Industrial Revolution", "Green Revolution", "Digital Revolution"], correct: "Scientific Revolution", explanation: "Newton's laws of motion and gravitation transformed physics and astronomy." }
+],
+
+Control_Systems: [
+    { q: "What is the primary purpose of feedback in a control system?", a: ["Reduce Error", "Increase Noise", "Store Energy", "Generate Randomness"], correct: "Reduce Error", explanation: "Feedback allows a system to compare output with a desired target and make corrections." },
+    { q: "Which controller combines proportional, integral, and derivative terms?", a: ["PID Controller", "Kalman Filter", "Bang-Bang Controller", "LQR Controller"], correct: "PID Controller", explanation: "PID controllers are among the most widely used control algorithms in engineering." },
+    { q: "What does the integral term in a PID controller primarily address?", a: ["Steady-State Error", "Sensor Noise", "System Stability", "Actuator Saturation"], correct: "Steady-State Error", explanation: "The integral term accumulates error over time to eliminate persistent offsets." },
+    { q: "A system is considered stable if its output generally does what after a disturbance?", a: ["Returns Toward Equilibrium", "Grows Without Bound", "Oscillates Randomly Forever", "Becomes Undefined"], correct: "Returns Toward Equilibrium", explanation: "Stability is a central concern in control theory and system design." },
+    { q: "Which mathematical domain is commonly used to analyze linear control systems?", a: ["Laplace Domain", "Complex Geometry", "Number Theory", "Projective Space"], correct: "Laplace Domain", explanation: "Laplace transforms simplify the analysis of differential equations and transfer functions." }
+],
+
+Dinosaur_Paleontology: [
+    { q: "Which geologic period ended with the extinction of non-avian dinosaurs?", a: ["Cretaceous", "Jurassic", "Triassic", "Permian"], correct: "Cretaceous", explanation: "The Cretaceous-Paleogene extinction event occurred approximately 66 million years ago." },
+    { q: "What clade includes both non-avian dinosaurs and modern birds?", a: ["Theropoda", "Sauropodomorpha", "Pterosauria", "Synapsida"], correct: "Theropoda", explanation: "Modern birds evolved from theropod dinosaurs." },
+    { q: "Which dinosaur is famous for possessing a large sail-like structure on its back?", a: ["Spinosaurus", "Allosaurus", "Diplodocus", "Stegosaurus"], correct: "Spinosaurus", explanation: "Spinosaurus is one of the largest known predatory dinosaurs." },
+    { q: "What evidence most strongly supports the evolutionary relationship between birds and dinosaurs?", a: ["Feathered Fossils", "Large Body Size", "Extinction Patterns", "Eggshell Thickness"], correct: "Feathered Fossils", explanation: "Numerous feathered dinosaur fossils have demonstrated clear links to birds." },
+    { q: "Which dinosaur group is characterized by long necks and enormous body sizes?", a: ["Sauropods", "Ceratopsians", "Ankylosaurs", "Ornithomimids"], correct: "Sauropods", explanation: "Sauropods include some of the largest land animals ever to exist." }
+],
+
+Computational_Linguistics: [
+    { q: "What does NLP stand for in computer science?", a: ["Natural Language Processing", "Neural Logic Programming", "Numerical Language Parsing", "Network Linguistic Protocol"], correct: "Natural Language Processing", explanation: "NLP focuses on enabling computers to understand and generate human language." },
+    { q: "Which probabilistic model was widely used for part-of-speech tagging before deep learning became dominant?", a: ["Hidden Markov Model", "Decision Tree", "K-Means", "Naive Bayes Network"], correct: "Hidden Markov Model", explanation: "HMMs model sequences using hidden states and observable outputs." },
+    { q: "What is tokenization?", a: ["Dividing Text into Units", "Removing Grammar", "Translating Languages", "Compressing Data"], correct: "Dividing Text into Units", explanation: "Tokenization is typically one of the first preprocessing steps in NLP." },
+    { q: "What does BLEU primarily evaluate?", a: ["Machine Translation Quality", "Speech Recognition Speed", "Grammar Complexity", "Parsing Accuracy"], correct: "Machine Translation Quality", explanation: "BLEU compares machine-generated translations against reference translations." },
+    { q: "Which linguistic level focuses on sentence structure?", a: ["Syntax", "Phonetics", "Semantics", "Pragmatics"], correct: "Syntax", explanation: "Syntax studies how words combine into phrases and sentences." }
+],
+
+Comparative_Constitutional_Law: [
+    { q: "Which principle divides governmental authority among separate branches to prevent concentration of power?", a: ["Separation of Powers", "Federalism", "Judicial Review", "Popular Sovereignty"], correct: "Separation of Powers", explanation: "The legislative, executive, and judicial branches perform distinct functions." },
+    { q: "Which U.S. Supreme Court case established judicial review?", a: ["Marbury v. Madison", "Brown v. Board of Education", "McCulloch v. Maryland", "Dred Scott v. Sandford"], correct: "Marbury v. Madison", explanation: "The decision established the judiciary's authority to invalidate unconstitutional laws." },
+    { q: "Federalism refers to the distribution of power between what?", a: ["Central and Regional Governments", "Legislatures and Courts", "Citizens and Corporations", "Military and Civilian Authorities"], correct: "Central and Regional Governments", explanation: "Federal systems divide authority across multiple levels of government." },
+    { q: "What is a constitutional monarchy?", a: ["A Monarchy Limited by Constitutional Rules", "An Elected Presidency", "A Military Government", "A Direct Democracy"], correct: "A Monarchy Limited by Constitutional Rules", explanation: "Constitutional monarchs typically serve ceremonial or constrained political roles." },
+    { q: "What term describes a constitution that can be amended through ordinary legislative procedures?", a: ["Flexible Constitution", "Rigid Constitution", "Entrenched Constitution", "Codified Constitution"], correct: "Flexible Constitution", explanation: "Flexible constitutions generally require less demanding amendment processes." }
+],
+
+Game_Design_Theory: [
+    { q: "What term describes the formal rules and systems governing player interaction in a game?", a: ["Mechanics", "Narrative", "Aesthetics", "Theme"], correct: "Mechanics", explanation: "Game mechanics define what players can do and how outcomes are determined." },
+    { q: "In game design, what is emergent gameplay?", a: ["Complex Behavior Arising from Simple Rules", "A Scripted Tutorial Sequence", "Procedural Graphics Generation", "Random Difficulty Scaling"], correct: "Complex Behavior Arising from Simple Rules", explanation: "Emergent gameplay results from interactions among game systems rather than explicit scripting." },
+    { q: "Which framework divides games into Mechanics, Dynamics, and Aesthetics?", a: ["MDA Framework", "GNS Theory", "Bartle Taxonomy", "Flow Model"], correct: "MDA Framework", explanation: "The MDA framework is a foundational model for analyzing game design." },
+    { q: "What concept describes maintaining an appropriate challenge level relative to player skill?", a: ["Flow", "Ludonarrative Harmony", "Procedurality", "Telegraphing"], correct: "Flow", explanation: "Flow occurs when players are engaged without being overwhelmed or bored." },
+    { q: "Which designer authored the influential book 'A Theory of Fun for Game Design'?", a: ["Raph Koster", "Sid Meier", "Will Wright", "Jesse Schell"], correct: "Raph Koster", explanation: "Koster argued that fun is closely linked to learning and pattern recognition." }
+]
 };

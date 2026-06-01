@@ -945,10 +945,10 @@ viewLeaderboard: async function() {
         const nodeAssetVariants = {
             'Planet':           ['assets/location_planet.png', 'assets/location_planet2.png'],
             'Dwarf Planet':     ['assets/location_dwarf_planet.png', 'assets/location_dwarf_planet2.png'],
-            'Moon':             ['assets/location_moon.png'],
-            'Asteroid Field':   ['assets/location_asteroid.gif'],
-            "O'neill Cylinder": ['assets/location_oneill_cylinder.png'],
-            'Research Habitat': ['assets/location_research_habitat.png'],
+            'Moon':             ['assets/location_moon.png','assets/location_moon2.png'],
+            'Asteroid Field':   ['assets/location_asteroid.gif','assets/location_asteroid2.png'],
+            "O'neill Cylinder": ['assets/location_oneil_cylinder.png','assets/location_oneil_cylinder2.png'],
+            'Research Habitat': ['assets/location_research_habitat.png','assets/location_research_habitat2.png'],
             '-HARD NODE-':      ['assets/location_hard_node.png', 'assets/location_hard_node2.png', 'assets/location_hard_node3.png'],
         };
         const variants = nodeAssetVariants[nodeName] || ['assets/latke_idle.gif'];
