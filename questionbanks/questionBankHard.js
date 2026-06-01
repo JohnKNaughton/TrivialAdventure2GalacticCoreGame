@@ -755,7 +755,7 @@ Semantics_and_Pragmatics: [
 
 Ancient_China: [
     { q: "Which dynasty first unified China under a centralized imperial government?", a: ["Qin Dynasty", "Han Dynasty", "Tang Dynasty", "Zhou Dynasty"], correct: "Qin Dynasty", explanation: "Qin Shi Huang unified China in 221 BCE and standardized many aspects of administration." },
-    { q: "Who is traditionally regarded as the founder of Confucianism?", a: ["Confucius", "Laozi", "Mencius", "Han Feizi"], correct: "Confucius", explanation: "Confucius emphasized ethics, education, and social harmony." },
+    { q: "What city hosts the Terracotta Warriors?", a: ["Guangzhou", "Beijing", "Shanghai", "Xi'an"], correct: "Xi'an", explanation: "The Terracotta Army is a collection of terracotta sculptures depicting the armies of Qin Shi Huang, the first emperor of China. It is a form of funerary art buried with the emperor in 210–209 BCE in his mausoleum with the purpose of protecting him in his afterlife." },
     { q: "Which philosophical school emphasized strict laws and state authority?", a: ["Legalism", "Daoism", "Mohism", "Confucianism"], correct: "Legalism", explanation: "Legalist thinkers heavily influenced Qin governance." },
     { q: "The Silk Road primarily connected China with which broader region?", a: ["Eurasia", "Sub-Saharan Africa", "Polynesia", "Australia"], correct: "Eurasia", explanation: "The Silk Road facilitated trade and cultural exchange across Eurasia." },
     { q: "Which Han Dynasty historian authored the 'Records of the Grand Historian'?", a: ["Sima Qian", "Ban Zhao", "Zhang Heng", "Wang Chong"], correct: "Sima Qian", explanation: "Sima Qian's work remains one of the most important historical sources for ancient China." }

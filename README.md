@@ -6,7 +6,7 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 Changelog:
 
-.76 added hundreds of questions to both banks, added more locations
+.76 added hundreds of categories/questions to both banks, added more locations
 
 .75 Adding, fixing and diversifying location gifs, adding to opening intro
 

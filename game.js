@@ -190,11 +190,11 @@ const gameState = {
         const allVariants = [
             'assets/location_planet.png', 'assets/location_planet2.png',
             'assets/location_dwarf_planet.png', 'assets/location_dwarf_planet2.png',
-            'assets/location_moon.png',
-            'assets/location_asteroid.gif',
-            'assets/location_oneill_cylinder.png',
-            'assets/location_research_habitat.png',
-            'assets/location_hard_node.png', 'assets/location_hard_node2.png', 'assets/location_hard_node3.png',
+            'assets/location_moon.png','assets/location_moon2.png',
+            'assets/location_asteroid.gif','assets/location_asteroid2.png',
+            'assets/location_oneil_cylinder.png','assets/location_oneil_cylinder2.png',
+            'assets/location_research_habitat.png','assets/location_research_habitat2.png',
+            'assets/location_hard_node.png', 'assets/location_hard_node2.png', 'assets/location_hard_node3.png'            
         ];
         const shuffled = [...allVariants].sort(() => Math.random() - 0.5).slice(0, 6);
         const positions = [
