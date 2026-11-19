@@ -5,7 +5,7 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 
 Changelog:
-.78 Release polish: removed debug button, fixed outdated boss rules text and typos, fixed Hall of Fame close button when offline, escaped leaderboard names, pinned Supabase library version, added link preview and favicon, added mute button (M), keyboard controls (1-4 to answer, arrows + Enter, Esc) and controller support (D-pad/stick, A select, B back, Start continue), phone support (tap stats/slots for info, tap-to-swap crew and modules, ship and event screens fit small screens), fixed 2 unanswerable questions (Catan, Time Dilation) and cleaned up math/science notation in explanations
+.78 Release polish: removed debug button, fixed outdated boss rules text and typos, fixed Hall of Fame close button when offline, escaped leaderboard names, pinned Supabase library version, added link preview and favicon, added mute button (M), keyboard controls (1-4 to answer, arrows + Enter, Esc) and controller support (D-pad/stick, A select, B back, Start continue), phone support (tap stats/slots for info, tap-to-swap crew and modules, ship and event screens fit small screens), fixed 2 unanswerable questions (Catan, Time Dilation) and cleaned up math/science notation in explanations, rebuilt the Data Science study bank (792 questions: rewrote all existing ones so the longest answer is no longer the giveaway and wrong options are real alternatives, removed duplicates, fixed several wrong/imprecise answers, added 150 new statistics and applied data science questions)
 
 .77 Added pilot to HOF selection, streaks, fixed end game leaderboard, stratify statistics questions
 
