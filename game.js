@@ -20,7 +20,7 @@ const gameState = {
     // Moved sectorData inside so "this.sectorData" works
     sectorData: {
         1: {
-            background: "url('assets/bg-sector1.jpg')",
+            background: "url('assets/Pismis24.png')",
             bossSprite: "url('assets/boss1-idle.gif')",
             bossName: "Pluto the Pufferfish",
             message: "Sector 1 Clear! Entering Sector 2: The Milky Way. Denser HARD Trivium asteroids are now available for harvest. Warning: Interstellar Navigation requires 10 Trivium per Jump. Also, you're doing great!"
