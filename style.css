@@ -1344,3 +1344,35 @@ body {
     cursor: pointer;
     padding: 2px 5px;
 }
+/* ---- Mute toggle ---- */
+#mute-btn {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    z-index: 9999;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.1rem;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #00f2ff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* ---- Keyboard / controller highlight ---- */
+.pad-focus {
+    outline: 3px solid #ffde00 !important;
+    outline-offset: 3px;
+    box-shadow: 0 0 14px #ffde00 !important;
+}
+
+/* Number hints on answers for keyboard players (not on touch devices) */
+@media (hover: hover) {
+    #answer-grid { counter-reset: answer; }
+    #answer-grid button::before {
+        counter-increment: answer;
+        content: counter(answer) ". ";
+        opacity: 0.5;
+    }
+}

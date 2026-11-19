@@ -325,6 +325,10 @@
             <p><span class="rules-heading">WINNING</span><br>
             Defeat the boss in Sector 3, Stage 10. Your final Trivium count is your score — submit it to the Galactic Hall of Fame.</p>
 
+            <p><span class="rules-heading">CONTROLS</span><br>
+            Mouse/touch, or keyboard: <b>1-4</b> pick a destination or answer, <b>Arrows</b> move the highlight, <b>Enter/Space</b> select or continue, <b>Esc</b> close menus, <b>M</b> mute.<br>
+            Controller: <b>D-pad/Stick</b> move, <b>A</b> select, <b>B</b> back, <b>Start</b> continue.</p>
+
             <p><span class="rules-heading">CHEATING IS OKAY... IF YOU LEARN!</span></p>
         </div>
         <button onclick="gameState.closeRules()">CLOSE</button>
@@ -347,6 +351,7 @@
     </div>
 </div>
 <canvas id="particle-canvas"></canvas>
+<button id="mute-btn" onclick="gameState.toggleMute()" title="Mute (M)">🔊</button>
 <div id="slot-tooltip" class="hidden">
     <div id="slot-tooltip-img"></div>
     <div id="slot-tooltip-text"></div>

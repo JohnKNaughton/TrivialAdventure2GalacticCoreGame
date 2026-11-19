@@ -121,18 +121,15 @@ const gameState = {
         }).catch(() => {});
         this.bgMusic.loop = true;
         this.bgMusic.volume = 0.3;
+        this.initMute();
+        this.initInput();
 
-        document.body.addEventListener('click', () => {
-            if (!this.musicStarted) {
-                this.bgMusic.play();
-                this.musicStarted = true;
-            }
-        }, { once: true });
+        document.body.addEventListener('click', () => this.ensureMusic());
 
         document.addEventListener('click', (e) => {
             if (!this._toneActive) return;
             if (!e.target.closest('button, .char-card, .shop-item, .planet-card')) return;
-            if (e.target.closest('#rules-overlay') || e.target.id === 'rules-btn') return;
+            if (e.target.closest('#rules-overlay') || e.target.id === 'rules-btn' || e.target.id === 'mute-btn') return;
             if (e.target.closest('#shop-screen')) return;
             if (this._suppressAscend) { this._suppressAscend = false; return; }
             this.playTone(1);
@@ -1860,7 +1857,7 @@ viewLeaderboard: async function() {
     },
 
     playTone: function(direction) {
-        if (!this._toneActive) return;
+        if (!this._toneActive || this.muted) return;
         try {
             const ctx = this.getAudioCtx();
             const freq = 65.41 * Math.pow(2, this.noteIndex / 12);
@@ -1881,7 +1878,7 @@ viewLeaderboard: async function() {
     },
 
     playDescend: function() {
-        if (!this._toneActive) return;
+        if (!this._toneActive || this.muted) return;
         try {
             const ctx = this.getAudioCtx();
             const t = ctx.currentTime;
@@ -1906,7 +1903,7 @@ viewLeaderboard: async function() {
     },
 
     playAscend: function() {
-        if (!this._toneActive) return;
+        if (!this._toneActive || this.muted) return;
         try {
             const ctx = this.getAudioCtx();
             const t = ctx.currentTime;
@@ -1928,6 +1925,194 @@ viewLeaderboard: async function() {
             }
             this.noteIndex = Math.min(36, this.noteIndex + 6);
         } catch(e) {}
+    },
+
+    // ---- AUDIO: MUTE ----
+    ensureMusic: function() {
+        if (this.musicStarted) return;
+        this.musicStarted = true;
+        // play() is rejected without a user gesture (e.g. gamepad input); retry on the next one
+        const p = this.bgMusic.play();
+        if (p && p.catch) p.catch(() => { this.musicStarted = false; });
+    },
+
+    initMute: function() {
+        try { this.muted = localStorage.getItem('muted') === '1'; } catch (e) { this.muted = false; }
+        this.applyMute();
+    },
+
+    toggleMute: function() {
+        this.muted = !this.muted;
+        try { localStorage.setItem('muted', this.muted ? '1' : '0'); } catch (e) {}
+        this.applyMute();
+    },
+
+    applyMute: function() {
+        this.bgMusic.muted = this.muted;
+        const btn = document.getElementById('mute-btn');
+        if (btn) {
+            btn.innerText = this.muted ? '🔇' : '🔊';
+            btn.title = this.muted ? 'Unmute (M)' : 'Mute (M)';
+        }
+    },
+
+    // ---- INPUT: KEYBOARD + GAMEPAD ----
+    // Arrows / D-pad / left stick move a highlight between clickable things,
+    // Enter / Space / A / Start activate it, 1-4 answer directly, Esc / B backs out.
+    _isShown: function(el) {
+        if (!el || el.disabled) return false;
+        if (el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return false;
+        return getComputedStyle(el).visibility !== 'hidden';
+    },
+
+    _openOverlay: function() {
+        return ['abandon-overlay', 'rules-overlay', 'changelog-overlay', 'feedback-overlay']
+            .map(id => document.getElementById(id))
+            .find(el => el && !el.classList.contains('hidden')) || null;
+    },
+
+    _clickables: function() {
+        const root = this._openOverlay() || document;
+        return Array.from(root.querySelectorAll('button, .planet-card, .char-card'))
+            .filter(el => el.id !== 'mute-btn' && this._isShown(el));
+    },
+
+    _setPadFocus: function(el) {
+        if (this._padFocus) this._padFocus.classList.remove('pad-focus');
+        this._padFocus = el || null;
+        if (el) {
+            el.classList.add('pad-focus');
+            el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
+    },
+
+    _validPadFocus: function(items) {
+        return this._padFocus && items.includes(this._padFocus) ? this._padFocus : null;
+    },
+
+    _defaultFocus: function(items) {
+        // Start the highlight on the thing that matters on this screen, not the HUD buttons
+        const preferred = ['#feedback-close-btn', '#feedback-menu-btn', '#answer-grid button', '#planet-options .planet-card',
+            '#boss-category-grid .category-btn', '.char-card', '#shop-offers button', '#buddy-offers button', '#event-options button'];
+        for (const sel of preferred) {
+            const hit = items.find(el => el.matches(sel));
+            if (hit) return hit;
+        }
+        return items[0] || null;
+    },
+
+    _introShowing: function() {
+        return this.introScreen && !this.introScreen.classList.contains('hidden');
+    },
+
+    inputMove: function(dx, dy) {
+        const items = this._clickables();
+        const cur = this._validPadFocus(items);
+        if (!cur) { this._setPadFocus(this._defaultFocus(items)); return; }
+        const r = cur.getBoundingClientRect();
+        const ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+        let best = null, bestScore = Infinity;
+        items.forEach(el => {
+            if (el === cur) return;
+            const c = el.getBoundingClientRect();
+            const vx = c.left + c.width / 2 - ox, vy = c.top + c.height / 2 - oy;
+            const primary = dx ? vx * dx : vy * dy;
+            if (primary <= 1) return;
+            const score = primary + 2 * (dx ? Math.abs(vy) : Math.abs(vx));
+            if (score < bestScore) { bestScore = score; best = el; }
+        });
+        if (best) this._setPadFocus(best);
+    },
+
+    inputActivate: function() {
+        if (this._introShowing()) { if (this.introScreen.onclick) this.introScreen.onclick(); return; }
+        const items = this._clickables();
+        const cur = this._validPadFocus(items);
+        if (cur) { cur.click(); return; }
+        const cont = items.find(el => el.id === 'feedback-close-btn' || el.id === 'feedback-menu-btn');
+        if (cont) { cont.click(); return; }
+        this._setPadFocus(this._defaultFocus(items));
+    },
+
+    inputBack: function() {
+        if (this._introShowing()) { if (this.introScreen.onclick) this.introScreen.onclick(); return; }
+        const overlay = this._openOverlay();
+        if (!overlay) return;
+        if (overlay.id === 'abandon-overlay') this.closeAbandon();
+        else if (overlay.id === 'rules-overlay') this.closeRules();
+        else if (overlay.id === 'changelog-overlay') this.closeChangelog();
+    },
+
+    inputPick: function(n) {
+        if (this._openOverlay()) return;
+        const shown = id => { const el = document.getElementById(id); return el && !el.classList.contains('hidden') && el.offsetParent !== null; };
+        let target = null;
+        if (shown('trivia-box')) target = document.querySelectorAll('#answer-grid button')[n];
+        else if (shown('boss-ui')) target = document.querySelectorAll('#boss-category-grid .category-btn')[n];
+        else if (shown('choice-container')) target = document.querySelectorAll('#planet-options .planet-card')[n];
+        if (target && this._isShown(target)) target.click();
+    },
+
+    initInput: function() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const typing = e.target.matches && e.target.matches('input, textarea');
+            if (typing) {
+                if (e.key === 'Enter' && e.target.id === 'player-initials') {
+                    const submit = document.querySelector('button[onclick="gameState.submitScore()"]');
+                    if (submit && !submit.disabled) submit.click();
+                }
+                return;
+            }
+            this.ensureMusic();
+            const dirs = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+            if (dirs[e.key]) { e.preventDefault(); this.inputMove(...dirs[e.key]); return; }
+            if (e.repeat) return;
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.inputActivate(); }
+            else if (e.key === 'Escape') this.inputBack();
+            else if (e.key === 'm' || e.key === 'M') this.toggleMute();
+            else if (/^[1-4]$/.test(e.key)) this.inputPick(Number(e.key) - 1);
+            else if (this._introShowing()) this.inputActivate();
+        });
+        // Mouse users don't need the keyboard/controller highlight
+        document.addEventListener('mousedown', () => this._setPadFocus(null));
+
+        // Gamepad (standard mapping): A=0, B=1, Start=9, D-pad 12-15, left stick axes 0/1
+        let polling = false;
+        const prev = {};
+        let heldDir = null, nextRepeat = 0;
+        const poll = (now) => {
+            const pads = Array.from(navigator.getGamepads ? navigator.getGamepads() : []).filter(Boolean);
+            if (pads.length === 0) { polling = false; return; }
+            let dir = null;
+            pads.forEach(pad => {
+                const was = prev[pad.index] || [];
+                const pressed = pad.buttons.map(b => b.pressed);
+                const down = i => pressed[i] && !was[i];
+                if (down(0) || down(9)) this.inputActivate();
+                if (down(1)) this.inputBack();
+                prev[pad.index] = pressed;
+
+                const ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
+                if (dir) return;
+                if (pressed[12] || ay < -0.5) dir = 'up';
+                else if (pressed[13] || ay > 0.5) dir = 'down';
+                else if (pressed[14] || ax < -0.5) dir = 'left';
+                else if (pressed[15] || ax > 0.5) dir = 'right';
+            });
+            // Move once on press, then auto-repeat while held
+            if (dir !== heldDir) { heldDir = dir; nextRepeat = now + 350; if (dir) this._padDir(dir); }
+            else if (dir && now >= nextRepeat) { nextRepeat = now + 150; this._padDir(dir); }
+            requestAnimationFrame(poll);
+        };
+        window.addEventListener('gamepadconnected', () => {
+            if (!polling) { polling = true; requestAnimationFrame(poll); }
+        });
+    },
+
+    _padDir: function(dir) {
+        const v = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[dir];
+        this.inputMove(v[0], v[1]);
     },
 
     confirmAbandon: function() {
