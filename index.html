@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>A Trivial Adventure to the Galactic Core</title>
+    <meta name="description" content="A trivia roguelite: answer questions to fuel your ship from the Sol System to the Galactic Core. Runs take 5-20 minutes.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="A Trivial Adventure to the Galactic Core">
+    <meta property="og:description" content="A trivia roguelite: answer questions to fuel your ship from the Sol System to the Galactic Core. Runs take 5-20 minutes.">
+    <meta property="og:url" content="https://johnknaughton.github.io/TrivialAdventure2GalacticCoreGame/">
+    <meta property="og:image" content="https://johnknaughton.github.io/TrivialAdventure2GalacticCoreGame/assets/Pismis24.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" href="assets/location_planet.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -44,7 +52,7 @@
             <p class="crawl-text">
                 In 2030, Scientists figure out how to refine quantum energy 
                 from interstellar asteroids using pure trivia knowledge. <br><br>
-                Earth is stagnant and running out of resources.<br><br> You recieve a perplexing ping from the center of our Milky Way Galaxy... <br>
+                Earth is stagnant and running out of resources.<br><br> You receive a perplexing ping from the center of our Milky Way Galaxy... <br>
                 You commandeer the final ship, welcome to...
             </p>
         </div>
@@ -60,9 +68,6 @@
     </div>
 
     <div id="debug-controls" style="display: flex; justify-content: center; gap: 10px; margin: 10px 0;">
-        <button onclick="gameState.debugJumpToBoss()" style="background: #ff4444; color: white; padding: 8px 14px; border: none; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 0.8em;">
-            DEBUG: JUMP TO BOSS 3
-        </button>
         <button onclick="gameState.replayCinematic()" style="background: rgba(0,30,60,0.9); color: #00f2ff; padding: 8px 14px; border: 1px solid #00f2ff; cursor: pointer; font-family: 'Courier New', Courier, monospace; font-size: 0.8em;">
             OPENING CINEMATIC
         </button>
@@ -79,7 +84,7 @@
             </p>
         </div>
         <div class="info-box">
-            <p>OPERATIONAL RULES: <br> Each jump forward consumes 5 trivium and 5 food, running out of either results in systems faliure and ends the run. Choose categories to harvest their corresponding resources. Defeat the 3rd boss, in the Galactic Core, to win the game and record your final Trivium count in the Hall of Fame. Cheating is okay... if you learn!!! Photos from NASA Webb telescope
+            <p>OPERATIONAL RULES: <br> Each jump forward consumes food and trivium (more trivium in later sectors), running out of either results in systems failure and ends the run. Choose categories to harvest their corresponding resources. Defeat the 3rd boss, in the Galactic Core, to win the game and record your final Trivium count in the Hall of Fame. Cheating is okay... if you learn!!! Photos from NASA Webb telescope
             </p>
         </div>
     </div>
@@ -170,8 +175,6 @@
     <div id="shop-offers">
     </div>
     <button class="menu-btn" onclick="gameState.closeShop()">RESUME MISSION</button>
-</section>
-    
 </section>
 <section id="tavern-screen" class="view hidden">
     <h2 class="glow-text">THE COMET TAVERN</h2>
@@ -283,7 +286,7 @@
         <div id="ship-nose"></div>
     </div>
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
     <script src="questionbanks/questionBank.js"></script>
     <script src="questionbanks/questionBankHard.js"></script>
     <script src="questionbanks/StudyVocabulary.js"></script>
@@ -317,7 +320,7 @@
             Stage 3.5 — <b>Comet Tavern:</b> Recruit a crew buddy for free.<br>
             Stage 5.5 — <b>Random Event:</b> A unique encounter with choices and consequences.<br>
             Stage 7.5 — <b>Interstellar Outpost:</b> Spend credits on ship modules.<br>
-            Stage 10 — <b>Boss Encounter:</b> Choose a Hard category and answer correctly to advance. Wrong answer = total resource loss.</p>
+            Stage 10 — <b>Boss Encounter:</b> Choose a Hard category. Answer correctly for a big Trivium reward. In Sectors 1 and 2 a wrong answer earns nothing but you still advance; the final boss drains 30 Trivium per wrong answer until you beat it.</p>
 
             <p><span class="rules-heading">WINNING</span><br>
             Defeat the boss in Sector 3, Stage 10. Your final Trivium count is your score — submit it to the Galactic Hall of Fame.</p>

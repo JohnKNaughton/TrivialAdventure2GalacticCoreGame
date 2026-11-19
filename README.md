@@ -5,6 +5,8 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 
 Changelog:
+.78 Release polish: removed debug button, fixed outdated boss rules text and typos, fixed Hall of Fame close button when offline, escaped leaderboard names, pinned Supabase library version, added link preview and favicon
+
 .77 Added pilot to HOF selection, streaks, fixed end game leaderboard, stratify statistics questions
 
 .76 added hundreds of categories/questions to both banks, added more locations

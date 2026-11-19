@@ -772,6 +772,10 @@ const gameState = {
     }
 },
 
+escapeHtml: function(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+},
+
 filterScores: function(scores) {
     const counts = {};
     return scores.filter(s => {
@@ -795,9 +799,9 @@ buildHardcoreTableHtml: function(scores) {
         let modHtml = '';
         try { modHtml = JSON.parse(s.modules||'[]').map(id => { const m = this.shopModules.find(m=>m.id===id); return m ? `<span title="${m.name}" style="font-size:1.1em;">${m.icon}</span>` : ''; }).join(''); } catch(e) {}
         html += `<tr style="border-bottom:1px solid #222;">
-            <td style="text-align:left;padding:8px 5px;">${i+1}. ${s.name}</td>
+            <td style="text-align:left;padding:8px 5px;">${i+1}. ${this.escapeHtml(s.name)}</td>
             <td style="text-align:center;padding:4px 5px;"><div style="display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;">${crewHtml}${modHtml||(!crewHtml?'<span style="color:#444;font-size:0.75em;">—</span>':'')}</div></td>
-            <td style="text-align:right;color:${color};font-weight:bold;">${s.score.toLocaleString()}</td>
+            <td style="text-align:right;color:${color};font-weight:bold;">${Number(s.score).toLocaleString()}</td>
         </tr>`;
     });
     return html + '</table>';
@@ -822,9 +826,9 @@ buildStudySectionHtml: function(scores, label) {
             let modHtml = '';
             try { modHtml = JSON.parse(s.modules||'[]').map(id => { const m = this.shopModules.find(m=>m.id===id); return m ? `<span title="${m.name}" style="font-size:1em;">${m.icon}</span>` : ''; }).join(''); } catch(e) {}
             html += `<tr style="border-bottom:1px solid #1a1a2a;">
-                <td style="text-align:left;padding:5px;">${i+1}. ${s.name}</td>
+                <td style="text-align:left;padding:5px;">${i+1}. ${this.escapeHtml(s.name)}</td>
                 <td style="text-align:center;padding:3px 4px;"><div style="display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;">${crewHtml}${modHtml||(!crewHtml?'<span style="color:#444;font-size:0.75em;">—</span>':'')}</div></td>
-                <td style="text-align:right;color:${color};font-weight:bold;">${s.score.toLocaleString()}</td>
+                <td style="text-align:right;color:${color};font-weight:bold;">${Number(s.score).toLocaleString()}</td>
             </tr>`;
         });
         html += '</table>';
@@ -864,7 +868,8 @@ viewLeaderboard: async function() {
     };
 
     if (!supabase) {
-        msgEl.innerHTML = "<p style='color:#ff4444;'>Connection Error: Database blocked by browser tracking prevention.</p><br><button onclick=\"gameState.viewLeaderboard.__close()\">CLOSE</button>";
+        msgEl.innerHTML = "<p style='color:#ff4444;'>Connection Error: Database blocked by browser tracking prevention.</p><br><button>CLOSE</button>";
+        msgEl.querySelector('button').onclick = closeLeaderboard;
         return;
     }
 
@@ -899,7 +904,8 @@ viewLeaderboard: async function() {
         msgEl.querySelector('div:last-child button').onclick = closeLeaderboard;
     } catch (err) {
         console.error("Fetch Error:", err);
-        msgEl.innerHTML = `<p style='color:#ff4444;'>Failed to sync with Hall of Fame.</p><p style='color:#888;font-size:0.8em;'>${err.message || err}</p><br><button onclick="document.getElementById('feedback-overlay').classList.add('hidden')" style="margin-top:8px;">CLOSE</button>`;
+        msgEl.innerHTML = `<p style='color:#ff4444;'>Failed to sync with Hall of Fame.</p><p style='color:#888;font-size:0.8em;'>${this.escapeHtml(err.message || err)}</p><br><button style="margin-top:8px;">CLOSE</button>`;
+        msgEl.querySelector('button').onclick = closeLeaderboard;
     }
 },
 
