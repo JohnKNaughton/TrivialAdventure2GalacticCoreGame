@@ -418,7 +418,8 @@ body {
     cursor: help;
 }
 
-.tip:hover::after {
+.tip:hover::after,
+.tip.tip-open::after {
     content: attr(data-tooltip);
     position: absolute;
     top: calc(100% + 6px);
@@ -539,7 +540,8 @@ body {
     image-rendering: crisp-edges;
 }
 
-#pilot-sprite.tip:hover::after {
+#pilot-sprite.tip:hover::after,
+#pilot-sprite.tip.tip-open::after {
     top: auto;
     bottom: calc(100% + 6px);
 }
@@ -1375,4 +1377,50 @@ body {
         content: counter(answer) ". ";
         opacity: 0.5;
     }
+}
+
+/* ---- Touch: selected ship slot for tap-to-swap ---- */
+.slot.swap-selected {
+    outline: 2px solid #00ff88;
+    outline-offset: 2px;
+    box-shadow: 0 0 12px #00ff88;
+}
+
+/* Phones keep :hover "stuck" after a tap, so only show tooltips when tapped open */
+@media (hover: none) {
+    .tip:hover:not(.tip-open)::after,
+    .slot:hover::after { content: none; display: none; }
+}
+
+/* No double-tap-to-zoom delay on tappable things */
+button, .planet-card, .char-card, .slot { touch-action: manipulation; }
+
+/* ---- Phone layout fixes ---- */
+@media (max-width: 768px) {
+    /* Keep content scrollable past the floating mute button */
+    body { padding-bottom: 60px; }
+    #mute-btn { width: 36px; height: 36px; right: 8px; bottom: 8px; opacity: 0.85; }
+
+    /* Ship: shrink parts so crew + pilot + modules + nose fit a 360-390px screen */
+    #spaceship-floor { width: 100%; padding: 10px 12px; gap: 8px; }
+    #ship-engines { margin-left: 0; }
+    #ship-nose {
+        margin-right: 0;
+        border-left-width: 16px;
+        border-top-width: 26px;
+        border-bottom-width: 26px;
+        transform: scaleY(1.4);
+    }
+    #pilot-sprite { width: 56px; height: 56px; flex-shrink: 0; }
+    .slot { width: 38px; height: 38px; }
+    .slot-grid { gap: 5px; }
+
+    /* Events: stack the choices instead of three skinny columns */
+    #event-screen { padding: 10px 4px; }
+    #event-resources { font-size: 0.85rem; }
+    #event-options { flex-direction: column; align-items: stretch; }
+    .event-option { max-width: none; }
+
+    /* Big multi-line titles (e.g. victory) */
+    #feedback-title { font-size: 1.4rem; }
 }

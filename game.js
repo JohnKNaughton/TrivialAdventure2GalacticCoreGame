@@ -123,6 +123,7 @@ const gameState = {
         this.bgMusic.volume = 0.3;
         this.initMute();
         this.initInput();
+        this.initTouch();
 
         document.body.addEventListener('click', () => this.ensureMusic());
 
@@ -545,6 +546,7 @@ const gameState = {
         const sellPrice = 1;
         this.player.credits += sellPrice;
         arr[index] = null;
+        this._clearSwap();
         this.updateHUD();
         this.renderModules();
     },
@@ -2108,6 +2110,75 @@ viewLeaderboard: async function() {
         window.addEventListener('gamepadconnected', () => {
             if (!polling) { polling = true; requestAnimationFrame(poll); }
         });
+    },
+
+    // ---- TOUCH: tooltips + tap-to-swap (hover and drag-and-drop don't exist on phones) ----
+    initTouch: function() {
+        document.addEventListener('pointerdown', (e) => {
+            this._touchInput = e.pointerType === 'touch' || e.pointerType === 'pen';
+        }, true);
+        document.addEventListener('click', (e) => {
+            if (!this._touchInput) return;
+            // Tap a stat / pilot to toggle its tooltip; tapping anywhere else closes it
+            const tip = e.target.closest('.tip');
+            document.querySelectorAll('.tip.tip-open').forEach(t => { if (t !== tip) t.classList.remove('tip-open'); });
+            if (tip) tip.classList.toggle('tip-open');
+            this._handleSlotTap(e);
+        });
+    },
+
+    _slotInfo: function(slot) {
+        const m = slot.id.match(/^(crew|mod)-slot-(\d+)$/);
+        if (!m) return null;
+        const arrayType = m[1] === 'crew' ? 'crew' : 'module';
+        const index = Number(m[2]) - 1;
+        const arr = arrayType === 'crew' ? this.player.crew : this.player.modules;
+        return { arrayType, index, item: arr[index] };
+    },
+
+    _clearSwap: function() {
+        this._swapSel = null;
+        document.querySelectorAll('.slot.swap-selected').forEach(s => s.classList.remove('swap-selected'));
+        const tt = document.getElementById('slot-tooltip');
+        if (tt) tt.classList.add('hidden');
+    },
+
+    _handleSlotTap: function(e) {
+        if (e.target.closest('.sell-module-btn')) return;
+        const slot = e.target.closest('.slot');
+        const info = slot && this._slotInfo(slot);
+        const sel = this._swapSel;
+        if (!info) { if (sel) this._clearSwap(); return; }
+
+        // Second tap on another slot of the same kind: swap (like drag-and-drop on desktop)
+        if (sel && sel.arrayType === info.arrayType && sel.index !== info.index) {
+            const arr = info.arrayType === 'crew' ? this.player.crew : this.player.modules;
+            [arr[sel.index], arr[info.index]] = [arr[info.index], arr[sel.index]];
+            this._clearSwap();
+            this.renderModules();
+            this.updateHUD();
+            return;
+        }
+        const sameSlot = sel && sel.arrayType === info.arrayType && sel.index === info.index;
+        this._clearSwap();
+        if (sameSlot || !info.item) return;
+
+        // First tap: select it and show its info card above the slot
+        this._swapSel = { arrayType: info.arrayType, index: info.index };
+        slot.classList.add('swap-selected');
+        const tt = document.getElementById('slot-tooltip');
+        const img = document.getElementById('slot-tooltip-img');
+        const txt = document.getElementById('slot-tooltip-text');
+        if (tt && img && txt) {
+            const item = info.item;
+            img.innerHTML = item.gif ? `<img src="${item.gif}" alt="${item.name}">` : `<span>${item.icon || ''}</span>`;
+            txt.innerText = `${item.name}\n${item.desc}\nTap another slot to move it.`;
+            tt.classList.remove('hidden');
+            const r = slot.getBoundingClientRect();
+            const w = tt.offsetWidth || 190, h = tt.offsetHeight || 180;
+            tt.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+            tt.style.top = Math.max(8, r.top - h - 8) + 'px';
+        }
     },
 
     _padDir: function(dir) {
