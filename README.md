@@ -5,6 +5,7 @@ Second Version of Self-Made Trivia Roguelike, expanding on the simple html versi
 
 
 Changelog:
+.77 Added pilot to HOF selection, streaks, fixed end game leaderboard, stratify statistics questions
 
 .76 added hundreds of categories/questions to both banks, added more locations
 
